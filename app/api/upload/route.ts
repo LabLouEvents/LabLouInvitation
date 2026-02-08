@@ -1,5 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+rm -f app/api/upload/route.ts
+mkdir -p app/api/upload
 
-export async function POST(req: NextRequest) {
-  return NextResponse.json({ success: true });
+cat > app/api/upload/route.ts <<'EOF'
+import { NextResponse } from "next/server";
+
+export async function POST() {
+  return NextResponse.json({ ok: true });
 }
+EOF
