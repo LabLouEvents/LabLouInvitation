@@ -21,24 +21,25 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ======================================
-     LOAD EVENTS LIST (dropdown)
-  ====================================== */
+  /* ================= LOAD EVENTS (dropdown) ================= */
 
   async function loadEventsList() {
+    setError("");
+
     const { data, error } = await supabase
       .from("events")
       .select("slug,title")
       .order("created_at", { ascending: false });
 
-    if (error) return setError(error.message);
+    if (error) {
+      setError(error.message);
+      return;
+    }
 
-    setEventsList(data || []);
+    setEventsList((data as EventRow[]) || []);
   }
 
-  /* ======================================
-     LOAD RSVPs
-  ====================================== */
+  /* ================= LOAD RSVPs ================= */
 
   async function loadRSVPs() {
     setLoading(true);
@@ -61,27 +62,30 @@ export default function AdminPage() {
     setLoading(false);
   }
 
-  /* ======================================
-     EFFECTS
-  ====================================== */
+  /* ================= EFFECTS ================= */
 
   useEffect(() => {
     loadEventsList();
     loadRSVPs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     loadRSVPs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlug]);
 
-  /* ======================================
-     HELPERS
-  ====================================== */
+  /* ================= HELPERS ================= */
 
   const exportHref =
     selectedSlug === "all"
       ? "/api/admin/export"
       : `/api/admin/export?slug=${encodeURIComponent(selectedSlug)}`;
+
+  const editEventsHref =
+    selectedSlug === "all"
+      ? "/admin/events"
+      : `/admin/events?slug=${encodeURIComponent(selectedSlug)}`;
 
   const selectedEventTitle = useMemo(() => {
     if (selectedSlug === "all") return "Όλα τα events";
@@ -89,44 +93,21 @@ export default function AdminPage() {
     return ev?.title ? `${ev.title} (${ev.slug})` : selectedSlug;
   }, [eventsList, selectedSlug]);
 
-  /* ======================================
-     UI
-  ====================================== */
+  /* ================= UI ================= */
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      {/* ================= HEADER ================= */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <h1 style={{ margin: 0 }}>RSVP Admin</h1>
+      {/* HEADER (Logout υπάρχει στο Layout) */}
+      <h1 style={{ marginBottom: 20 }}>RSVP Admin</h1>
 
-        {/* 🔒 LOGOUT */}
-        <a
-          href="/admin/logout"
-          className="e-btn"
-          style={{
-            width: "auto",
-            padding: "10px 16px",
-            textDecoration: "none",
-          }}
-        >
-          Logout
-        </a>
-      </div>
-
-      {/* ================= CONTROLS ================= */}
+      {/* CONTROLS */}
       <div
         style={{
           display: "flex",
           gap: 12,
           flexWrap: "wrap",
           marginBottom: 14,
+          alignItems: "center",
         }}
       >
         {/* Dropdown events */}
@@ -145,6 +126,7 @@ export default function AdminPage() {
           ))}
         </select>
 
+        {/* Refresh */}
         <button
           onClick={loadRSVPs}
           style={{
@@ -156,6 +138,20 @@ export default function AdminPage() {
         >
           Ανανέωση
         </button>
+
+        {/* ✅ NEW: Button to Events editor */}
+        <a
+          href={editEventsHref}
+          className="e-btn"
+          style={{
+            width: "auto",
+            padding: "10px 16px",
+            textDecoration: "none",
+          }}
+          title="Άνοιγμα επεξεργασίας events"
+        >
+          Edit Events
+        </a>
 
         {/* Export CSV */}
         <a
@@ -175,8 +171,6 @@ export default function AdminPage() {
         Προβολή: <b>{selectedEventTitle}</b>
       </div>
 
-      {/* ================= STATES ================= */}
-
       {loading && <div>Φορτώνει…</div>}
 
       {error && (
@@ -185,8 +179,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ================= TABLE ================= */}
-
+      {/* TABLE */}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
@@ -205,6 +198,8 @@ export default function AdminPage() {
                     textAlign: "left",
                     padding: 10,
                     borderBottom: "1px solid #ddd",
+                    whiteSpace: "nowrap",
+                    fontSize: 14,
                   }}
                 >
                   {h}
@@ -215,9 +210,8 @@ export default function AdminPage() {
 
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id}>
-                {/* ΜΟΝΟ ημερομηνία */}
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
+              <tr key={r.id ?? `${r.slug}_${r.created_at}_${r.name}`}>
+                <td style={{ padding: 10, borderBottom: "1px solid #eee", whiteSpace: "nowrap" }}>
                   {r.created_at
                     ? new Date(r.created_at).toLocaleDateString("el-GR")
                     : ""}
@@ -240,7 +234,7 @@ export default function AdminPage() {
                 </td>
 
                 <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.attending ? r.allergies : ""}
+                  {r.attending ? (r.allergies || "") : ""}
                 </td>
               </tr>
             ))}

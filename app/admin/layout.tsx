@@ -14,16 +14,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div style={{ fontWeight: 700 }}>Admin</div>
   
           <a
-            href="/api/admin/logout"
-            className="e-btn"
-            style={{
-              width: "auto",
-              padding: "10px 16px",
-              textDecoration: "none",
-            }}
-          >
-            Logout
-          </a>
+  href="/api/admin/logout"
+  className="e-btn"
+  style={{ width: "auto", padding: "10px 16px", textDecoration: "none" }}
+>
+  Logout
+</a>
         </div>
   
         <div style={{ padding: 24 }}>{children}</div>

@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const { user, pass } = await req.json();
+export async function GET(req: Request) {
+  const url = new URL(req.url);
 
-  const USER = process.env.ADMIN_USER;
-  const PASS = process.env.ADMIN_PASS;
+  const res = NextResponse.redirect(new URL("/admin/login", url));
 
-  if (user === USER && pass === PASS) {
-    const res = NextResponse.json({ ok: true });
+  // ✅ σβήνουμε το cookie (ίδια path)
+  res.cookies.set("admin-auth", "", {
+    httpOnly: true,
+    path: "/",
+    maxAge: 0,
+    sameSite: "lax",
+  });
 
-    res.cookies.set("admin-auth", "ok", {
-      httpOnly: true,
-      path: "/",
-    });
-
-    return res;
-  }
-
-  return NextResponse.json({ ok: false }, { status: 401 });
+  return res;
 }
