@@ -1,10 +1,5 @@
-rm -f app/api/upload/route.ts
-mkdir -p app/api/upload
+import { NextRequest, NextResponse } from "next/server";
 
-cat > app/api/upload/route.ts <<'EOF'
-import { NextResponse } from "next/server";
-
-export async function POST() {
-  return NextResponse.json({ ok: true });
+export async function POST(req: NextRequest) {
+  return NextResponse.json({ success: true });
 }
-EOF
