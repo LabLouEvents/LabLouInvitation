@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "demo",
+    "name": "Μαριλία Σταυριανάκου",
+    "attending": "Ναι",
+    "peopleCount": 2,
+    "allergies": "φακές",
+    "createdAt": "2026-02-06T23:11:07.728Z"
+  },
+  {
+    "slug": "demo",
+    "name": "Μαριλία Σταυριανάκου",
+    "attending": "Ναι",
+    "peopleCount": 0,
+    "allergies": "Φακές",
+    "createdAt": "2026-02-06T23:17:39.350Z"
+  }
+]

@@ -2,26 +2,276 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===============================
+   ELEGANT THEME – GLOBALS
+   =============================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gold-1: #d7c18a;
+  --gold-2: #b89b5e;
+  --gold-3: #8f6b2f;
+
+  --ivory: #F7F1E8;
+  --card: rgba(255,255,255,0.8);
+
+  --font-elegant: var(--font-cormorant);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base body */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--ivory);
+  color: #2b2b2b;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* ===============================
+   TYPOGRAPHY
+   =============================== */
+
+.elegant-title {
+  font-family: var(--font-elegant);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.elegant-text {
+  font-family: var(--font-elegant);
+  font-weight: 400;
+}
+
+/* ===============================
+   LAYOUT / CARDS
+   =============================== */
+
+.e-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+
+  /* mobile-safe padding */
+  padding-left: 16px;
+  padding-right: 16px;
+
+  /* iPhone safe areas (notch etc.) */
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
+}
+
+.e-card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(184, 155, 94, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(6px);
+}
+
+/* Cover image base */
+.e-cover {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+
+/* ===============================
+   GOLD LINKS (smooth gold glow)
+   =============================== */
+
+   .e-link{
+    color: var(--gold-2);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  
+    margin-top: 10px;
+  
+    transition:
+      color 180ms ease,
+      transform 180ms ease,
+      text-shadow 180ms ease,
+      opacity 180ms ease;
   }
+  
+  .e-link::after{
+    content: "›";
+    opacity: 0.75;
+    transform: translateY(-1px);
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+  
+  /* hover μόνο σε desktop (όχι κινητά) */
+  @media (hover: hover) and (pointer: fine){
+    .e-link:hover{
+      color: var(--gold-3);
+      transform: translateY(-2px);
+      text-shadow: 0 8px 22px rgba(184,155,94,0.30);
+    }
+  
+    .e-link:hover::after{
+      transform: translate(4px,-1px);
+      opacity: 1;
+    }
+  }
+  
+  /* keyboard focus */
+  .e-link:focus-visible{
+    outline: none;
+    border-radius: 8px;
+    box-shadow: 0 0 0 3px rgba(184,155,94,0.18);
+  }
+
+/* ===============================
+   RSVP BUTTON (GOLD GRADIENT)
+   =============================== */
+
+.e-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--gold-1),
+    var(--gold-2),
+    var(--gold-3)
+  );
+  box-shadow: 0 10px 22px rgba(184, 155, 94, 0.28);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.e-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(184, 155, 94, 0.35);
+}
+
+.e-btn:active {
+  transform: translateY(0);
+}
+
+/* ===============================
+   INPUTS / SELECTS
+   =============================== */
+
+   .e-input,
+   .e-select{
+     width: 100%;
+     padding: 12px 14px;
+     margin-top: 6px;
+     border-radius: 14px;
+     border: 1px solid rgba(184, 155, 94, 0.3);
+     background: rgba(255, 255, 255, 0.95);
+     outline: none;
+   
+     font-size: 16px; /* σημαντικό για iPhone: αποφεύγει auto-zoom */
+     line-height: 1.2;
+   
+     transition: box-shadow 160ms ease, border-color 160ms ease;
+   }
+   
+   .e-input:focus,
+   .e-select:focus{
+     border-color: rgba(184, 155, 94, 0.6);
+     box-shadow: 0 0 0 3px rgba(184, 155, 94, 0.18);
+   }
+
+.e-input:focus,
+.e-select:focus {
+  border-color: rgba(184, 155, 94, 0.6);
+  box-shadow: 0 0 0 3px rgba(184, 155, 94, 0.18);
+}
+
+/* ===============================
+   MOBILE POLISH
+   =============================== */
+
+@media (max-width: 420px) {
+  .e-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .e-cover {
+    border-radius: 12px;
+  }
+
+  .elegant-title {
+    font-size: 28px;
+    line-height: 1.15;
+  }
+
+  .elegant-text {
+    font-size: 14px;
+  }
+}
+/* ===== Elegant reveal animations ===== */
+@keyframes eFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.e-reveal {
+  opacity: 0;
+  animation: eFadeUp 520ms ease forwards;
+}
+
+/* μικρές καθυστερήσεις (stagger) */
+.e-delay-1 { animation-delay: 80ms; }
+.e-delay-2 { animation-delay: 160ms; }
+.e-delay-3 { animation-delay: 240ms; }
+.e-delay-4 { animation-delay: 320ms; }
+
+/* σεβασμός σε όσους δεν θέλουν animations */
+@media (prefers-reduced-motion: reduce) {
+  .e-reveal, .e-delay-1, .e-delay-2, .e-delay-3, .e-delay-4 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+/* ===== Calendar buttons layout ===== */
+.e-btn-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.e-btn-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.e-btn-link{
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.e-btn-small {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #e9dfcf;
+  cursor: pointer;
+  font-size: 13px;
+}
+.e-countdown{
+  margin-top: 12px;
+  font-family: var(--font-elegant);
+  color: #2b2b2b;
+}
+
+.e-pill{
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(184,155,94,0.25);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.04);
 }
