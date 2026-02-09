@@ -28,6 +28,8 @@ type EventFull = {
 
   rsvp_deadline: string | null; // DD/MM/YYYY
   extra_note: string | null;
+
+  share_token: string | null; // ✅ για share link
 };
 
 /* =========================
@@ -46,7 +48,9 @@ function isoToLocalInput(iso?: string | null) {
   if (!iso) return "";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
 }
 
 // datetime-local → ISO με timezone offset
@@ -69,11 +73,12 @@ function localInputToISOWithOffset(localValue: string) {
 }
 
 function emptyEvent(slug: string): EventFull {
-  // default start = σήμερα σε 18:00
   const now = new Date();
   now.setHours(18, 0, 0, 0);
   const pad = (n: number) => String(n).padStart(2, "0");
-  const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(
+    now.getHours()
+  )}:${pad(now.getMinutes())}`;
 
   return {
     slug,
@@ -96,12 +101,10 @@ function emptyEvent(slug: string): EventFull {
 
     rsvp_deadline: "",
     extra_note: "",
+
+    share_token: null,
   };
 }
-
-/* =========================
-   page
-========================= */
 
 export default function AdminEventsPage() {
   const [list, setList] = useState<EventRow[]>([]);
@@ -150,11 +153,10 @@ export default function AdminEventsPage() {
 
   async function createNew() {
     if (!newTitle.trim()) return alert("Γράψε τίτλο για το νέο event 🙂");
-    if (!newSlug) return alert("Δεν βγαίνει slug από τον τίτλο (γράψε κάτι πιο απλό) 🙂");
+    if (!newSlug) return alert("Δεν βγαίνει slug από τον τίτλο 🙂");
 
     setCreating(true);
     try {
-      // δημιουργούμε με ελάχιστα mandatory
       const payload = emptyEvent(newSlug);
       payload.title = newTitle.trim();
 
@@ -263,9 +265,15 @@ export default function AdminEventsPage() {
     }
   }
 
-  /* =========================
-     UI
-  ========================= */
+  function copyShareLink() {
+    if (!e?.slug || !e?.share_token) {
+      alert("Το event δεν έχει share token ακόμα. Κάνε Save και ξαναδοκίμασε 🙂");
+      return;
+    }
+    const link = `${window.location.origin}/e/${e.slug}?t=${e.share_token}`;
+    navigator.clipboard.writeText(link);
+    alert("Share link αντιγράφηκε ✅");
+  }
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 18, padding: 20 }}>
@@ -336,6 +344,24 @@ export default function AdminEventsPage() {
           <div style={{ opacity: 0.7 }}>Διάλεξε ένα event από αριστερά ή φτιάξε νέο.</div>
         ) : (
           <div style={{ display: "grid", gap: 10, maxWidth: 760 }}>
+            {/* SHARE */}
+            <div style={{ padding: 12, border: "1px solid #ddd", borderRadius: 12 }}>
+              <div style={{ fontWeight: 700, marginBottom: 6 }}>Share Link</div>
+              <div style={{ fontSize: 12, opacity: 0.7, wordBreak: "break-all" }}>
+                {e.share_token
+                  ? `${typeof window !== "undefined" ? window.location.origin : ""}/e/${e.slug}?t=${e.share_token}`
+                  : "(θα δημιουργηθεί αυτόματα)"}
+              </div>
+              <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+                <button onClick={copyShareLink} style={{ padding: "8px 12px" }}>
+                  Copy Share Link
+                </button>
+                <a href={`/e/${e.slug}`} target="_blank" rel="noreferrer" style={{ padding: "8px 12px" }}>
+                  Preview
+                </a>
+              </div>
+            </div>
+
             {/* BASIC */}
             <label>
               Title
@@ -478,7 +504,7 @@ export default function AdminEventsPage() {
             <hr />
 
             {/* ACTIONS */}
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <button onClick={save} disabled={saving} style={{ padding: "10px 14px" }}>
                 {saving ? "Saving…" : "Save"}
               </button>
@@ -486,10 +512,6 @@ export default function AdminEventsPage() {
               <button onClick={del} style={{ padding: "10px 14px", background: "#d33", color: "white", border: 0 }}>
                 Delete
               </button>
-
-              <a href={`/e/${e.slug}`} target="_blank" rel="noreferrer" style={{ padding: "10px 14px" }}>
-                Preview
-              </a>
             </div>
           </div>
         )}

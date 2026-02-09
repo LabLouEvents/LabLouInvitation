@@ -1,48 +1,61 @@
 import Countdown from "./Countdown";
 import RSVPForm from "./RSVPForm";
-import { createClient } from "@supabase/supabase-js";
 
 function toGoogleDate(iso: string) {
-  // Google Calendar wants: YYYYMMDDTHHmmssZ
   return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
 
-function addHoursKeepISO(iso: string, hours: number) {
+function addHours(iso: string, hours: number) {
   const d = new Date(iso);
   d.setHours(d.getHours() + hours);
-  // κρατάμε ISO (UTC). Για Google Calendar είναι οκ.
   return d.toISOString();
 }
 
-export default async function EventPage({ params }: { params: { slug: string } }) {
-  const slug = params.slug || "demo";
+export default async function EventPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { t?: string };
+}) {
+  const slug = params.slug;
+  const t = searchParams?.t || "";
 
-  // ✅ Read με ANON KEY (σωστό για page)
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  // ✅ Αν δεν έχει token, δεν δίνουμε πρόσβαση
+  if (!t) {
+    return (
+      <div style={{ padding: 40, fontFamily: "system-ui" }}>
+        <h2>Δεν έχεις πρόσβαση</h2>
+        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
+      </div>
+    );
+  }
+
+  // ✅ Φέρνουμε event μόνο με slug + token
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    { cache: "no-store" }
   );
 
-  const { data: event, error } = await supabase
-    .from("events")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
+  const data = await res.json();
 
-  if (error || !event) {
-    return <div style={{ padding: 40 }}>Δεν βρέθηκε event.</div>;
+  if (!res.ok || !data.ok || !data.event) {
+    return (
+      <div style={{ padding: 40, fontFamily: "system-ui" }}>
+        Δεν βρέθηκε event ή δεν έχεις πρόσβαση.
+      </div>
+    );
   }
+
+  const event = data.event;
 
   const isElegant = event.template === "elegant";
 
-  // ✅ Αν δεν έχει end_iso, βάζουμε +2 ώρες
-  const startISO: string = event.start_iso;
-  const endISO: string = event.end_iso || addHoursKeepISO(event.start_iso, 2);
+  const startISO = event.start_iso;
+  const endISO = event.end_iso || addHours(event.start_iso, 2);
 
-  // ✅ Φωτογραφία
-  const coverSrc: string = event.cover_image_url || event.cover_image || "";
+  const coverSrc = event.cover_image || "";
 
-  // ✅ Google Calendar url
   const gcalUrl =
     "https://calendar.google.com/calendar/render?action=TEMPLATE" +
     `&text=${encodeURIComponent(event.title)}` +
@@ -62,7 +75,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
     >
       <div className="e-wrap">
         {/* COVER */}
-        <div className="e-card e-reveal e-delay-1" style={{ marginBottom: 16, padding: 12 }}>
+        <div className="e-card e-reveal e-delay-1" style={{ marginBottom: 20, padding: 12 }}>
           {coverSrc ? (
             <img className="e-cover" src={coverSrc} alt={event.title} />
           ) : (
@@ -72,11 +85,8 @@ export default async function EventPage({ params }: { params: { slug: string } }
           )}
         </div>
 
-        {/* ✅ COUNTDOWN (κάτω από τη φωτογραφία) */}
-        {startISO && <Countdown startISO={startISO} />}
-
         {/* TITLE */}
-        <div className="e-reveal e-delay-2" style={{ marginTop: 20, textAlign: "center" }}>
+        <div className="e-reveal e-delay-2" style={{ marginTop: 24, textAlign: "center" }}>
           <h1 className="elegant-title" style={{ margin: 0 }}>
             {event.title}
           </h1>
@@ -98,18 +108,22 @@ export default async function EventPage({ params }: { params: { slug: string } }
           />
         </div>
 
+        {/* COUNTDOWN (αν υπάρχει component) */}
+        {event.start_iso && (
+          <div className="e-card e-reveal e-delay-3" style={{ marginTop: 18 }}>
+            <Countdown targetISO={event.start_iso} />
+          </div>
+        )}
+
         {/* DETAILS */}
         <div style={{ display: "grid", gap: 18, marginTop: 28 }}>
-          {/* CHURCH */}
           <div className="e-card e-reveal e-delay-3">
             <h3 className="elegant-title" style={{ marginTop: 0 }}>
               Εκκλησία
             </h3>
 
             <div>{event.church_name}</div>
-            {event.church_address && (
-              <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>
-            )}
+            {event.church_address && <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>}
 
             {event.church_map_url && (
               <a className="e-link" href={event.church_map_url} target="_blank" rel="noreferrer">
@@ -118,16 +132,13 @@ export default async function EventPage({ params }: { params: { slug: string } }
             )}
           </div>
 
-          {/* VENUE */}
           <div className="e-card e-reveal e-delay-4">
             <h3 className="elegant-title" style={{ marginTop: 0 }}>
               Κέντρο
             </h3>
 
             <div>{event.venue_name}</div>
-            {event.venue_address && (
-              <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>
-            )}
+            {event.venue_address && <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>}
 
             {event.venue_map_url && (
               <a className="e-link" href={event.venue_map_url} target="_blank" rel="noreferrer">
@@ -158,7 +169,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
             }}
           />
 
-          {/* ✅ Calendar buttons */}
+          {/* Calendar buttons */}
           {startISO && (
             <>
               <a
@@ -191,7 +202,6 @@ export default async function EventPage({ params }: { params: { slug: string } }
           <RSVPForm slug={slug} />
         </div>
 
-        {/* EXTRA NOTE */}
         {event.extra_note && (
           <div
             className="elegant-text e-reveal e-delay-4"
