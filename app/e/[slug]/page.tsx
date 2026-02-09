@@ -111,7 +111,7 @@ export default async function EventPage({
         {/* COUNTDOWN (αν υπάρχει component) */}
         {event.start_iso && (
           <div className="e-card e-reveal e-delay-3" style={{ marginTop: 18 }}>
-            <Countdown targetISO={event.start_iso} />
+<Countdown startISO={event.start_iso} />
           </div>
         )}
 
