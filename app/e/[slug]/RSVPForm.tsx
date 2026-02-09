@@ -20,11 +20,10 @@ export default function RSVPForm({ slug }: { slug: string }) {
     setLoading(true);
 
     try {
-      // ✅ Στέλνουμε boolean στο API
       const payload = {
         slug,
         name: name.trim(),
-        attending: attending === "Ναι", // true/false
+        attending: attending === "Ναι", // boolean
         guests: attending === "Ναι" ? Number(guests) || 1 : 0,
         allergies: attending === "Ναι" ? allergies.trim() : "",
       };
@@ -38,7 +37,10 @@ export default function RSVPForm({ slug }: { slug: string }) {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        alert("Σφάλμα στο RSVP:\n" + (data?.error || JSON.stringify(data) || "Unknown error"));
+        alert(
+          "Σφάλμα στο RSVP:\n" +
+            (data?.error || JSON.stringify(data) || "Unknown error")
+        );
         return;
       }
 

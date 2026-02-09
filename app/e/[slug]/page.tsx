@@ -2,6 +2,7 @@ import Countdown from "./Countdown";
 import RSVPForm from "./RSVPForm";
 
 function toGoogleDate(iso: string) {
+  // Google Calendar wants: YYYYMMDDTHHmmssZ
   return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
 
@@ -32,14 +33,18 @@ export default async function EventPage({
   }
 
   // ✅ Φέρνουμε event μόνο με slug + token
+  // Προτιμάμε absolute URL στο production (NEXT_PUBLIC_SITE_URL), αλλιώς δουλεύει και local.
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || "";
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
-  const data = await res.json();
+  const data = await res.json().catch(() => null);
 
-  if (!res.ok || !data.ok || !data.event) {
+  if (!res.ok || !data?.ok || !data?.event) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         Δεν βρέθηκε event ή δεν έχεις πρόσβαση.
@@ -47,13 +52,15 @@ export default async function EventPage({
     );
   }
 
-  const event = data.event;
+  const event = data.event as any;
 
   const isElegant = event.template === "elegant";
 
+  // ✅ Αν δεν έχει end_iso, βάζουμε +2 ώρες για τα calendar links
   const startISO = event.start_iso;
   const endISO = event.end_iso || addHours(event.start_iso, 2);
 
+  // ✅ Φωτογραφία (στήλη cover_image)
   const coverSrc = event.cover_image || "";
 
   const gcalUrl =
@@ -62,7 +69,8 @@ export default async function EventPage({
     `&dates=${toGoogleDate(startISO)}/${toGoogleDate(endISO)}` +
     `&details=${encodeURIComponent(event.subtitle || "")}` +
     `&location=${encodeURIComponent(
-      (event.church_name || "") + (event.church_address ? ", " + event.church_address : "")
+      (event.church_name || "") +
+        (event.church_address ? ", " + event.church_address : "")
     )}`;
 
   return (
@@ -108,10 +116,10 @@ export default async function EventPage({
           />
         </div>
 
-        {/* COUNTDOWN (αν υπάρχει component) */}
+        {/* COUNTDOWN */}
         {event.start_iso && (
           <div className="e-card e-reveal e-delay-3" style={{ marginTop: 18 }}>
-<Countdown startISO={event.start_iso} />
+            <Countdown startISO={event.start_iso} />
           </div>
         )}
 
@@ -123,7 +131,9 @@ export default async function EventPage({
             </h3>
 
             <div>{event.church_name}</div>
-            {event.church_address && <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>}
+            {event.church_address && (
+              <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>
+            )}
 
             {event.church_map_url && (
               <a className="e-link" href={event.church_map_url} target="_blank" rel="noreferrer">
@@ -138,7 +148,9 @@ export default async function EventPage({
             </h3>
 
             <div>{event.venue_name}</div>
-            {event.venue_address && <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>}
+            {event.venue_address && (
+              <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>
+            )}
 
             {event.venue_map_url && (
               <a className="e-link" href={event.venue_map_url} target="_blank" rel="noreferrer">

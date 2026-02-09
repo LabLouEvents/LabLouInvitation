@@ -39,9 +39,24 @@ export async function PATCH(req: Request) {
     const update: any = { ...body };
     delete update.slug;
 
-    // Δεν θέλουμε να αλλάζει τυχαία το share_token από λάθος
-    // (αν θες “Regenerate token” θα το κάνουμε ξεχωριστό κουμπί)
+    // Δεν θέλουμε να αλλάζει τυχαία το share_token από client
     if ("share_token" in update) delete update.share_token;
+
+    // ✅ Φέρνουμε το υπάρχον token
+    const { data: existing, error: readErr } = await supabase
+      .from("events")
+      .select("share_token")
+      .eq("slug", slug)
+      .single();
+
+    if (readErr) {
+      return NextResponse.json({ ok: false, error: readErr.message }, { status: 500 });
+    }
+
+    // ✅ Αν δεν έχει token, το δημιουργούμε ΜΙΑ φορά και το γράφουμε
+    if (!existing?.share_token) {
+      update.share_token = crypto.randomBytes(16).toString("hex");
+    }
 
     const { error } = await supabase.from("events").update(update).eq("slug", slug);
 
