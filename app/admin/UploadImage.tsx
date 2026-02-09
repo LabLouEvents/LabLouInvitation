@@ -1,9 +1,5 @@
-"use client"
+"use client";
 
 export default function UploadImage() {
-  return (
-    <div>
-      Upload works ✅
-    </div>
-  )
+  return <div>Upload works ✅</div>;
 }
