@@ -24,7 +24,7 @@ export default function CollageNav({ images }: CollageNavProps) {
           onClick={() => setActive(img.src)}
           style={{
             position: "absolute",
-            top: index * 55,
+            top: index * 90,
             left: index * 45,
             width: "86%",
             maxWidth: 680,
