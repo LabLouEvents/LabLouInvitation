@@ -5,7 +5,6 @@ import Countdown from "./Countdown";
 
 type EventFull = {
   slug: string;
-  template: "elegant" | "playful";
   title: string;
   subtitle?: string | null;
   inviter_names?: string | null;
@@ -29,7 +28,7 @@ export default function EventClient({
 }) {
   const inviter = useMemo(() => {
     return (event.inviter_names || event.subtitle || event.title || "").trim();
-  }, [event.inviter_names, event.subtitle, event.title]);
+  }, [event]);
 
   const [showIntro, setShowIntro] = useState(true);
 
@@ -45,16 +44,16 @@ export default function EventClient({
       localStorage.setItem(storageKey(slug, t), "1");
     } catch {}
     setShowIntro(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   }
 
-  /* =========================
+  /* ===================================================
      INTRO SCREEN
-  ========================= */
+  =================================================== */
 
   if (showIntro) {
-    const pageBg = "/intro/background.jpg";
-    const envelopeImg = "/intro/envelope.png";
+    const pageBg = "/intro/background.jpg";   // 👈 βάλε εδώ τη φωτογραφία σου (public/intro/)
+    const envelopeImg = "/intro/envelope.png"; // 👈 ο φάκελος (public/intro/)
 
     return (
       <div
@@ -76,35 +75,35 @@ export default function EventClient({
           style={{
             fontSize: 13,
             letterSpacing: 1,
-            marginBottom: 20,
-            color: "#ffffff",
-            textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+            marginBottom: 18,
+            fontWeight: 600,
+            color: "white",
+            textShadow: "0 2px 10px rgba(0,0,0,0.6)",
           }}
         >
           LAB LOU INVITATIONS
         </div>
 
-        {/* Envelope (κανονικό σχήμα) */}
+        {/* Envelope - ΚΑΝΟΝΙΚΟ ΣΧΗΜΑ */}
         <img
           src={envelopeImg}
           alt="Envelope"
           style={{
-            width: "min(80vw, 520px)",
+            width: "min(85vw, 520px)",
             height: "auto",
             objectFit: "contain",
-            display: "block",
             marginBottom: 40,
-            filter: "drop-shadow(0 20px 35px rgba(0,0,0,0.25))",
+            filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.25))",
           }}
         />
 
-        {/* Text κάτω από φάκελο */}
+        {/* Text κάτω από τον φάκελο */}
         <div
           style={{
             textAlign: "center",
-            color: "#ffffff",
-            textShadow: "0 2px 10px rgba(0,0,0,0.5)",
-            maxWidth: 620,
+            color: "white",
+            textShadow: "0 3px 12px rgba(0,0,0,0.7)",
+            maxWidth: 600,
           }}
         >
           <h1
@@ -128,49 +127,40 @@ export default function EventClient({
           </div>
 
           {event.start_iso && (
-  <div style={{ marginTop: 20 }}>
-    <Countdown startISO={event.start_iso} />
-  </div>
-)}
+            <div style={{ marginTop: 24 }}>
+              <div style={{ marginBottom: 8, fontWeight: 600 }}>
+                Μέχρι να ξεκινήσει:
+              </div>
 
               <div
-  style={{
-    marginTop: 12,
-    fontSize: 18,
-    fontWeight: 900,
-    color: "white",
-    textShadow: "0 3px 12px rgba(0,0,0,0.6)",
-  }}
->
-  <Countdown startISO={event.start_iso} />
-</div>
+                style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                }}
+              >
+                <Countdown startISO={event.start_iso} />
+              </div>
             </div>
           )}
 
           <button
             onClick={enterInvite}
             style={{
-              marginTop: 26,
-              padding: "12px 28px",
+              marginTop: 30,
+              padding: "12px 30px",
               borderRadius: 14,
               border: "none",
               background: "white",
               color: "#111",
               fontWeight: 900,
               cursor: "pointer",
-              boxShadow: "0 12px 30px rgba(0,0,0,0.25)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
             }}
           >
             Άνοιγμα προσκλητηρίου
           </button>
 
-          <div
-            style={{
-              marginTop: 12,
-              fontSize: 13,
-              opacity: 0.9,
-            }}
-          >
+          <div style={{ marginTop: 14, fontSize: 13, opacity: 0.9 }}>
             (Την επόμενη φορά θα ανοίγει κατευθείαν.)
           </div>
         </div>
@@ -178,14 +168,40 @@ export default function EventClient({
     );
   }
 
-  /* =========================
-     MAIN PAGE (placeholder)
-  ========================= */
+  /* ===================================================
+     MAIN PAGE (προσωρινά απλό)
+  =================================================== */
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>{event.title}</h1>
-      <a href={gcalUrl}>Προσθήκη στο Google Calendar</a>
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: 24,
+        background: "#faf7f2",
+      }}
+    >
+      <h1 style={{ textAlign: "center" }}>{event.title}</h1>
+
+      {event.subtitle && (
+        <p style={{ textAlign: "center" }}>{event.subtitle}</p>
+      )}
+
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+        <a
+          href={gcalUrl}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            padding: "10px 20px",
+            background: "#111",
+            color: "white",
+            borderRadius: 8,
+            textDecoration: "none",
+          }}
+        >
+          Προσθήκη στο Google Calendar
+        </a>
+      </div>
     </div>
   );
 }
