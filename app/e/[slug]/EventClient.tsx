@@ -52,7 +52,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
   // ✅ ΡΥΘΜΙΣΕΙΣ
   const W = 320;         // πλάτος
   const H = 410;         // ύψος (portrait, λίγο πιο τετραγωνάκι)
-  const OVERLAP_Y = 135; // πιο κάτω/απόμακρες, αλλά όχι τρελά
+  const OVERLAP_Y = 385; // πιο κάτω/απόμακρες, αλλά όχι τρελά
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
