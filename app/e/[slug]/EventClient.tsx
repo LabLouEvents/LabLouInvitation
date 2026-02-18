@@ -53,7 +53,7 @@ export default function EventClient({
   ========================= */
 
   if (showIntro) {
-    const pageBg = public/bg.jpg
+    const pageBg = "/bg.jpg";
     const envelopeImg = "/intro/envelope.png"; // 👈 Ο ΦΑΚΕΛΟΣ ΣΟΥ
 
     return (
