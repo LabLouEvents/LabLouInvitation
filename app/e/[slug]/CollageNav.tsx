@@ -2,56 +2,52 @@
 
 import { useState } from "react";
 
-type Props = {
-  onSelect: (section: string) => void;
+type ImageItem = {
+  src: string;
+  alt: string;
+  href: string;
 };
 
-export default function CollageNav({ onSelect }: Props) {
+interface CollageNavProps {
+  images: ImageItem[];
+}
+
+export default function CollageNav({ images }: CollageNavProps) {
   const [active, setActive] = useState<string | null>(null);
 
-  const items = [
-    { id: "invite", img: "/invites/1.png" },
-    { id: "church", img: "/invites/2.png" },
-    { id: "rsvp", img: "/invites/3.png" },
-    { id: "info", img: "/invites/4.png" },
-  ];
-
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: 1000,
-        height: 750,
-        margin: "0 auto",
-      }}
-    >
-      {items.map((item, i) => (
-        <img
-          key={item.id}
-          src={item.img}
-          onClick={() => {
-            setActive(item.id);
-            onSelect(item.id);
-          }}
+    <div style={{ position: "relative", height: 520 }}>
+      {images.map((img, index) => (
+        <a
+          key={index}
+          href={img.href}
+          onClick={() => setActive(img.src)}
           style={{
             position: "absolute",
-            width: 460,
-            borderRadius: 18,
-            cursor: "pointer",
-            transition: "all 0.4s ease",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
-            transform:
-              i === 0
-                ? "rotate(-6deg) translate(0px,0px)"
-                : i === 1
-                ? "rotate(5deg) translate(260px,40px)"
-                : i === 2
-                ? "rotate(-4deg) translate(120px,300px)"
-                : "rotate(6deg) translate(420px,330px)",
-            zIndex: active === item.id ? 20 : i,
+            top: index * 25,
+            left: index * 20,
+            width: "80%",
+            maxWidth: 600,
+            transform: `rotate(${index % 2 === 0 ? -4 : 4}deg)`,
+            zIndex: active === img.src ? 10 : index,
+            transition: "0.3s ease",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+            borderRadius: 16,
+            overflow: "hidden",
+            display: "block"
           }}
-        />
+        >
+          <img
+            src={img.src}
+            alt={img.alt}
+            style={{
+              width: "100%",
+              height: 380,
+              objectFit: "cover",
+              display: "block"
+            }}
+          />
+        </a>
       ))}
     </div>
   );
