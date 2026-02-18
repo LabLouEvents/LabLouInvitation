@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Countdown from "./Countdown";
 import RSVPForm from "./RSVPForm";
 
@@ -38,8 +38,6 @@ function storageKey(slug: string, t: string) {
 
 /* -----------------------------
    Collage (inviart-ish)
-   - Portrait, λίγο πιο “τετραγωνισμένες”
-   - Πιο “απόμακρες προς τα κάτω” αλλά να ΜΗ φεύγουν εκτός
 ------------------------------ */
 function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
   const cards: { key: CardKey; label: string; src: string }[] = [
@@ -49,10 +47,10 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
     { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
   ];
 
-  // ✅ ΡΥΘΜΙΣΕΙΣ
-  const W = 320;         // πλάτος
-  const H = 410;         // ύψος (portrait, λίγο πιο τετραγωνάκι)
-  const OVERLAP_Y = 430; // πιο κάτω/απόμακρες, αλλά όχι τρελά
+  // ✅ ΚΡΑΤΑΜΕ ΤΟ OVERLAP ΠΟΥ ΣΟΥ ΑΡΕΣΕΙ
+  const W = 320;
+  const H = 390;
+  const OVERLAP_Y = 430; // ✅ όπως το θες
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
@@ -64,7 +62,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
         width: "min(92vw, 420px)",
         height: H + OVERLAP_Y * 3,
         margin: "0 auto",
-        marginTop: 18,
+        marginTop: 12,
       }}
     >
       {cards.map((c, i) => {
@@ -95,6 +93,8 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
               outline: "none",
               zIndex: 100 - i,
               overflow: "hidden",
+              // ✅ για να σιγουρευτούμε ότι παίρνει click
+              pointerEvents: "auto",
             }}
             aria-label={c.label}
             title={c.label}
@@ -109,10 +109,10 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
                 fontSize: 13,
                 fontWeight: 800,
                 letterSpacing: 0.2,
-                background: "rgba(255,255,255,0.80)",
+                background: "rgba(255,255,255,0.72)",
                 color: "#111",
                 boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
-                textShadow: "0 2px 6px rgba(0,0,0,0.25)", // ✅ σκιά στα γράμματα
+                textShadow: "0 1px 0 rgba(255,255,255,0.55)",
                 backdropFilter: "blur(6px)",
               }}
             >
@@ -136,9 +136,9 @@ export default function EventClient({
   gcalUrl: string;
   t: string;
 }) {
-  // ✅ οι φωτογραφίες σου στο public/
-  const pageBg = "/intro/background.jpg"; // public/intro/background.jpg
-  const envelopeImg = "/intro/envelope.png"; // public/intro/envelope.png
+  // ✅ background ίδιο με intro
+  const pageBg = "/intro/background.jpg";
+  const envelopeImg = "/intro/envelope.png";
 
   const inviter = useMemo(() => {
     return (event.inviter_names || event.subtitle || event.title || "").trim();
@@ -146,6 +146,9 @@ export default function EventClient({
 
   const [showIntro, setShowIntro] = useState(true);
   const [active, setActive] = useState<CardKey | null>(null);
+
+  // ✅ εδώ θα κάνουμε scroll όταν πατήσεις κάρτα
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -165,6 +168,19 @@ export default function EventClient({
     setShowIntro(false);
     setActive(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ✅ ο “σωστός” τρόπος: ανοίγει + σε πάει εκεί (χωρίς να αλλάξουμε overlap)
+  function openSection(k: CardKey) {
+    setActive(k);
+
+    // Περιμένουμε 1 frame να γίνει render το panel, μετά scroll
+    requestAnimationFrame(() => {
+      // μικρό extra για iOS/Safari που καμιά φορά αργεί
+      setTimeout(() => {
+        panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    });
   }
 
   const textShadowStrong = "0 3px 14px rgba(0,0,0,0.55)";
@@ -220,9 +236,7 @@ export default function EventClient({
         />
 
         <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
-          <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>
-            Έχεις πρόσκληση από
-          </div>
+          <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Έχεις πρόσκληση από</div>
 
           <div style={{ fontSize: 20, fontWeight: 900 }}>« {inviter || "—"} »</div>
 
@@ -250,41 +264,22 @@ export default function EventClient({
             Άνοιγμα προσκλητηρίου
           </button>
 
-          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.95 }}>
-            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
-          </div>
+          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.95 }}>(Την επόμενη φορά θα ανοίγει κατευθείαν.)</div>
         </div>
       </div>
     );
   }
 
   /* =========================
-     MAIN (ίδιο background με intro + 50% λευκό overlay)
+     MAIN PAGE
   ========================= */
   return (
-    <div style={{ ...pageStyle, position: "relative" }}>
-      {/* ✅ 50% λευκό “πέπλο” πάνω από το background */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(255,255,255,0.75)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* content */}
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 980, margin: "0 auto" }}>
+    <div style={pageStyle}>
+      <div style={{ maxWidth: 980, margin: "0 auto" }}>
         {/* Title */}
-        <div style={{ textAlign: "center", color: "#111", textShadow: "0 2px 10px rgba(255,255,255,0.55)" }}>
-          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>
-            {event.title}
-          </div>
-          {event.subtitle && (
-            <div style={{ marginTop: 8, opacity: 0.9, fontSize: 16 }}>
-              {event.subtitle}
-            </div>
-          )}
+        <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
+          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>{event.title}</div>
+          {event.subtitle && <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>{event.subtitle}</div>}
         </div>
 
         {/* Countdown */}
@@ -293,10 +288,10 @@ export default function EventClient({
             style={{
               marginTop: 14,
               textAlign: "center",
-              color: "#111",
+              color: "white",
               fontSize: 18,
               fontWeight: 900,
-              textShadow: "0 2px 10px rgba(255,255,255,0.55)",
+              textShadow: textShadowStrong,
             }}
           >
             <Countdown startISO={event.start_iso} />
@@ -304,20 +299,24 @@ export default function EventClient({
         )}
 
         {/* Collage */}
-        <CollageNav onSelect={(k) => setActive(k)} />
+        <CollageNav onSelect={openSection} />
 
+        {/* Hint */}
         <div
           style={{
             textAlign: "center",
-            marginTop: 12,
-            color: "#111",
-            opacity: 0.75,
+            marginTop: 10,
+            color: "white",
+            opacity: 0.95,
             fontSize: 13,
-            textShadow: "0 2px 10px rgba(255,255,255,0.55)",
+            textShadow: textShadowSoft,
           }}
         >
           Πάτα σε μία κάρτα για να ανοίξει η αντίστοιχη ενότητα.
         </div>
+
+        {/* ✅ Anchor για scroll στο panel */}
+        <div ref={panelRef} style={{ scrollMarginTop: 14 }} />
 
         {/* Panel */}
         {active && (
@@ -326,7 +325,7 @@ export default function EventClient({
               marginTop: 18,
               borderRadius: 18,
               padding: 18,
-              background: "rgba(255,255,255,0.92)",
+              background: "rgba(255,255,255,0.82)", // ελαφρώς πιο “αχνό”
               color: "#111",
               boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
               backdropFilter: "blur(6px)",
