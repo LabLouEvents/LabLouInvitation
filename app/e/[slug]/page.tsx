@@ -24,16 +24,21 @@ export default async function EventPage({
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         <h2>Δεν έχεις πρόσβαση</h2>
-        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
+        <div style={{ opacity: 0.8 }}>
+          Χρειάζεται το ειδικό link του event.
+        </div>
       </div>
     );
   }
 
   const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://lablouinvitations.gr";
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+    "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(
+      slug
+    )}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -62,5 +67,16 @@ export default async function EventPage({
         (event.church_address ? ", " + event.church_address : "")
     )}`;
 
-  return <EventClient event={event} slug={slug} gcalUrl={gcalUrl} />;
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: 32,
+        background:
+          "radial-gradient(circle at 30% 10%, #f4f5f8 0%, #eef1f6 50%, #e6eaf0 100%)",
+      }}
+    >
+      <EventClient event={event} slug={slug} gcalUrl={gcalUrl} />
+    </div>
+  );
 }
