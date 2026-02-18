@@ -1,54 +1,123 @@
 "use client";
 
-import { useState } from "react";
-
-type ImageItem = {
+type CollageImage = {
   src: string;
   alt: string;
-  href: string;
+  targetId: string; // π.χ. "rsvp", "invite", "church", "venue"
+  label?: string;
 };
 
-interface CollageNavProps {
-  images: ImageItem[];
-}
+export default function CollageNav({ images }: { images: CollageImage[] }) {
+  const CARD_H = 360;
+  const STEP = 290; // πιο αραιά προς τα κάτω
+  const totalHeight = Math.max(1, images.length) * STEP + CARD_H;
 
-export default function CollageNav({ images }: CollageNavProps) {
-  const [active, setActive] = useState<string | null>(null);
+  const goTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div style={{ position: "relative", height: 520 }}>
-      {images.map((img, index) => (
-        <a
-          key={index}
-          href={img.href}
-          onClick={() => setActive(img.src)}
-          style={{
-            position: "absolute",
-            top: index * 120,
-            left: index * 45,
-            width: "86%",
-            maxWidth: 680,
-            transform: `rotate(${index % 2 === 0 ? -3 : 3}deg)`,
-            zIndex: active === img.src ? 10 : index,
-            transition: "0.3s ease",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-            borderRadius: 16,
-            overflow: "hidden",
-            display: "block"
-          }}
-        >
-          <img
-            src={img.src}
-            alt={img.alt}
-            style={{
-              width: "100%",
-              height: 380,
-              objectFit: "cover",
-              display: "block"
-            }}
-          />
-        </a>
-      ))}
+    <div style={{ marginTop: 18 }}>
+      <div
+        style={{
+          position: "relative",
+          height: totalHeight,
+          maxWidth: 820,
+          margin: "0 auto",
+        }}
+      >
+        {images.map((img, index) => {
+          const y = index * STEP;
+          const x = index % 2 === 0 ? -30 : 30;
+          const rot = index % 2 === 0 ? -4 : 4;
+          const z = 10 + index;
+
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={() => goTo(img.targetId)}
+              style={{
+                position: "absolute",
+                top: y,
+                left: "50%",
+                transform: `translateX(-50%) translateX(${x}px) rotate(${rot}deg)`,
+                width: "92%",
+                maxWidth: 760,
+                display: "block",
+                textDecoration: "none",
+                zIndex: z,
+                cursor: "pointer",
+                border: "none",
+                background: "transparent",
+                padding: 0,
+              }}
+              aria-label={img.alt}
+            >
+              <div
+                style={{
+                  borderRadius: 18,
+                  overflow: "hidden",
+                  background: "rgba(255,255,255,0.70)",
+                  boxShadow: "0 18px 50px rgba(0,0,0,0.14)",
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  backdropFilter: "blur(6px)",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    margin: 12,
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                    background: "rgba(255,255,255,0.78)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#222",
+                  }}
+                >
+                  {img.label || img.alt}
+                </div>
+
+                <div style={{ height: CARD_H }}>
+                  {img.src ? (
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "grid",
+                        placeItems: "center",
+                        color: "rgba(0,0,0,0.55)",
+                        fontSize: 14,
+                      }}
+                    >
+                      (Δεν έχει ανέβει φωτογραφία ακόμα)
+                    </div>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ textAlign: "center", fontSize: 12, opacity: 0.7, marginTop: 10 }}>
+        Πάτα σε φωτογραφία για να πας στην αντίστοιχη ενότητα.
+      </div>
     </div>
   );
 }
