@@ -1,24 +1,32 @@
 "use client";
 
 import React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export type CardKey = "invite" | "rsvp" | "church" | "venue";
 
 export default function CollageNav({
+  slug,
   cards,
-  onSelect,
 }: {
+  slug: string;
   cards: { key: CardKey; label: string; src: string }[];
-  onSelect: (key: CardKey) => void;
 }) {
+  const router = useRouter();
+  const sp = useSearchParams();
+  const t = sp.get("t") || "";
 
-  // 🔧 ΡΥΘΜΙΣΕΙΣ
+  // ✅ ΚΡΑΤΑΜΕ OVERLAP 430 όπως θες
   const CARD_W = 520;
   const CARD_H = 520;
+  const STEP_Y = 430; // 👈 αυτό είναι το “overlap”
+  const STEP_X = 90;
+  const ROT = 3;
 
-  const STEP_Y = 90;   // overlap (κρατάς στοίβα)
-  const STEP_X = 90;   // εναλλάξ δεξιά / αριστερά
-  const ROT = 3;       // ελαφριά κλίση
+  function go(key: CardKey) {
+    // Πάμε σε /e/[slug]/[section]?t=...
+    router.push(`/e/${encodeURIComponent(slug)}/${key}?t=${encodeURIComponent(t)}`);
+  }
 
   return (
     <div
@@ -40,29 +48,24 @@ export default function CollageNav({
           <button
             key={c.key}
             type="button"
-            onClick={() => onSelect(c.key)}
+            onClick={() => go(c.key)}
             style={{
               position: "absolute",
               left: "50%",
               top: y,
               transform: `translateX(-50%) translateX(${x}px) rotate(${r}deg)`,
-
               width: CARD_W,
               height: CARD_H,
               maxWidth: "92vw",
-
               borderRadius: 18,
               border: "1px solid rgba(0,0,0,0.08)",
               background: `url(${c.src}) center/cover no-repeat`,
               boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
-
               cursor: "pointer",
               padding: 0,
               outline: "none",
               overflow: "hidden",
-
-              // 🔥 ΚΛΕΙΔΙ:
-              zIndex: 100 - i, // η ΠΡΩΤΗ από κάτω, η τελευταία από πάνω
+              zIndex: 100 - i, // 👈 όλες clickable σωστά
             }}
             aria-label={c.label}
             title={c.label}
