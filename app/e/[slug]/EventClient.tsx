@@ -128,23 +128,22 @@ export default function EventClient({
           </div>
 
           {event.start_iso && (
-            <div style={{ marginTop: 22 }}>
-              <div style={{ marginBottom: 8 }}>
-                Μέχρι να ξεκινήσει:
-              </div>
+  <div style={{ marginTop: 20 }}>
+    <Countdown startISO={event.start_iso} />
+  </div>
+)}
 
               <div
-                style={{
-                  padding: "10px 18px",
-                  borderRadius: 14,
-                  background: "rgba(255,255,255,0.9)",
-                  color: "#111",
-                  fontWeight: 800,
-                  display: "inline-block",
-                }}
-              >
-                <Countdown startISO={event.start_iso} />
-              </div>
+  style={{
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: 900,
+    color: "white",
+    textShadow: "0 3px 12px rgba(0,0,0,0.6)",
+  }}
+>
+  <Countdown startISO={event.start_iso} />
+</div>
             </div>
           )}
 
