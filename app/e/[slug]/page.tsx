@@ -20,14 +20,11 @@ export default async function EventPage({
   const slug = params.slug;
   const t = searchParams?.t || "";
 
-  // Αν δεν υπάρχει token → δεν ανοίγει
   if (!t) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         <h2>Δεν έχεις πρόσβαση</h2>
-        <div style={{ opacity: 0.8 }}>
-          Χρειάζεται το ειδικό link του event.
-        </div>
+        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
       </div>
     );
   }
@@ -37,9 +34,7 @@ export default async function EventPage({
     "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(
-      slug
-    )}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -68,13 +63,5 @@ export default async function EventPage({
         (event.church_address ? ", " + event.church_address : "")
     )}`;
 
-  // ⚡ ΕΔΩ το σημαντικό: δίνουμε και το t στο EventClient
-  return (
-    <EventClient
-      event={event}
-      slug={slug}
-      gcalUrl={gcalUrl}
-      t={t}
-    />
-  );
+  return <EventClient event={event} slug={slug} gcalUrl={gcalUrl} t={t} />;
 }

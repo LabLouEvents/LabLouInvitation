@@ -1,9 +1,10 @@
 "use client";
+<div style={{position:"fixed",top:10,left:10,zIndex:99999,background:"black",color:"white",padding:"6px 10px",borderRadius:8,fontSize:12}}>
+  NEW VERSION ✅
+</div>
 
 import { useEffect, useMemo, useState } from "react";
 import Countdown from "./Countdown";
-import RSVPForm from "./RSVPForm";
-import CollageNav from "./CollageNav";
 
 type EventFull = {
   slug: string;
@@ -11,31 +12,11 @@ type EventFull = {
   title: string;
   subtitle?: string | null;
 
-  // προαιρετικό (αν το προσθέσεις αργότερα στο supabase/admin)
-  inviter_names?: string | null;
-
-  cover_image?: string | null;
-
-  church_name?: string | null;
-  church_address?: string | null;
-  church_map_url?: string | null;
-
-  venue_name?: string | null;
-  venue_address?: string | null;
-  venue_map_url?: string | null;
-
+  inviter_names?: string | null; // αν το βάλουμε αργότερα στη βάση
   start_iso: string;
-  end_iso?: string | null;
-
-  rsvp_deadline?: string | null;
-  extra_note?: string | null;
-
-  // αν υπάρχει σε κάποια events σου
-  date_text?: string | null;
 };
 
 function storageKey(slug: string, t: string) {
-  // “θυμάται” ανά event+token (δηλαδή ανά link που μοιράζεις)
   return `intro_seen:${slug}:${t}`;
 }
 
@@ -50,15 +31,13 @@ export default function EventClient({
   gcalUrl: string;
   t: string;
 }) {
-  const [showIntro, setShowIntro] = useState(true);
+  const isElegant = event.template === "elegant";
 
   const inviter = useMemo(() => {
-    // Προτεραιότητα:
-    // 1) inviter_names (αν το βάλεις αργότερα)
-    // 2) subtitle (αν θες να το χρησιμοποιήσεις σαν “ονόματα” προσωρινά)
-    // 3) title (fallback)
     return (event.inviter_names || event.subtitle || event.title || "").trim();
   }, [event.inviter_names, event.subtitle, event.title]);
+
+  const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
     try {
@@ -79,9 +58,7 @@ export default function EventClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const isElegant = event.template === "elegant";
-
-  // ---- INTRO VIEW (μια φορά) ----
+  // ✅ INTRO SCREEN
   if (showIntro) {
     return (
       <div
@@ -90,7 +67,7 @@ export default function EventClient({
           padding: 24,
           display: "grid",
           placeItems: "center",
-          background: isElegant ? "var(--ivory)" : "#faf7f5",
+          background: "radial-gradient(circle at 30% 10%, #f4f5f8 0%, #eef1f6 50%, #e6eaf0 100%)",
         }}
       >
         <div
@@ -101,7 +78,7 @@ export default function EventClient({
             padding: 26,
           }}
         >
-          <div style={{ opacity: 0.75, letterSpacing: 0.5, fontSize: 13 }}>
+          <div style={{ opacity: 0.75, letterSpacing: 0.6, fontSize: 13 }}>
             LAB LOU INVITATIONS
           </div>
 
@@ -109,13 +86,7 @@ export default function EventClient({
             Έχεις πρόσκληση από
           </h1>
 
-          <div
-            style={{
-              fontSize: 20,
-              fontWeight: 700,
-              marginBottom: 10,
-            }}
-          >
+          <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
             « {inviter || "—"} »
           </div>
 
@@ -133,11 +104,7 @@ export default function EventClient({
           <button
             className="e-btn"
             onClick={enterInvite}
-            style={{
-              marginTop: 18,
-              width: "100%",
-              textAlign: "center",
-            }}
+            style={{ marginTop: 18, width: "100%" }}
           >
             Άνοιγμα προσκλητηρίου
           </button>
@@ -150,25 +117,17 @@ export default function EventClient({
     );
   }
 
-  // ---- MAIN INVITE VIEW ----
+  // ✅ MAIN (προσωρινά απλό, για να φύγει το error)
   return (
     <div
       style={{
-        padding: 24,
-        background: isElegant ? "var(--ivory)" : "#faf7f5",
         minHeight: "100vh",
+        padding: 24,
+        background: "radial-gradient(circle at 30% 10%, #f4f5f8 0%, #eef1f6 50%, #e6eaf0 100%)",
       }}
     >
       <div className="e-wrap">
-        {/* COUNTDOWN ΠΑΝΩ ΠΑΝΩ */}
-        {event.start_iso && (
-          <div className="e-card e-reveal e-delay-1" style={{ marginTop: 10 }}>
-            <Countdown startISO={event.start_iso} />
-          </div>
-        )}
-
-        {/* TITLE */}
-        <div className="e-reveal e-delay-2" style={{ marginTop: 18, textAlign: "center" }}>
+        <div className="e-card" style={{ padding: 20, textAlign: "center" }}>
           <h1 className="elegant-title" style={{ margin: 0 }}>
             {event.title}
           </h1>
@@ -178,117 +137,24 @@ export default function EventClient({
               {event.subtitle}
             </p>
           )}
-        </div>
 
-        {/* ΚΟΛΑΖ ΠΛΟΗΓΗΣΗΣ (πατάς φωτο και σε πάει στο section) */}
-        <div className="e-card e-reveal e-delay-3" style={{ marginTop: 18 }}>
-          <CollageNav />
-        </div>
+          <div style={{ height: 12 }} />
 
-        {/* SECTIONS */}
-        <div style={{ display: "grid", gap: 18, marginTop: 26 }}>
-          {/* Προσκλητήριο */}
-          <div id="invite" className="e-card e-reveal e-delay-3" style={{ scrollMarginTop: 16 }}>
-            <h3 className="elegant-title" style={{ marginTop: 0 }}>
-              Προσκλητήριο
-            </h3>
-
-            <div className="elegant-text" style={{ opacity: 0.9 }}>
-              <div>
-                <b>{event.title}</b>
-              </div>
-              {event.subtitle && <div style={{ marginTop: 6 }}>{event.subtitle}</div>}
-              {event.date_text && <div style={{ marginTop: 8 }}>Ημερομηνία: {event.date_text}</div>}
-            </div>
-          </div>
-
-          {/* RSVP */}
-          <div id="rsvp" className="e-card e-reveal e-delay-3" style={{ scrollMarginTop: 16 }}>
-            <h3 className="elegant-title" style={{ marginTop: 0 }}>
-              RSVP
-            </h3>
-
-            {event.rsvp_deadline && (
-              <div style={{ marginBottom: 10, opacity: 0.9 }}>
-                Παρακαλούμε απαντήστε έως:{" "}
-                <b style={{ color: "var(--gold-2)" }}>{event.rsvp_deadline}</b>
-              </div>
-            )}
-
-            <a
-              className="e-btn"
-              href={gcalUrl}
-              target="_blank"
-              rel="noreferrer"
-              style={{ display: "block", textAlign: "center", textDecoration: "none" }}
-            >
-              Προσθήκη στο Google Calendar
-            </a>
-
-            <a
-              className="e-btn"
-              href={`/api/ics?slug=${encodeURIComponent(slug)}`}
-              style={{
-                display: "block",
-                textAlign: "center",
-                textDecoration: "none",
-                marginTop: 12,
-              }}
-            >
-              Προσθήκη στο iPhone / Apple Calendar
-            </a>
-
-            <div style={{ height: 14 }} />
-
-            <RSVPForm slug={slug} />
-          </div>
-
-          {/* Εκκλησία */}
-          <div id="church" className="e-card e-reveal e-delay-4" style={{ scrollMarginTop: 16 }}>
-            <h3 className="elegant-title" style={{ marginTop: 0 }}>
-              Εκκλησία
-            </h3>
-            <div>{event.church_name}</div>
-            {event.church_address && (
-              <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>
-            )}
-            {event.church_map_url && (
-              <a className="e-link" href={event.church_map_url} target="_blank" rel="noreferrer">
-                Άνοιγμα χάρτη
-              </a>
-            )}
-          </div>
-
-          {/* Κέντρο */}
-          <div id="venue" className="e-card e-reveal e-delay-4" style={{ scrollMarginTop: 16 }}>
-            <h3 className="elegant-title" style={{ marginTop: 0 }}>
-              Κέντρο
-            </h3>
-            <div>{event.venue_name}</div>
-            {event.venue_address && (
-              <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>
-            )}
-            {event.venue_map_url && (
-              <a className="e-link" href={event.venue_map_url} target="_blank" rel="noreferrer">
-                Άνοιγμα χάρτη
-              </a>
-            )}
-          </div>
-        </div>
-
-        {event.extra_note && (
-          <div
-            className="elegant-text e-reveal e-delay-4"
-            style={{
-              marginTop: 20,
-              textAlign: "center",
-              opacity: 0.75,
-              fontStyle: "italic",
-            }}
+          <a
+            className="e-btn"
+            href={gcalUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: "inline-block", textDecoration: "none" }}
           >
-            {event.extra_note}
+            Προσθήκη στο Google Calendar
+          </a>
+
+          <div style={{ marginTop: 14, opacity: 0.65, fontSize: 13 }}>
+            Επόμενο βήμα: βάζουμε το “4 φωτογραφίες σαν inviart” εδώ, χωρίς να εμφανίζεται τίποτα κάτω,
+            και να ανοίγει ενότητα μόνο όταν πατάς φωτογραφία.
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
