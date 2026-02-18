@@ -13,6 +13,7 @@ type EventFull = {
   subtitle?: string | null;
 
   inviter_names?: string | null;
+
   cover_image?: string | null;
 
   church_name?: string | null;
@@ -34,8 +35,17 @@ function storageKey(slug: string, t: string) {
   return `intro_seen:${slug}:${t}`;
 }
 
+function safeBgUrl(url?: string | null) {
+  if (!url) return "";
+  // αν είναι ήδη absolute (https://...) ή ξεκινάει με /
+  return url.startsWith("http") || url.startsWith("/") ? url : `/${url}`;
+}
+
 /* -----------------------------
    Collage (inviart-ish)
+   - μικρότερα / πιο “τετραγωνισμένα”
+   - εναλλάξ δεξιά/αριστερά
+   - overlap (πέφτει πάνω στην προηγούμενη)
 ------------------------------ */
 function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
   const cards: { key: CardKey; label: string; src: string }[] = [
@@ -46,9 +56,9 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
   ];
 
   const W = 340;
-  const H = 260;
-  const OVERLAP_Y = 96;
-  const STEP_X = 42;
+  const H = 240;
+  const OVERLAP_Y = 92; // μεγαλύτερο = πιο αραιά, μικρότερο = πιο πολύ overlap
+  const STEP_X = 40;
   const ROT = 6;
   const RADIUS = 18;
 
@@ -56,8 +66,8 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
     <div
       style={{
         position: "relative",
-        width: "min(92vw, 440px)",
-        height: H + OVERLAP_Y * (cards.length - 1),
+        width: "min(92vw, 460px)",
+        height: H + OVERLAP_Y * 3,
         margin: "0 auto",
         paddingTop: 6,
         paddingBottom: 6,
@@ -83,9 +93,9 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
               height: H,
               maxWidth: "92vw",
               borderRadius: RADIUS,
-              border: "1px solid rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.22)",
               background: `url(${c.src}) center/cover no-repeat`,
-              boxShadow: "0 18px 46px rgba(0,0,0,0.24)",
+              boxShadow: "0 18px 50px rgba(0,0,0,0.25)",
               cursor: "pointer",
               padding: 0,
               outline: "none",
@@ -100,7 +110,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
                 position: "absolute",
                 left: 12,
                 top: 12,
-                background: "rgba(0,0,0,0.40)",
+                background: "rgba(0,0,0,0.45)",
                 color: "white",
                 padding: "8px 10px",
                 borderRadius: 12,
@@ -108,6 +118,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
                 fontWeight: 800,
                 letterSpacing: 0.2,
                 backdropFilter: "blur(6px)",
+                textShadow: "0 2px 10px rgba(0,0,0,0.45)",
               }}
             >
               {c.label}
@@ -157,16 +168,29 @@ export default function EventClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // Background φωτο (βάλε το αρχείο: public/intro/bg.jpg)
-  const pageBg = "url(/intro/bg.jpg) center/cover no-repeat";
+  const pageBg = safeBgUrl(event.cover_image) || "/intro/bg.jpg"; // ΒΑΛΕ εδώ το δικό σου default φόντο
+  const envelopeImg = "/intro/envelope.png"; // ΒΑΛΕ εδώ τον φάκελο σου
 
-  // Κοινό “glass card” χωρίς σκοτείνιασμα του background (δεν βάζουμε overlay)
+  const pageStyle: React.CSSProperties = {
+    minHeight: "100vh",
+    padding: 22,
+    backgroundImage: `url(${pageBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  };
+
   const glassCard: React.CSSProperties = {
     borderRadius: 22,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(255,255,255,0.10)", // ελαφρύ glass, ΟΧΙ μαύρο veil
-    boxShadow: "0 22px 70px rgba(0,0,0,0.22)",
+    border: "1px solid rgba(255,255,255,0.32)",
+    background: "rgba(20,20,28,0.22)", // όχι μαύρο overlay στο background, μόνο “γυαλί” στο card
+    boxShadow: "0 26px 90px rgba(0,0,0,0.22)",
     backdropFilter: "blur(10px)",
+  };
+
+  const textStyle: React.CSSProperties = {
+    color: "rgba(255,255,255,0.98)",
+    textShadow: "0 2px 10px rgba(0,0,0,0.55)",
   };
 
   /* =========================
@@ -174,99 +198,95 @@ export default function EventClient({
   ========================= */
   if (showIntro) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          padding: 24,
-          display: "grid",
-          placeItems: "center",
-          background: pageBg,
-          backgroundColor: "#000", // fallback
-        }}
-      >
+      <div style={{ ...pageStyle, display: "grid", placeItems: "center" }}>
         <div
           style={{
             ...glassCard,
             width: "min(92vw, 640px)",
-            textAlign: "center",
             padding: 26,
-            color: "white",
-            animation: "introIn 500ms ease-out forwards",
-            opacity: 0,
-            transform: "translateY(8px)",
+            textAlign: "center",
           }}
         >
-          <style>{`
-            @keyframes introIn {
-              to { opacity: 1; transform: translateY(0px); }
-            }
-          `}</style>
-
-          <div style={{ opacity: 0.9, letterSpacing: 0.7, fontSize: 13 }}>
+          <div style={{ ...textStyle, opacity: 0.85, letterSpacing: 0.8, fontSize: 13 }}>
             LAB LOU INVITATIONS
           </div>
 
-          {/* ΦΑΚΕΛΟΣ: κανονικό σχήμα, ΧΩΡΙΣ τετράγωνο crop */}
+          {/* Envelope (χωρίς παραμόρφωση) */}
           <div
             style={{
-              width: "min(92vw, 520px)",    // μεγαλώνει όσο θες
-              height: "min(52vh, 360px)",   // δίνουμε ύψος, αλλά η εικόνα δεν παραμορφώνεται
+              position: "relative",
+              zIndex: 1,
               margin: "18px auto 10px",
+              width: "min(78vw, 520px)",
+              height: "min(52vh, 360px)",
               display: "grid",
               placeItems: "center",
             }}
           >
             <img
-              src="/intro/envelope.png"
+              src={envelopeImg}
               alt="Envelope"
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "contain", // ✅ δεν κόβει, δεν παραμορφώνει
+                objectFit: "contain", // ✅ δεν παραμορφώνει
                 display: "block",
-                filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.25))",
+                filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.18))",
               }}
             />
           </div>
 
-          <h1 style={{ margin: "6px 0 10px", fontSize: 26, fontWeight: 900 }}>
-            Έχεις πρόσκληση από
-          </h1>
+          {/* Text wrapper πάνω από τον φάκελο */}
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <h1 style={{ ...textStyle, margin: "6px 0 10px", fontSize: 26, fontWeight: 900 }}>
+              Έχεις πρόσκληση από
+            </h1>
 
-          <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 10 }}>
-            « {inviter || "—"} »
-          </div>
-
-          {event.start_iso && (
-            <div style={{ marginTop: 12 }}>
-              <div style={{ opacity: 0.9, marginBottom: 10 }}>
-                Μέχρι να ξεκινήσει:
-              </div>
-              <div style={{ ...glassCard, padding: 12 }}>
-                <Countdown startISO={event.start_iso} />
-              </div>
+            <div style={{ ...textStyle, fontSize: 20, fontWeight: 900, marginBottom: 10 }}>
+              « {inviter || "—"} »
             </div>
-          )}
 
-          <button
-            onClick={enterInvite}
-            style={{
-              marginTop: 16,
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.30)",
-              background: "rgba(255,255,255,0.18)",
-              color: "white",
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-          >
-            Άνοιγμα προσκλητηρίου
-          </button>
+            {event.start_iso && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ ...textStyle, opacity: 0.9, marginBottom: 10 }}>
+                  Μέχρι να ξεκινήσει:
+                </div>
 
-          <div style={{ marginTop: 12, opacity: 0.9, fontSize: 13 }}>
-            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+                <div
+                  style={{
+                    ...glassCard,
+                    padding: 12,
+                    borderRadius: 18,
+                    background: "rgba(20,20,28,0.18)",
+                    boxShadow: "0 18px 60px rgba(0,0,0,0.16)",
+                  }}
+                >
+                  <Countdown startISO={event.start_iso} />
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={enterInvite}
+              style={{
+                marginTop: 16,
+                width: "100%",
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.34)",
+                background: "rgba(255,255,255,0.20)",
+                color: "white",
+                fontWeight: 900,
+                cursor: "pointer",
+                textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+              }}
+            >
+              Άνοιγμα προσκλητηρίου
+            </button>
+
+            <div style={{ ...textStyle, marginTop: 12, opacity: 0.85, fontSize: 13 }}>
+              (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+            </div>
           </div>
         </div>
       </div>
@@ -274,34 +294,34 @@ export default function EventClient({
   }
 
   /* =========================
-     MAIN
+     MAIN (Collage + ανοίγει ενότητα μόνο όταν πατάς)
   ========================= */
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 22,
-        background: pageBg,
-        backgroundColor: "#000",
-        color: "white",
-      }}
-    >
+    <div style={pageStyle}>
       <div style={{ maxWidth: 980, margin: "0 auto" }}>
         {/* COUNTDOWN ΠΑΝΩ ΠΑΝΩ */}
         {event.start_iso && (
-          <div style={{ ...glassCard, padding: 12 }}>
+          <div
+            style={{
+              ...glassCard,
+              padding: 12,
+              borderRadius: 18,
+              boxShadow: "0 18px 60px rgba(0,0,0,0.16)",
+              ...textStyle,
+            }}
+          >
             <Countdown startISO={event.start_iso} />
           </div>
         )}
 
         {/* TITLE */}
         <div style={{ marginTop: 18, textAlign: "center" }}>
-          <h1 style={{ margin: 0, fontSize: 30, letterSpacing: 0.2, fontWeight: 900 }}>
+          <h1 style={{ ...textStyle, margin: 0, fontSize: 30, letterSpacing: 0.2, fontWeight: 900 }}>
             {event.title}
           </h1>
 
           {event.subtitle && (
-            <p style={{ marginTop: 10, opacity: 0.92 }}>
+            <p style={{ ...textStyle, marginTop: 10, opacity: 0.9 }}>
               {event.subtitle}
             </p>
           )}
@@ -310,16 +330,23 @@ export default function EventClient({
         {/* COLLAGE */}
         <div style={{ marginTop: 18 }}>
           <CollageNav onSelect={(k) => setActive(k)} />
-          <div style={{ textAlign: "center", marginTop: 10, opacity: 0.9, fontSize: 13 }}>
+          <div style={{ ...textStyle, textAlign: "center", marginTop: 10, opacity: 0.9, fontSize: 13 }}>
             Πάτα σε μία φωτογραφία για να ανοίξει η αντίστοιχη ενότητα.
           </div>
         </div>
 
-        {/* PANEL */}
+        {/* PANEL που ανοίγει μόνο όταν πατάς */}
         {active && (
-          <div style={{ marginTop: 18, ...glassCard, padding: 18 }}>
+          <div
+            style={{
+              ...glassCard,
+              marginTop: 18,
+              padding: 18,
+              color: "white",
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-              <div style={{ fontWeight: 900 }}>
+              <div style={{ ...textStyle, fontWeight: 900 }}>
                 {active === "invite" && "Προσκλητήριο"}
                 {active === "rsvp" && "RSVP"}
                 {active === "church" && "Εκκλησία"}
@@ -332,11 +359,12 @@ export default function EventClient({
                 style={{
                   padding: "10px 12px",
                   borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.25)",
-                  background: "rgba(255,255,255,0.14)",
+                  border: "1px solid rgba(255,255,255,0.34)",
+                  background: "rgba(255,255,255,0.18)",
                   color: "white",
                   cursor: "pointer",
-                  fontWeight: 900,
+                  fontWeight: 800,
+                  textShadow: "0 2px 10px rgba(0,0,0,0.35)",
                 }}
               >
                 Κλείσιμο
@@ -347,7 +375,7 @@ export default function EventClient({
 
             {/* INVITE */}
             {active === "invite" && (
-              <div style={{ opacity: 0.96, lineHeight: 1.6 }}>
+              <div style={{ ...textStyle, opacity: 0.95, lineHeight: 1.6 }}>
                 <div style={{ fontWeight: 900, fontSize: 18 }}>{event.title}</div>
                 {event.subtitle && <div style={{ marginTop: 6 }}>{event.subtitle}</div>}
                 {event.extra_note && <div style={{ marginTop: 10, opacity: 0.92 }}>{event.extra_note}</div>}
@@ -356,7 +384,7 @@ export default function EventClient({
 
             {/* RSVP */}
             {active === "rsvp" && (
-              <div>
+              <div style={textStyle}>
                 {event.rsvp_deadline && (
                   <div style={{ marginBottom: 10, opacity: 0.95 }}>
                     Παρακαλούμε απαντήστε έως:{" "}
@@ -374,10 +402,11 @@ export default function EventClient({
                     textDecoration: "none",
                     padding: "12px 14px",
                     borderRadius: 14,
-                    border: "1px solid rgba(255,255,255,0.25)",
-                    background: "rgba(255,255,255,0.14)",
+                    border: "1px solid rgba(255,255,255,0.34)",
+                    background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: 900,
+                    textShadow: "0 2px 10px rgba(0,0,0,0.35)",
                   }}
                 >
                   Προσθήκη στο Google Calendar
@@ -392,10 +421,11 @@ export default function EventClient({
                     marginTop: 12,
                     padding: "12px 14px",
                     borderRadius: 14,
-                    border: "1px solid rgba(255,255,255,0.25)",
-                    background: "rgba(255,255,255,0.14)",
+                    border: "1px solid rgba(255,255,255,0.34)",
+                    background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: 900,
+                    textShadow: "0 2px 10px rgba(0,0,0,0.35)",
                   }}
                 >
                   Προσθήκη στο iPhone / Apple Calendar
@@ -409,7 +439,7 @@ export default function EventClient({
 
             {/* CHURCH */}
             {active === "church" && (
-              <div style={{ opacity: 0.96, lineHeight: 1.6 }}>
+              <div style={{ ...textStyle, opacity: 0.98, lineHeight: 1.6 }}>
                 <div style={{ fontWeight: 900 }}>{event.church_name || "-"}</div>
                 {event.church_address && <div style={{ opacity: 0.92, marginTop: 6 }}>{event.church_address}</div>}
                 {event.church_map_url && (
@@ -417,7 +447,7 @@ export default function EventClient({
                     href={event.church_map_url}
                     target="_blank"
                     rel="noreferrer"
-                    style={{ color: "white", textDecoration: "underline", display: "inline-block", marginTop: 10, fontWeight: 900 }}
+                    style={{ color: "white", textDecoration: "underline", display: "inline-block", marginTop: 10 }}
                   >
                     Άνοιγμα χάρτη
                   </a>
@@ -427,7 +457,7 @@ export default function EventClient({
 
             {/* VENUE */}
             {active === "venue" && (
-              <div style={{ opacity: 0.96, lineHeight: 1.6 }}>
+              <div style={{ ...textStyle, opacity: 0.98, lineHeight: 1.6 }}>
                 <div style={{ fontWeight: 900 }}>{event.venue_name || "-"}</div>
                 {event.venue_address && <div style={{ opacity: 0.92, marginTop: 6 }}>{event.venue_address}</div>}
                 {event.venue_map_url && (
@@ -435,7 +465,7 @@ export default function EventClient({
                     href={event.venue_map_url}
                     target="_blank"
                     rel="noreferrer"
-                    style={{ color: "white", textDecoration: "underline", display: "inline-block", marginTop: 10, fontWeight: 900 }}
+                    style={{ color: "white", textDecoration: "underline", display: "inline-block", marginTop: 10 }}
                   >
                     Άνοιγμα χάρτη
                   </a>
