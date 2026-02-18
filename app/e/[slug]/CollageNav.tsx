@@ -24,11 +24,11 @@ export default function CollageNav({ images }: CollageNavProps) {
           onClick={() => setActive(img.src)}
           style={{
             position: "absolute",
-            top: index * 25,
-            left: index * 20,
-            width: "80%",
-            maxWidth: 600,
-            transform: `rotate(${index % 2 === 0 ? -4 : 4}deg)`,
+            top: index * 55,
+            left: index * 45,
+            width: "86%",
+            maxWidth: 680,
+            transform: `rotate(${index % 2 === 0 ? -3 : 3}deg)`,
             zIndex: active === img.src ? 10 : index,
             transition: "0.3s ease",
             boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
