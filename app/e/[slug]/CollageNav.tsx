@@ -11,23 +11,27 @@ export default function CollageNav({
   cards: { key: CardKey; label: string; src: string }[];
   onSelect: (key: CardKey) => void;
 }) {
-  // “σχεδόν ολόκληρη” + ελάχιστο overlap
-  const CARD_W = 820;
-  const CARD_H = 520;
+  // Πιο μικρές + πιο "τετραγωνισμένες"
+  const CARD_W = 640;
+  const CARD_H = 430; // πιο κοντά σε τετράγωνο (αν το θες πιο square κάνε 520/520)
 
-  // πιο αραιά προς τα κάτω
-  const STEP_Y = 470; // κοντά στο CARD_H => φαίνονται σχεδόν ολόκληρες
-  const STEP_X = 130; // εναλλάξ δεξιά/αριστερά
-  const ROT = 5;      // κλίση
+  // Τώρα θέλουμε ΣΤΟΙΒΑ: μικρό overlap και να "πατάει" η κάθε επόμενη ΠΑΝΩ στην προηγούμενη
+  // Άρα STEP_Y μικρό, όχι κοντά στο ύψος.
+  const STEP_Y = 95;  // όσο πιο μικρό, τόσο περισσότερο overlap
+  const STEP_X = 80;  // δεξιά/αριστερά εναλλάξ
+  const ROT = 4;      // λίγη κλίση
 
+  // Η τελευταία κάρτα να είναι πάνω-πάνω (clickable)
+  // Θα δώσουμε zIndex = i ώστε η τελευταία (i=3) να είναι μπροστά.
+  // Και height μικρή γιατί είναι στοίβα, όχι σκάλα.
   return (
     <div
       style={{
         position: "relative",
-        width: "min(94vw, 900px)",
-        height: STEP_Y * (cards.length - 1) + CARD_H,
+        width: "min(92vw, 720px)",
+        height: CARD_H + STEP_Y * (cards.length - 1) + 10,
         margin: "0 auto",
-        marginTop: 8,
+        marginTop: 10,
         marginBottom: 8,
       }}
     >
@@ -49,16 +53,16 @@ export default function CollageNav({
               transform: `translateX(-50%) translateX(${x}px) rotate(${r}deg)`,
               width: CARD_W,
               height: CARD_H,
-              maxWidth: "94vw",
-              borderRadius: 20,
+              maxWidth: "92vw",
+              borderRadius: 16, // λίγο πιο "τετραγωνισμένο"
               border: "1px solid rgba(0,0,0,0.08)",
-              boxShadow: "0 16px 40px rgba(0,0,0,0.14)",
+              boxShadow: "0 14px 34px rgba(0,0,0,0.14)",
               background: `url(${c.src}) center/cover no-repeat`,
               cursor: "pointer",
               padding: 0,
               outline: "none",
-              zIndex: 100 - i,
               overflow: "hidden",
+              zIndex: i, // η τελευταία κάρτα πάνω-πάνω
             }}
             aria-label={c.label}
             title={c.label}
@@ -66,13 +70,13 @@ export default function CollageNav({
             <div
               style={{
                 position: "absolute",
-                left: 14,
-                top: 14,
-                background: "rgba(255,255,255,0.80)",
+                left: 12,
+                top: 12,
+                background: "rgba(255,255,255,0.82)",
                 backdropFilter: "blur(8px)",
-                padding: "10px 12px",
-                borderRadius: 14,
-                fontSize: 15,
+                padding: "8px 10px",
+                borderRadius: 12,
+                fontSize: 14,
                 fontWeight: 800,
               }}
             >
