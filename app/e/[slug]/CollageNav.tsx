@@ -2,7 +2,7 @@
 
 import React from "react";
 
-type CardKey = "invite" | "rsvp" | "church" | "venue";
+export type CardKey = "invite" | "rsvp" | "church" | "venue";
 
 type Card = {
   key: CardKey;
@@ -10,7 +10,7 @@ type Card = {
   src: string;
 };
 
-export default function CollageNav() {
+export default function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
   const cards: Card[] = [
     { key: "invite", label: "Προσκλητήριο", src: "/invites/1.png" },
     { key: "rsvp", label: "RSVP", src: "/invites/2.png" },
@@ -18,30 +18,22 @@ export default function CollageNav() {
     { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
   ];
 
-  const scrollTo = (key: CardKey) => {
-    const el = document.getElementById(key);
-    if (!el) return;
-  
-    const y = el.getBoundingClientRect().top + window.scrollY - 24; // 24px “ανάσα” από πάνω
-    window.scrollTo({ top: y, behavior: "smooth" });
-  };
-
-  // Ρύθμισε αυτά για μέγεθος/αραιά/εναλλάξ
-  const CARD_W = 760; // πλάτος κάρτας (πιο μεγάλη)
-  const CARD_H = 460; // ύψος κάρτας (να φαίνεται σχεδόν ολόκληρη)
-  const STEP_Y = 340; // απόσταση προς τα κάτω (πιο αραιά)
-  const STEP_X = 110; // δεξιά/αριστερά εναλλάξ
-  const ROT = 5;      // κλίση
+  // Μεγάλο + αραιό + εναλλάξ δεξιά/αριστερά
+  const CARD_W = 820;
+  const CARD_H = 520;
+  const STEP_Y = 460;
+  const STEP_X = 120;
+  const ROT = 5;
 
   return (
     <div
       style={{
         position: "relative",
-        width: "min(94vw, 820px)",
-        height: STEP_Y * 3 + CARD_H,
+        width: "min(94vw, 880px)",
+        height: STEP_Y * 3 + CARD_H + 40,
         margin: "0 auto",
         marginTop: 14,
-        marginBottom: 18,
+        marginBottom: 10,
       }}
     >
       {cards.map((c, i) => {
@@ -54,7 +46,7 @@ export default function CollageNav() {
           <button
             key={c.key}
             type="button"
-            onClick={() => scrollTo(c.key)}
+            onClick={() => onSelect(c.key)}
             style={{
               position: "absolute",
               left: "50%",
@@ -70,7 +62,6 @@ export default function CollageNav() {
               cursor: "pointer",
               padding: 0,
               outline: "none",
-              pointerEvents: "auto",
               zIndex: 100 - i,
               overflow: "hidden",
             }}
