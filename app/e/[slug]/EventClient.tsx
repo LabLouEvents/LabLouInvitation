@@ -2,9 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Countdown from "./Countdown";
-import RSVPForm from "./RSVPForm";
-
-type CardKey = "invite" | "rsvp" | "church" | "venue";
 
 type EventFull = {
   slug: string;
@@ -12,15 +9,7 @@ type EventFull = {
   title: string;
   subtitle?: string | null;
   inviter_names?: string | null;
-  church_name?: string | null;
-  church_address?: string | null;
-  church_map_url?: string | null;
-  venue_name?: string | null;
-  venue_address?: string | null;
-  venue_map_url?: string | null;
   start_iso: string;
-  rsvp_deadline?: string | null;
-  extra_note?: string | null;
 };
 
 function storageKey(slug: string, t: string) {
@@ -40,24 +29,28 @@ export default function EventClient({
 }) {
   const inviter = useMemo(() => {
     return (event.inviter_names || event.subtitle || event.title || "").trim();
-  }, [event]);
+  }, [event.inviter_names, event.subtitle, event.title]);
 
   const [showIntro, setShowIntro] = useState(true);
-  const [active, setActive] = useState<CardKey | null>(null);
 
   useEffect(() => {
-    const seen = localStorage.getItem(storageKey(slug, t));
-    if (seen === "1") setShowIntro(false);
+    try {
+      const seen = localStorage.getItem(storageKey(slug, t));
+      if (seen === "1") setShowIntro(false);
+    } catch {}
   }, [slug, t]);
 
   function enterInvite() {
-    localStorage.setItem(storageKey(slug, t), "1");
+    try {
+      localStorage.setItem(storageKey(slug, t), "1");
+    } catch {}
     setShowIntro(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  /* ======================
+  /* =========================
      INTRO SCREEN
-  ====================== */
+  ========================= */
   if (showIntro) {
     return (
       <div
@@ -65,47 +58,76 @@ export default function EventClient({
           minHeight: "100vh",
           display: "grid",
           placeItems: "center",
-          background:
-            "radial-gradient(circle at 20% 10%, #0b1220 0%, #070a12 55%, #04050a 100%)",
-          color: "white",
           padding: 24,
+          background:
+            "radial-gradient(circle at 30% 0%, rgba(212,175,55,0.12) 0%, rgba(11,18,32,1) 35%, rgba(4,5,10,1) 100%)",
         }}
       >
+        <style>{`
+          @keyframes introIn {
+            to { opacity: 1; transform: translateY(0px); }
+          }
+        `}</style>
+
         <div
           style={{
-            width: "min(92vw, 600px)",
-            padding: 30,
-            borderRadius: 22,
+            width: "min(92vw, 620px)",
+            padding: 34,
+            borderRadius: 26,
+            textAlign: "center",
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.10)",
-            textAlign: "center",
-            backdropFilter: "blur(10px)",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 26px 90px rgba(0,0,0,0.62)",
+            color: "white",
+            opacity: 0,
+            transform: "translateY(8px)",
+            animation: "introIn 520ms ease forwards",
           }}
         >
-          <div style={{ fontSize: 12, opacity: 0.7, letterSpacing: 1 }}>
+          <div style={{ opacity: 0.75, letterSpacing: 1, fontSize: 13 }}>
             LAB LOU INVITATIONS
           </div>
 
+          {/* ENVELOPE */}
           <img
             src="/intro/envelope.png"
             alt="Envelope"
             style={{
-              width: 130,
-              margin: "18px auto",
+              width: 200,
+              height: "auto",
+              margin: "22px auto 14px",
               display: "block",
+              filter: "drop-shadow(0 22px 34px rgba(0,0,0,0.45))",
+              transition: "transform 220ms ease",
+              cursor: "pointer",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-4px) scale(1.04)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateY(0px) scale(1)")
+            }
           />
 
-          <h1 style={{ marginBottom: 8 }}>
+          <h1 style={{ margin: "10px 0 8px", fontSize: 26 }}>
             Έχεις πρόσκληση από
           </h1>
 
-          <div style={{ fontWeight: 800, fontSize: 20 }}>
-            « {inviter} »
+          <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>
+            « {inviter || "—"} »
           </div>
 
           {event.start_iso && (
-            <div style={{ marginTop: 18 }}>
+            <div
+              style={{
+                padding: 14,
+                borderRadius: 18,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.06)",
+                marginBottom: 18,
+              }}
+            >
               <Countdown startISO={event.start_iso} />
             </div>
           )}
@@ -113,128 +135,64 @@ export default function EventClient({
           <button
             onClick={enterInvite}
             style={{
-              marginTop: 20,
               width: "100%",
-              padding: "12px 14px",
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "rgba(255,255,255,0.15)",
+              padding: "14px 16px",
+              borderRadius: 16,
+              border: "1px solid rgba(212,175,55,0.45)",
+              background:
+                "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(255,255,255,0.08))",
               color: "white",
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: "pointer",
+              fontSize: 15,
+              boxShadow: "0 16px 36px rgba(0,0,0,0.45)",
             }}
           >
             Άνοιγμα προσκλητηρίου
           </button>
+
+          <div style={{ marginTop: 12, opacity: 0.65, fontSize: 13 }}>
+            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+          </div>
         </div>
       </div>
     );
   }
 
-  /* ======================
-     COLLAGE NAV
-  ====================== */
-
-  const cards = [
-    { key: "invite" as CardKey, label: "Προσκλητήριο", src: "/invites/1.png" },
-    { key: "rsvp" as CardKey, label: "RSVP", src: "/invites/2.png" },
-    { key: "church" as CardKey, label: "Εκκλησία", src: "/invites/3.png" },
-    { key: "venue" as CardKey, label: "Κέντρο", src: "/invites/4.png" },
-  ];
-
-  const W = 320;
-  const H = 240;
-  const OVERLAP = 85;
-  const SHIFT = 35;
-  const ROT = 6;
-
+  /* =========================
+     MAIN PAGE (προσωρινό απλό)
+  ========================= */
   return (
     <div
       style={{
         minHeight: "100vh",
+        padding: 32,
         background:
-          "radial-gradient(circle at 20% 10%, #0b1220 0%, #070a12 55%, #04050a 100%)",
+          "radial-gradient(circle at 30% 0%, rgba(212,175,55,0.12) 0%, rgba(11,18,32,1) 35%, rgba(4,5,10,1) 100%)",
         color: "white",
-        padding: 24,
+        textAlign: "center",
       }}
     >
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 30 }}>
-          <h1>{event.title}</h1>
-          {event.subtitle && <p>{event.subtitle}</p>}
-        </div>
+      <h1 style={{ fontSize: 32, marginBottom: 10 }}>{event.title}</h1>
+      {event.subtitle && <p style={{ opacity: 0.8 }}>{event.subtitle}</p>}
 
-        <div
+      <div style={{ marginTop: 24 }}>
+        <a
+          href={gcalUrl}
+          target="_blank"
+          rel="noreferrer"
           style={{
-            position: "relative",
-            width: "min(92vw, 400px)",
-            height: H + OVERLAP * 3,
-            margin: "0 auto",
+            padding: "14px 18px",
+            borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.2)",
+            background: "rgba(255,255,255,0.08)",
+            color: "white",
+            textDecoration: "none",
+            fontWeight: 700,
           }}
         >
-          {cards.map((c, i) => {
-            const left = i % 2 === 0;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setActive(c.key)}
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: i * OVERLAP,
-                  transform: `translateX(-50%) translateX(${
-                    left ? -SHIFT : SHIFT
-                  }px) rotate(${left ? -ROT : ROT}deg)`,
-                  width: W,
-                  height: H,
-                  borderRadius: 18,
-                  background: `url(${c.src}) center/cover`,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  boxShadow: "0 18px 45px rgba(0,0,0,0.5)",
-                  cursor: "pointer",
-                }}
-              />
-            );
-          })}
-        </div>
-
-        {active && (
-          <div
-            style={{
-              marginTop: 40,
-              padding: 20,
-              borderRadius: 18,
-              background: "rgba(255,255,255,0.08)",
-            }}
-          >
-            <button onClick={() => setActive(null)}>Κλείσιμο</button>
-
-            {active === "invite" && (
-              <div style={{ marginTop: 10 }}>{event.extra_note}</div>
-            )}
-
-            {active === "rsvp" && (
-              <div style={{ marginTop: 10 }}>
-                <a href={gcalUrl} target="_blank">
-                  Google Calendar
-                </a>
-                <RSVPForm slug={slug} />
-              </div>
-            )}
-
-            {active === "church" && (
-              <div style={{ marginTop: 10 }}>
-                {event.church_name}
-              </div>
-            )}
-
-            {active === "venue" && (
-              <div style={{ marginTop: 10 }}>
-                {event.venue_name}
-              </div>
-            )}
-          </div>
-        )}
+          Προσθήκη στο Google Calendar
+        </a>
       </div>
     </div>
   );
