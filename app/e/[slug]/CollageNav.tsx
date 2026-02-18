@@ -1,123 +1,100 @@
 "use client";
 
-type CollageImage = {
+import React from "react";
+
+type CardKey = "invite" | "rsvp" | "church" | "venue";
+
+type Card = {
+  key: CardKey;
+  label: string;
   src: string;
-  alt: string;
-  targetId: string; // π.χ. "rsvp", "invite", "church", "venue"
-  label?: string;
 };
 
-export default function CollageNav({ images }: { images: CollageImage[] }) {
-  const CARD_H = 360;
-  const STEP = 290; // πιο αραιά προς τα κάτω
-  const totalHeight = Math.max(1, images.length) * STEP + CARD_H;
+export default function CollageNav() {
+  const cards: Card[] = [
+    { key: "invite", label: "Προσκλητήριο", src: "/invites/1.png" },
+    { key: "rsvp", label: "RSVP", src: "/invites/2.png" },
+    { key: "church", label: "Εκκλησία", src: "/invites/3.png" },
+    { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
+  ];
 
-  const goTo = (id: string) => {
-    const el = document.getElementById(id);
+  const scrollTo = (key: CardKey) => {
+    const el = document.getElementById(key);
     if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  
+    const y = el.getBoundingClientRect().top + window.scrollY - 24; // 24px “ανάσα” από πάνω
+    window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  return (
-    <div style={{ marginTop: 18 }}>
-      <div
-        style={{
-          position: "relative",
-          height: totalHeight,
-          maxWidth: 820,
-          margin: "0 auto",
-        }}
-      >
-        {images.map((img, index) => {
-          const y = index * STEP;
-          const x = index % 2 === 0 ? -30 : 30;
-          const rot = index % 2 === 0 ? -4 : 4;
-          const z = 10 + index;
+  // Ρύθμισε αυτά για μέγεθος/αραιά/εναλλάξ
+  const CARD_W = 760; // πλάτος κάρτας (πιο μεγάλη)
+  const CARD_H = 460; // ύψος κάρτας (να φαίνεται σχεδόν ολόκληρη)
+  const STEP_Y = 340; // απόσταση προς τα κάτω (πιο αραιά)
+  const STEP_X = 110; // δεξιά/αριστερά εναλλάξ
+  const ROT = 5;      // κλίση
 
-          return (
-            <button
-              key={index}
-              type="button"
-              onClick={() => goTo(img.targetId)}
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "min(94vw, 820px)",
+        height: STEP_Y * 3 + CARD_H,
+        margin: "0 auto",
+        marginTop: 14,
+        marginBottom: 18,
+      }}
+    >
+      {cards.map((c, i) => {
+        const isLeft = i % 2 === 0;
+        const x = isLeft ? -STEP_X : STEP_X;
+        const y = i * STEP_Y;
+        const r = isLeft ? -ROT : ROT;
+
+        return (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => scrollTo(c.key)}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: y,
+              transform: `translateX(-50%) translateX(${x}px) rotate(${r}deg)`,
+              width: CARD_W,
+              height: CARD_H,
+              maxWidth: "94vw",
+              borderRadius: 18,
+              border: "1px solid rgba(0,0,0,0.08)",
+              boxShadow: "0 14px 34px rgba(0,0,0,0.12)",
+              background: `url(${c.src}) center/cover no-repeat`,
+              cursor: "pointer",
+              padding: 0,
+              outline: "none",
+              pointerEvents: "auto",
+              zIndex: 100 - i,
+              overflow: "hidden",
+            }}
+            aria-label={c.label}
+            title={c.label}
+          >
+            <div
               style={{
                 position: "absolute",
-                top: y,
-                left: "50%",
-                transform: `translateX(-50%) translateX(${x}px) rotate(${rot}deg)`,
-                width: "92%",
-                maxWidth: 760,
-                display: "block",
-                textDecoration: "none",
-                zIndex: z,
-                cursor: "pointer",
-                border: "none",
-                background: "transparent",
-                padding: 0,
+                left: 14,
+                top: 14,
+                background: "rgba(255,255,255,0.78)",
+                backdropFilter: "blur(6px)",
+                padding: "8px 10px",
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 700,
               }}
-              aria-label={img.alt}
             >
-              <div
-                style={{
-                  borderRadius: 18,
-                  overflow: "hidden",
-                  background: "rgba(255,255,255,0.70)",
-                  boxShadow: "0 18px 50px rgba(0,0,0,0.14)",
-                  border: "1px solid rgba(0,0,0,0.06)",
-                  backdropFilter: "blur(6px)",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    margin: 12,
-                    padding: "6px 10px",
-                    borderRadius: 999,
-                    background: "rgba(255,255,255,0.78)",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "#222",
-                  }}
-                >
-                  {img.label || img.alt}
-                </div>
-
-                <div style={{ height: CARD_H }}>
-                  {img.src ? (
-                    <img
-                      src={img.src}
-                      alt={img.alt}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "rgba(0,0,0,0.55)",
-                        fontSize: 14,
-                      }}
-                    >
-                      (Δεν έχει ανέβει φωτογραφία ακόμα)
-                    </div>
-                  )}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <div style={{ textAlign: "center", fontSize: 12, opacity: 0.7, marginTop: 10 }}>
-        Πάτα σε φωτογραφία για να πας στην αντίστοιχη ενότητα.
-      </div>
+              {c.label}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

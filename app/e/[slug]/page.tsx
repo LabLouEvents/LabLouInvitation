@@ -102,7 +102,7 @@ export default async function EventPage({
 
         {/* COLLLAGE NAV (αντί για cover image + αντί για rsvp κάτω) */}
         <div className="e-card e-reveal e-delay-3" style={{ marginTop: 18 }}>
-          <CollageNav images={collageImages} />
+        <CollageNav />
         </div>
 
         {/* SECTIONS */}
