@@ -20,6 +20,7 @@ export default async function EventPage({
   const slug = params.slug;
   const t = searchParams?.t || "";
 
+  // Αν δεν υπάρχει token → δεν ανοίγει
   if (!t) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
@@ -67,16 +68,13 @@ export default async function EventPage({
         (event.church_address ? ", " + event.church_address : "")
     )}`;
 
+  // ⚡ ΕΔΩ το σημαντικό: δίνουμε και το t στο EventClient
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 32,
-        background:
-          "radial-gradient(circle at 30% 10%, #f4f5f8 0%, #eef1f6 50%, #e6eaf0 100%)",
-      }}
-    >
-      <EventClient event={event} slug={slug} gcalUrl={gcalUrl} />
-    </div>
+    <EventClient
+      event={event}
+      slug={slug}
+      gcalUrl={gcalUrl}
+      t={t}
+    />
   );
 }
