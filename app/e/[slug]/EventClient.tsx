@@ -194,48 +194,125 @@ export default function EventClient({
   };
 
   /* =========================
-     INTRO SCREEN
-  ========================= */
-  if (showIntro) {
+   INTRO SCREEN (CLEAN)
+========================= */
+if (showIntro) {
     return (
-      <div style={{ ...pageStyle, display: "grid", placeItems: "center" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          padding: 22,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: `url(${pageBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* LOGO */}
         <div
           style={{
-            ...glassCard,
-            width: "min(92vw, 640px)",
-            padding: 26,
-            textAlign: "center",
+            color: "white",
+            fontSize: 13,
+            letterSpacing: 1,
+            opacity: 0.9,
+            marginBottom: 18,
+            textShadow: "0 2px 10px rgba(0,0,0,0.6)",
           }}
         >
-          <div style={{ ...textStyle, opacity: 0.85, letterSpacing: 0.8, fontSize: 13 }}>
-            LAB LOU INVITATIONS
-          </div>
-
-          {/* Envelope (χωρίς παραμόρφωση) */}
+          LAB LOU INVITATIONS
+        </div>
+  
+        {/* ENVELOPE - ΚΑΝΟΝΙΚΟ ΣΧΗΜΑ */}
+        <img
+          src={envelopeImg}
+          alt="Envelope"
+          style={{
+            width: "min(82vw, 520px)",
+            height: "auto",
+            objectFit: "contain",
+            display: "block",
+            marginBottom: 36,   // 👈 ΕΔΩ κατεβάζουμε το κείμενο
+            filter: "drop-shadow(0 22px 35px rgba(0,0,0,0.25))",
+          }}
+        />
+  
+        {/* TEXT κάτω από τον φάκελο */}
+        <div
+          style={{
+            textAlign: "center",
+            color: "white",
+            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900 }}>
+            Έχεις πρόσκληση από
+          </h1>
+  
           <div
             style={{
-              position: "relative",
-              zIndex: 1,
-              margin: "18px auto 10px",
-              width: "min(78vw, 520px)",
-              height: "min(52vh, 360px)",
-              display: "grid",
-              placeItems: "center",
+              marginTop: 10,
+              fontSize: 20,
+              fontWeight: 900,
             }}
           >
-            <img
-              src={envelopeImg}
-              alt="Envelope"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain", // ✅ δεν παραμορφώνει
-                display: "block",
-                filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.18))",
-              }}
-            />
+            « {inviter || "—"} »
           </div>
-
+  
+          {event.start_iso && (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ marginBottom: 8, opacity: 0.95 }}>
+                Μέχρι να ξεκινήσει:
+              </div>
+  
+              <div
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: 14,
+                  background: "rgba(255,255,255,0.85)",
+                  color: "#111",
+                  fontWeight: 800,
+                  display: "inline-block",
+                }}
+              >
+                <Countdown startISO={event.start_iso} />
+              </div>
+            </div>
+          )}
+  
+          <button
+            onClick={enterInvite}
+            style={{
+              marginTop: 26,
+              padding: "12px 26px",
+              borderRadius: 14,
+              border: "none",
+              background: "white",
+              color: "#111",
+              fontWeight: 900,
+              cursor: "pointer",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
+            }}
+          >
+            Άνοιγμα προσκλητηρίου
+          </button>
+  
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 13,
+              opacity: 0.9,
+            }}
+          >
+            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+          </div>
+        </div>
+      </div>
+    );
+  }
           {/* Text wrapper πάνω από τον φάκελο */}
           <div style={{ position: "relative", zIndex: 2 }}>
             <h1 style={{ ...textStyle, margin: "6px 0 10px", fontSize: 26, fontWeight: 900 }}>
