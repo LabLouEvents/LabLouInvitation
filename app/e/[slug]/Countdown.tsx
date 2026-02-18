@@ -2,47 +2,32 @@
 
 import { useEffect, useState } from "react";
 
-type Props = {
-  startISO: string;
-};
+export default function Countdown({ startISO }: { startISO: string }) {
+  const calculate = () => {
+    const diff = new Date(startISO).getTime() - new Date().getTime();
 
-function diff(target: Date) {
-  const now = new Date();
-  const ms = target.getTime() - now.getTime();
+    if (diff <= 0) return { d: 0, h: 0, m: 0 };
 
-  if (ms <= 0) return null;
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
 
-  const totalSec = Math.floor(ms / 1000);
+    return { d, h, m };
+  };
 
-  const days = Math.floor(totalSec / 86400);
-  const hours = Math.floor((totalSec % 86400) / 3600);
-  const minutes = Math.floor((totalSec % 3600) / 60);
-
-  return { days, hours, minutes };
-}
-
-export default function Countdown({ startISO }: Props) {
-  const [time, setTime] = useState(() => diff(new Date(startISO)));
+  const [time, setTime] = useState(calculate());
 
   useEffect(() => {
     const i = setInterval(() => {
-      setTime(diff(new Date(startISO)));
-    }, 60000); // κάθε 1 λεπτό
+      setTime(calculate());
+    }, 60000);
 
     return () => clearInterval(i);
   }, [startISO]);
 
-  if (!time) return null;
-
   return (
-    <div className="e-card" style={{ textAlign: "center", marginTop: 20 }}>
-      <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 6 }}>
-        Μέχρι το event
-      </div>
-
-      <div style={{ fontSize: 20, fontWeight: 600 }}>
-        ⏳ {time.days} μέρες • {time.hours} ώρες • {time.minutes} λεπτά
-      </div>
-    </div>
+    <span>
+      {time.d} ημέρες · {time.h} ώρες · {time.m} λεπτά
+    </span>
   );
 }
