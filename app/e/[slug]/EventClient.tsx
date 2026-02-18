@@ -247,3 +247,222 @@ export default function EventClient({
               marginTop: 22,
               padding: "14px 34px",
               borderRadius: 14,
+              border: "none",
+              background: "white",
+              color: "#111",
+              fontWeight: 900,
+              fontSize: 16,
+              cursor: "pointer",
+              boxShadow: "0 14px 34px rgba(0,0,0,0.22)",
+            }}
+          >
+            Άνοιγμα προσκλητηρίου
+          </button>
+
+          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.95 }}>
+            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+     MAIN PAGE
+  ========================= */
+  return (
+    <div style={pageStyle}>
+      <div style={{ maxWidth: 980, margin: "0 auto" }}>
+        {/* Title πάνω από στοίβα */}
+        <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
+          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>
+            {event.title}
+          </div>
+          {event.subtitle && (
+            <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>
+              {event.subtitle}
+            </div>
+          )}
+        </div>
+
+        {/* Countdown (μόνο γράμματα, σκιά) */}
+        {event.start_iso && (
+          <div
+            style={{
+              marginTop: 14,
+              textAlign: "center",
+              color: "white",
+              fontSize: 18,
+              fontWeight: 900,
+              textShadow: textShadowStrong,
+            }}
+          >
+            <Countdown startISO={event.start_iso} />
+          </div>
+        )}
+
+        {/* Collage */}
+        <CollageNav onSelect={(k) => setActive(k)} />
+
+        {/* Hint */}
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 10,
+            color: "white",
+            opacity: 0.95,
+            fontSize: 13,
+            textShadow: textShadowSoft,
+          }}
+        >
+          Πάτα σε μία κάρτα για να ανοίξει η αντίστοιχη ενότητα.
+        </div>
+
+        {/* Panel ανοίγει μόνο όταν πατάς */}
+        {active && (
+          <div
+            style={{
+              marginTop: 18,
+              borderRadius: 18,
+              padding: 18,
+              background: "rgba(255,255,255,0.88)",
+              color: "#111",
+              boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
+              backdropFilter: "blur(6px)",
+              maxWidth: 760,
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+              <div style={{ fontWeight: 900, fontSize: 16 }}>
+                {active === "invite" && "Προσκλητήριο"}
+                {active === "rsvp" && "RSVP"}
+                {active === "church" && "Εκκλησία"}
+                {active === "venue" && "Κέντρο"}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActive(null)}
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(0,0,0,0.12)",
+                  background: "white",
+                  cursor: "pointer",
+                  fontWeight: 800,
+                }}
+              >
+                Κλείσιμο
+              </button>
+            </div>
+
+            <div style={{ height: 14 }} />
+
+            {/* INVITE */}
+            {active === "invite" && (
+              <div style={{ lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 900, fontSize: 18 }}>{event.title}</div>
+                {event.subtitle && <div style={{ marginTop: 6 }}>{event.subtitle}</div>}
+                {(event.date_text || event.time_text) && (
+                  <div style={{ marginTop: 10, opacity: 0.9 }}>
+                    {event.date_text && <div>Ημερομηνία: <b>{event.date_text}</b></div>}
+                    {event.time_text && <div>Ώρα: <b>{event.time_text}</b></div>}
+                  </div>
+                )}
+                {event.extra_note && <div style={{ marginTop: 10, opacity: 0.9 }}>{event.extra_note}</div>}
+              </div>
+            )}
+
+            {/* RSVP */}
+            {active === "rsvp" && (
+              <div>
+                {event.rsvp_deadline && (
+                  <div style={{ marginBottom: 10, fontWeight: 700 }}>
+                    Παρακαλούμε απαντήστε έως: <span style={{ textDecoration: "underline" }}>{event.rsvp_deadline}</span>
+                  </div>
+                )}
+
+                <a
+                  href={gcalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    padding: "12px 14px",
+                    borderRadius: 14,
+                    background: "#111",
+                    color: "white",
+                    fontWeight: 900,
+                  }}
+                >
+                  Προσθήκη στο Google Calendar
+                </a>
+
+                <a
+                  href={`/api/ics?slug=${encodeURIComponent(slug)}`}
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    marginTop: 10,
+                    padding: "12px 14px",
+                    borderRadius: 14,
+                    background: "#111",
+                    color: "white",
+                    fontWeight: 900,
+                    opacity: 0.92,
+                  }}
+                >
+                  Προσθήκη στο iPhone / Apple Calendar
+                </a>
+
+                <div style={{ height: 14 }} />
+                <RSVPForm slug={slug} />
+              </div>
+            )}
+
+            {/* CHURCH */}
+            {active === "church" && (
+              <div style={{ lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 900 }}>{event.church_name || "-"}</div>
+                {event.church_address && <div style={{ marginTop: 6, opacity: 0.9 }}>{event.church_address}</div>}
+                {event.church_map_url && (
+                  <a
+                    href={event.church_map_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: "inline-block", marginTop: 10, color: "#111", fontWeight: 900 }}
+                  >
+                    Άνοιγμα χάρτη →
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* VENUE */}
+            {active === "venue" && (
+              <div style={{ lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 900 }}>{event.venue_name || "-"}</div>
+                {event.venue_address && <div style={{ marginTop: 6, opacity: 0.9 }}>{event.venue_address}</div>}
+                {event.venue_map_url && (
+                  <a
+                    href={event.venue_map_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: "inline-block", marginTop: 10, color: "#111", fontWeight: 900 }}
+                  >
+                    Άνοιγμα χάρτη →
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
