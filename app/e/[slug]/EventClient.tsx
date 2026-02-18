@@ -28,7 +28,7 @@ export default function EventClient({
 }) {
   const inviter = useMemo(() => {
     return (event.inviter_names || event.subtitle || event.title || "").trim();
-  }, [event]);
+  }, [event.inviter_names, event.subtitle, event.title]);
 
   const [showIntro, setShowIntro] = useState(true);
 
@@ -44,103 +44,107 @@ export default function EventClient({
       localStorage.setItem(storageKey(slug, t), "1");
     } catch {}
     setShowIntro(false);
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  /* =========================
-     INTRO SCREEN
-  ========================= */
-
   if (showIntro) {
-    const pageBg = "/intro/background.jpg";   // public/intro/background.jpg
-    const envelopeImg = "/intro/envelope.png"; // public/intro/envelope.png
+    const pageBg = "/intro/background.jpg";
+    const envelopeImg = "/intro/envelope.png";
 
     return (
       <div
         style={{
           minHeight: "100vh",
-          padding: 24,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          position: "relative",
           backgroundImage: `url(${pageBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Logo */}
+        {/* ✅ Αυτό απορροφά ΟΛΑ τα κλικ για να μην “περνάνε” σε link από κάτω */}
         <div
           style={{
-            fontSize: 13,
-            letterSpacing: 1,
-            marginBottom: 18,
-            fontWeight: 600,
-            color: "white",
-            textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "auto",
           }}
-        >
-          LAB LOU INVITATIONS
-        </div>
-
-        {/* Envelope - φυσικό σχήμα */}
-        <img
-          src={envelopeImg}
-          alt="Envelope"
-          style={{
-            width: "min(85vw, 520px)",
-            height: "auto",
-            objectFit: "contain",
-            marginBottom: 50,
-            filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.25))",
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
           }}
         />
 
-        {/* Text κάτω από τον φάκελο */}
+        {/* ✅ ΜΟΝΟ το κουμπί επιτρέπεται να πατηθεί */}
         <div
           style={{
+            position: "relative",
+            zIndex: 2,
+            minHeight: "100vh",
+            padding: 24,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
             textAlign: "center",
-            color: "white",
-            textShadow: "0 3px 12px rgba(0,0,0,0.7)",
           }}
         >
-          <h1
+          <div
             style={{
-              margin: 0,
-              fontSize: 26,
-              fontWeight: 900,
+              fontSize: 13,
+              letterSpacing: 1,
+              marginBottom: 18,
+              fontWeight: 700,
+              color: "white",
+              textShadow: "0 2px 10px rgba(0,0,0,0.55)",
+              pointerEvents: "none",
             }}
           >
-            Έχεις πρόσκληση από
-          </h1>
+            LAB LOU INVITATIONS
+          </div>
+
+          <img
+            src={envelopeImg}
+            alt="Envelope"
+            style={{
+              width: "min(86vw, 560px)",
+              height: "auto",
+              objectFit: "contain",
+              display: "block",
+              marginBottom: 44,
+              filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.25))",
+              pointerEvents: "none",
+            }}
+          />
 
           <div
             style={{
-              marginTop: 10,
-              fontSize: 20,
-              fontWeight: 900,
+              color: "white",
+              textShadow: "0 3px 12px rgba(0,0,0,0.65)",
+              pointerEvents: "none",
             }}
           >
-            « {inviter || "—"} »
+            <div style={{ fontSize: 26, fontWeight: 900 }}>
+              Έχεις πρόσκληση από
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 20, fontWeight: 900 }}>
+              « {inviter || "—"} »
+            </div>
+
+            {event.start_iso && (
+              <div style={{ marginTop: 26, fontSize: 20, fontWeight: 900 }}>
+                <Countdown startISO={event.start_iso} />
+              </div>
+            )}
           </div>
 
-          {/* Countdown ΧΩΡΙΣ τίτλο */}
-          {event.start_iso && (
-            <div
-              style={{
-                marginTop: 28,
-                fontSize: 20,
-                fontWeight: 900,
-              }}
-            >
-              <Countdown startISO={event.start_iso} />
-            </div>
-          )}
-
-          {/* WHITE BUTTON (έντονο, όχι αχνό) */}
           <button
-            onClick={enterInvite}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              enterInvite();
+            }}
             style={{
               marginTop: 32,
               padding: "14px 32px",
@@ -152,12 +156,23 @@ export default function EventClient({
               fontSize: 16,
               cursor: "pointer",
               boxShadow: "0 12px 30px rgba(0,0,0,0.25)",
+              pointerEvents: "auto",
+              zIndex: 3,
             }}
           >
             Άνοιγμα προσκλητηρίου
           </button>
 
-          <div style={{ marginTop: 14, fontSize: 13, opacity: 0.9 }}>
+          <div
+            style={{
+              marginTop: 14,
+              fontSize: 13,
+              opacity: 0.92,
+              color: "white",
+              textShadow: "0 2px 10px rgba(0,0,0,0.55)",
+              pointerEvents: "none",
+            }}
+          >
             (Την επόμενη φορά θα ανοίγει κατευθείαν.)
           </div>
         </div>
@@ -165,23 +180,11 @@ export default function EventClient({
     );
   }
 
-  /* =========================
-     MAIN PAGE
-  ========================= */
-
+  // MAIN (προσωρινό)
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 24,
-        background: "#faf7f2",
-      }}
-    >
+    <div style={{ minHeight: "100vh", padding: 24, background: "#faf7f2" }}>
       <h1 style={{ textAlign: "center" }}>{event.title}</h1>
-
-      {event.subtitle && (
-        <p style={{ textAlign: "center" }}>{event.subtitle}</p>
-      )}
+      {event.subtitle && <p style={{ textAlign: "center" }}>{event.subtitle}</p>}
 
       <div style={{ textAlign: "center", marginTop: 20 }}>
         <a
