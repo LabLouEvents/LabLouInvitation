@@ -1,5 +1,8 @@
-import { notFound } from "next/navigation";
 import EventClient from "./EventClient";
+
+function toGoogleDate(iso: string) {
+  return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+}
 
 function addHours(iso: string, hours: number) {
   const d = new Date(iso);
@@ -17,7 +20,6 @@ export default async function EventPage({
   const slug = params.slug;
   const t = searchParams?.t || "";
 
-  // ✅ Αν δεν έχει token, δεν δίνουμε πρόσβαση
   if (!t) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
@@ -27,31 +29,38 @@ export default async function EventPage({
     );
   }
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://lablouinvitations.gr";
+
   const res = await fetch(
     `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
-  const data = await res.json().catch(() => null);
+  const data = await res.json();
 
-  if (!res.ok || !data?.ok || !data?.event) {
-    notFound();
+  if (!res.ok || !data.ok || !data.event) {
+    return (
+      <div style={{ padding: 40, fontFamily: "system-ui" }}>
+        Δεν βρέθηκε event ή δεν έχεις πρόσβαση.
+      </div>
+    );
   }
 
   const event = data.event;
 
-  // fallback end
+  const startISO = event.start_iso;
   const endISO = event.end_iso || addHours(event.start_iso, 2);
 
-  return (
-    <EventClient
-      slug={slug}
-      token={t}
-      event={{
-        ...event,
-        end_iso: endISO,
-      }}
-    />
-  );
+  const gcalUrl =
+    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    `&text=${encodeURIComponent(event.title)}` +
+    `&dates=${toGoogleDate(startISO)}/${toGoogleDate(endISO)}` +
+    `&details=${encodeURIComponent(event.subtitle || "")}` +
+    `&location=${encodeURIComponent(
+      (event.church_name || "") +
+        (event.church_address ? ", " + event.church_address : "")
+    )}`;
+
+  return <EventClient event={event} slug={slug} gcalUrl={gcalUrl} />;
 }

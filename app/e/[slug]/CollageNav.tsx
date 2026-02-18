@@ -4,43 +4,38 @@ import React from "react";
 
 export type CardKey = "invite" | "rsvp" | "church" | "venue";
 
-type Card = {
-  key: CardKey;
-  label: string;
-  src: string;
-};
-
-export default function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
-  const cards: Card[] = [
-    { key: "invite", label: "Προσκλητήριο", src: "/invites/1.png" },
-    { key: "rsvp", label: "RSVP", src: "/invites/2.png" },
-    { key: "church", label: "Εκκλησία", src: "/invites/3.png" },
-    { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
-  ];
-
-  // Μεγάλο + αραιό + εναλλάξ δεξιά/αριστερά
+export default function CollageNav({
+  cards,
+  onSelect,
+}: {
+  cards: { key: CardKey; label: string; src: string }[];
+  onSelect: (key: CardKey) => void;
+}) {
+  // “σχεδόν ολόκληρη” + ελάχιστο overlap
   const CARD_W = 820;
   const CARD_H = 520;
-  const STEP_Y = 460;
-  const STEP_X = 120;
-  const ROT = 5;
+
+  // πιο αραιά προς τα κάτω
+  const STEP_Y = 470; // κοντά στο CARD_H => φαίνονται σχεδόν ολόκληρες
+  const STEP_X = 130; // εναλλάξ δεξιά/αριστερά
+  const ROT = 5;      // κλίση
 
   return (
     <div
       style={{
         position: "relative",
-        width: "min(94vw, 880px)",
-        height: STEP_Y * 3 + CARD_H + 40,
+        width: "min(94vw, 900px)",
+        height: STEP_Y * (cards.length - 1) + CARD_H,
         margin: "0 auto",
-        marginTop: 14,
-        marginBottom: 10,
+        marginTop: 8,
+        marginBottom: 8,
       }}
     >
       {cards.map((c, i) => {
-        const isLeft = i % 2 === 0;
-        const x = isLeft ? -STEP_X : STEP_X;
+        const left = i % 2 === 0;
+        const x = left ? -STEP_X : STEP_X;
         const y = i * STEP_Y;
-        const r = isLeft ? -ROT : ROT;
+        const r = left ? -ROT : ROT;
 
         return (
           <button
@@ -55,9 +50,9 @@ export default function CollageNav({ onSelect }: { onSelect: (k: CardKey) => voi
               width: CARD_W,
               height: CARD_H,
               maxWidth: "94vw",
-              borderRadius: 18,
+              borderRadius: 20,
               border: "1px solid rgba(0,0,0,0.08)",
-              boxShadow: "0 14px 34px rgba(0,0,0,0.12)",
+              boxShadow: "0 16px 40px rgba(0,0,0,0.14)",
               background: `url(${c.src}) center/cover no-repeat`,
               cursor: "pointer",
               padding: 0,
@@ -73,12 +68,12 @@ export default function CollageNav({ onSelect }: { onSelect: (k: CardKey) => voi
                 position: "absolute",
                 left: 14,
                 top: 14,
-                background: "rgba(255,255,255,0.78)",
-                backdropFilter: "blur(6px)",
-                padding: "8px 10px",
-                borderRadius: 12,
-                fontSize: 14,
-                fontWeight: 700,
+                background: "rgba(255,255,255,0.80)",
+                backdropFilter: "blur(8px)",
+                padding: "10px 12px",
+                borderRadius: 14,
+                fontSize: 15,
+                fontWeight: 800,
               }}
             >
               {c.label}
