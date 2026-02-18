@@ -268,7 +268,7 @@ export default function EventClient({
         style={{
           position: "absolute",
           inset: 0,
-          background: "rgba(255,255,255,0.50)",
+          background: "rgba(255,255,255,0.25)",
           pointerEvents: "none",
         }}
       />
