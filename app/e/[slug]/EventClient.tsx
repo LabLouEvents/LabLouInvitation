@@ -47,13 +47,13 @@ export default function EventClient({
     window.scrollTo({ top: 0 });
   }
 
-  /* ===================================================
+  /* =========================
      INTRO SCREEN
-  =================================================== */
+  ========================= */
 
   if (showIntro) {
-    const pageBg = "/intro/background.jpg";   // 👈 βάλε εδώ τη φωτογραφία σου (public/intro/)
-    const envelopeImg = "/intro/envelope.png"; // 👈 ο φάκελος (public/intro/)
+    const pageBg = "/intro/background.jpg";   // public/intro/background.jpg
+    const envelopeImg = "/intro/envelope.png"; // public/intro/envelope.png
 
     return (
       <div
@@ -78,13 +78,13 @@ export default function EventClient({
             marginBottom: 18,
             fontWeight: 600,
             color: "white",
-            textShadow: "0 2px 10px rgba(0,0,0,0.6)",
+            textShadow: "0 2px 8px rgba(0,0,0,0.5)",
           }}
         >
           LAB LOU INVITATIONS
         </div>
 
-        {/* Envelope - ΚΑΝΟΝΙΚΟ ΣΧΗΜΑ */}
+        {/* Envelope - φυσικό σχήμα */}
         <img
           src={envelopeImg}
           alt="Envelope"
@@ -92,8 +92,8 @@ export default function EventClient({
             width: "min(85vw, 520px)",
             height: "auto",
             objectFit: "contain",
-            marginBottom: 40,
-            filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.25))",
+            marginBottom: 50,
+            filter: "drop-shadow(0 18px 30px rgba(0,0,0,0.25))",
           }}
         />
 
@@ -103,7 +103,6 @@ export default function EventClient({
             textAlign: "center",
             color: "white",
             textShadow: "0 3px 12px rgba(0,0,0,0.7)",
-            maxWidth: 600,
           }}
         >
           <h1
@@ -126,35 +125,33 @@ export default function EventClient({
             « {inviter || "—"} »
           </div>
 
+          {/* Countdown ΧΩΡΙΣ τίτλο */}
           {event.start_iso && (
-            <div style={{ marginTop: 24 }}>
-              <div style={{ marginBottom: 8, fontWeight: 600 }}>
-                Μέχρι να ξεκινήσει:
-              </div>
-
-              <div
-                style={{
-                  fontSize: 20,
-                  fontWeight: 900,
-                }}
-              >
-                <Countdown startISO={event.start_iso} />
-              </div>
+            <div
+              style={{
+                marginTop: 28,
+                fontSize: 20,
+                fontWeight: 900,
+              }}
+            >
+              <Countdown startISO={event.start_iso} />
             </div>
           )}
 
+          {/* WHITE BUTTON (έντονο, όχι αχνό) */}
           <button
             onClick={enterInvite}
             style={{
-              marginTop: 30,
-              padding: "12px 30px",
+              marginTop: 32,
+              padding: "14px 32px",
               borderRadius: 14,
               border: "none",
               background: "white",
               color: "#111",
               fontWeight: 900,
+              fontSize: 16,
               cursor: "pointer",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.25)",
             }}
           >
             Άνοιγμα προσκλητηρίου
@@ -168,9 +165,9 @@ export default function EventClient({
     );
   }
 
-  /* ===================================================
-     MAIN PAGE (προσωρινά απλό)
-  =================================================== */
+  /* =========================
+     MAIN PAGE
+  ========================= */
 
   return (
     <div
