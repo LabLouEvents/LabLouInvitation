@@ -1,5 +1,6 @@
 import Countdown from "./Countdown";
 import RSVPForm from "./RSVPForm";
+import CollageNav from "./CollageNav";
 
 function toGoogleDate(iso: string) {
   // Google Calendar wants: YYYYMMDDTHHmmssZ
@@ -20,25 +21,29 @@ export default async function EventPage({
   searchParams?: { t?: string };
 }) {
   const slug = params.slug;
-  const t = searchParams?.t || "";
+  const t = (searchParams?.t || "").trim();
 
-  // ✅ Αν δεν έχει token, δεν δίνουμε πρόσβαση
+  // ✅ Αν δεν έχει token, κόβουμε πρόσβαση
   if (!t) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         <h2>Δεν έχεις πρόσβαση</h2>
-        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
+        <div style={{ opacity: 0.8 }}>
+          Χρειάζεται το ειδικό link του event.
+        </div>
       </div>
     );
   }
 
-  // ✅ Φέρνουμε event μόνο με slug + token
-  // Προτιμάμε absolute URL στο production (NEXT_PUBLIC_SITE_URL), αλλιώς δουλεύει και local.
+  // ✅ Φέρνουμε event ΜΟΝΟ με slug + token
+  // (χρησιμοποιούμε absolute URL αν υπάρχει, αλλιώς relative)
   const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || "";
+    (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "") || "";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(
+      slug
+    )}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -52,15 +57,12 @@ export default async function EventPage({
     );
   }
 
-  const event = data.event as any;
-
+  const event = data.event;
   const isElegant = event.template === "elegant";
 
-  // ✅ Αν δεν έχει end_iso, βάζουμε +2 ώρες για τα calendar links
   const startISO = event.start_iso;
   const endISO = event.end_iso || addHours(event.start_iso, 2);
 
-  // ✅ Φωτογραφία (στήλη cover_image)
   const coverSrc = event.cover_image || "";
 
   const gcalUrl =
@@ -73,6 +75,23 @@ export default async function EventPage({
         (event.church_address ? ", " + event.church_address : "")
     )}`;
 
+  // ✅ 4 εικόνες “collage”
+  // Αν δεν έχει cover, βάλε 4 placeholders στο /public/collage/1.jpg ... 4.jpg
+  const collageImages = [
+    {
+      src: coverSrc || "/collage/1.jpg",
+      alt: "Προσκλητήριο",
+      href: "#invite",
+    },
+    { src: coverSrc || "/collage/2.jpg", alt: "RSVP", href: "#rsvp" },
+    {
+      src: coverSrc || "/collage/3.jpg",
+      alt: "Εκκλησία",
+      href: "#church",
+    },
+    { src: coverSrc || "/collage/4.jpg", alt: "Κέντρο", href: "#venue" },
+  ];
+
   return (
     <div
       style={{
@@ -83,7 +102,7 @@ export default async function EventPage({
     >
       <div className="e-wrap">
         {/* COVER */}
-        <div className="e-card e-reveal e-delay-1" style={{ marginBottom: 20, padding: 12 }}>
+        <div className="e-card e-reveal e-delay-1" style={{ marginBottom: 18, padding: 12 }}>
           {coverSrc ? (
             <img className="e-cover" src={coverSrc} alt={event.title} />
           ) : (
@@ -93,8 +112,20 @@ export default async function EventPage({
           )}
         </div>
 
-        {/* TITLE */}
-        <div className="e-reveal e-delay-2" style={{ marginTop: 24, textAlign: "center" }}>
+        {/* COLLLAGE NAV (4 images) */}
+        <div className="e-reveal e-delay-2" style={{ marginTop: 6 }}>
+          <CollageNav images={collageImages} />
+          <div style={{ textAlign: "center", fontSize: 12, opacity: 0.7 }}>
+            Πάτα σε φωτογραφία για να πας στην αντίστοιχη ενότητα.
+          </div>
+        </div>
+
+        {/* INVITE (Title/Sub) */}
+        <div
+          id="invite"
+          className="e-reveal e-delay-2"
+          style={{ marginTop: 18, textAlign: "center" }}
+        >
           <h1 className="elegant-title" style={{ margin: 0 }}>
             {event.title}
           </h1>
@@ -125,35 +156,51 @@ export default async function EventPage({
 
         {/* DETAILS */}
         <div style={{ display: "grid", gap: 18, marginTop: 28 }}>
-          <div className="e-card e-reveal e-delay-3">
+          {/* CHURCH */}
+          <div id="church" className="e-card e-reveal e-delay-3">
             <h3 className="elegant-title" style={{ marginTop: 0 }}>
               Εκκλησία
             </h3>
 
             <div>{event.church_name}</div>
             {event.church_address && (
-              <div style={{ opacity: 0.8, marginTop: 6 }}>{event.church_address}</div>
+              <div style={{ opacity: 0.8, marginTop: 6 }}>
+                {event.church_address}
+              </div>
             )}
 
             {event.church_map_url && (
-              <a className="e-link" href={event.church_map_url} target="_blank" rel="noreferrer">
+              <a
+                className="e-link"
+                href={event.church_map_url}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Άνοιγμα χάρτη
               </a>
             )}
           </div>
 
-          <div className="e-card e-reveal e-delay-4">
+          {/* VENUE */}
+          <div id="venue" className="e-card e-reveal e-delay-4">
             <h3 className="elegant-title" style={{ marginTop: 0 }}>
               Κέντρο
             </h3>
 
             <div>{event.venue_name}</div>
             {event.venue_address && (
-              <div style={{ opacity: 0.7, marginTop: 6 }}>{event.venue_address}</div>
+              <div style={{ opacity: 0.7, marginTop: 6 }}>
+                {event.venue_address}
+              </div>
             )}
 
             {event.venue_map_url && (
-              <a className="e-link" href={event.venue_map_url} target="_blank" rel="noreferrer">
+              <a
+                className="e-link"
+                href={event.venue_map_url}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Άνοιγμα χάρτη
               </a>
             )}
@@ -161,7 +208,7 @@ export default async function EventPage({
         </div>
 
         {/* RSVP */}
-        <div className="e-card e-reveal e-delay-4" style={{ marginTop: 32 }}>
+        <div id="rsvp" className="e-card e-reveal e-delay-4" style={{ marginTop: 32 }}>
           <h3 className="elegant-title" style={{ marginTop: 0 }}>
             RSVP
           </h3>
@@ -189,14 +236,18 @@ export default async function EventPage({
                 href={gcalUrl}
                 target="_blank"
                 rel="noreferrer"
-                style={{ display: "block", textAlign: "center", textDecoration: "none" }}
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  textDecoration: "none",
+                }}
               >
                 Προσθήκη στο Google Calendar
               </a>
 
               <a
                 className="e-btn"
-                href={`/api/ics?slug=${slug}`}
+                href={`/api/ics?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`}
                 style={{
                   display: "block",
                   textAlign: "center",
