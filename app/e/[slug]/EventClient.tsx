@@ -51,7 +51,7 @@ function CollageNav({ slug, t }: { slug: string; t: string }) {
 
   const W = 320;
   const H = 390;
-  const OVERLAP_Y = 430; // ✅ όπως το θες
+  const OVERLAP_Y = 431; // ✅ όπως το θες
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
