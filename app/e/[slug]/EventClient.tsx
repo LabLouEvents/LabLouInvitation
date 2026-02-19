@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Countdown from "./Countdown";
-import RSVPForm from "./RSVPForm";
+import { useRouter } from "next/navigation";
 
 type CardKey = "invite" | "rsvp" | "church" | "venue";
 
@@ -37,9 +37,17 @@ function storageKey(slug: string, t: string) {
 }
 
 /* -----------------------------
-   Collage (inviart-ish)
+   Collage (click -> navigate)
 ------------------------------ */
-function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
+function CollageNav({
+  slug,
+  t,
+}: {
+  slug: string;
+  t: string;
+}) {
+  const router = useRouter();
+
   const cards: { key: CardKey; label: string; src: string }[] = [
     { key: "invite", label: "Προσκλητήριο", src: "/invites/1.png" },
     { key: "rsvp", label: "RSVP", src: "/invites/2.png" },
@@ -47,13 +55,17 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
     { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
   ];
 
-  // ✅ ΚΡΑΤΑΜΕ ΤΟ OVERLAP ΠΟΥ ΣΟΥ ΑΡΕΣΕΙ
+  // Κρατάμε το δικό σου spacing
   const W = 320;
   const H = 390;
-  const OVERLAP_Y = 430; // ✅ όπως το θες
+  const OVERLAP_Y = 430; // ✅ το κρατάμε
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
+
+  function go(key: CardKey) {
+    router.push(`/e/${encodeURIComponent(slug)}/${key}?t=${encodeURIComponent(t)}`);
+  }
 
   return (
     <div
@@ -62,7 +74,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
         width: "min(92vw, 420px)",
         height: H + OVERLAP_Y * 3,
         margin: "0 auto",
-        marginTop: 12,
+        marginTop: 18,
       }}
     >
       {cards.map((c, i) => {
@@ -75,7 +87,7 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
           <button
             key={c.key}
             type="button"
-            onClick={() => onSelect(c.key)}
+            onClick={() => go(c.key)}
             style={{
               position: "absolute",
               left: "50%",
@@ -91,10 +103,8 @@ function CollageNav({ onSelect }: { onSelect: (k: CardKey) => void }) {
               cursor: "pointer",
               padding: 0,
               outline: "none",
-              zIndex: 100 - i,
               overflow: "hidden",
-              // ✅ για να σιγουρευτούμε ότι παίρνει click
-              pointerEvents: "auto",
+              zIndex: 100 - i,
             }}
             aria-label={c.label}
             title={c.label}
@@ -136,7 +146,7 @@ export default function EventClient({
   gcalUrl: string;
   t: string;
 }) {
-  // ✅ background ίδιο με intro
+  // ✅ εικόνες μέσα στο /public/intro/
   const pageBg = "/intro/background.jpg";
   const envelopeImg = "/intro/envelope.png";
 
@@ -145,10 +155,6 @@ export default function EventClient({
   }, [event.inviter_names, event.subtitle, event.title]);
 
   const [showIntro, setShowIntro] = useState(true);
-  const [active, setActive] = useState<CardKey | null>(null);
-
-  // ✅ εδώ θα κάνουμε scroll όταν πατήσεις κάρτα
-  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -166,30 +172,20 @@ export default function EventClient({
       // ignore
     }
     setShowIntro(false);
-    setActive(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  // ✅ ο “σωστός” τρόπος: ανοίγει + σε πάει εκεί (χωρίς να αλλάξουμε overlap)
-  function openSection(k: CardKey) {
-    setActive(k);
-
-    // Περιμένουμε 1 frame να γίνει render το panel, μετά scroll
-    requestAnimationFrame(() => {
-      // μικρό extra για iOS/Safari που καμιά φορά αργεί
-      setTimeout(() => {
-        panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 50);
-    });
   }
 
   const textShadowStrong = "0 3px 14px rgba(0,0,0,0.55)";
   const textShadowSoft = "0 2px 10px rgba(0,0,0,0.45)";
 
+  // πόσο “αχνό” θες το background στη main:
+  // 0.0 = καθόλου πέπλο, 1.0 = σχεδόν άσπρο
+  const MAIN_FADE = 0.45; // 👈 κάν’ το 0.55 αν το θες πιο αχνό, 0.35 αν το θες πιο έντονο
+
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
     padding: 24,
-    backgroundImage: `linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.18)), url(${pageBg})`,
+    backgroundImage: `url(${pageBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -207,6 +203,7 @@ export default function EventClient({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          textAlign: "center",
         }}
       >
         <div
@@ -235,10 +232,14 @@ export default function EventClient({
           }}
         />
 
-        <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
-          <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Έχεις πρόσκληση από</div>
+        <div style={{ color: "white", textShadow: textShadowStrong }}>
+          <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>
+            Έχεις πρόσκληση από
+          </div>
 
-          <div style={{ fontSize: 20, fontWeight: 900 }}>« {inviter || "—"} »</div>
+          <div style={{ fontSize: 20, fontWeight: 900 }}>
+            « {inviter || "—"} »
+          </div>
 
           {event.start_iso && (
             <div style={{ marginTop: 18, fontSize: 20, fontWeight: 900 }}>
@@ -264,25 +265,41 @@ export default function EventClient({
             Άνοιγμα προσκλητηρίου
           </button>
 
-          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.95 }}>(Την επόμενη φορά θα ανοίγει κατευθείαν.)</div>
+          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.95 }}>
+            (Την επόμενη φορά θα ανοίγει κατευθείαν.)
+          </div>
         </div>
       </div>
     );
   }
 
   /* =========================
-     MAIN PAGE
+     MAIN (cards + navigation)
   ========================= */
   return (
-    <div style={pageStyle}>
-      <div style={{ maxWidth: 980, margin: "0 auto" }}>
-        {/* Title */}
+    <div style={{ ...pageStyle, position: "relative" }}>
+      {/* “πέπλο” για να γίνει πιο αχνό */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `rgba(255,255,255,${MAIN_FADE})`,
+          pointerEvents: "none",
+        }}
+      />
+
+      <div style={{ position: "relative", maxWidth: 980, margin: "0 auto" }}>
         <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
-          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>{event.title}</div>
-          {event.subtitle && <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>{event.subtitle}</div>}
+          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>
+            {event.title}
+          </div>
+          {event.subtitle && (
+            <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>
+              {event.subtitle}
+            </div>
+          )}
         </div>
 
-        {/* Countdown */}
         {event.start_iso && (
           <div
             style={{
@@ -298,10 +315,8 @@ export default function EventClient({
           </div>
         )}
 
-        {/* Collage */}
-        <CollageNav onSelect={openSection} />
+        <CollageNav slug={slug} t={t} />
 
-        {/* Hint */}
         <div
           style={{
             textAlign: "center",
@@ -314,159 +329,6 @@ export default function EventClient({
         >
           Πάτα σε μία κάρτα για να ανοίξει η αντίστοιχη ενότητα.
         </div>
-
-        {/* ✅ Anchor για scroll στο panel */}
-        <div ref={panelRef} style={{ scrollMarginTop: 14 }} />
-
-        {/* Panel */}
-        {active && (
-          <div
-            style={{
-              marginTop: 18,
-              borderRadius: 18,
-              padding: 18,
-              background: "rgba(255,255,255,0.82)", // ελαφρώς πιο “αχνό”
-              color: "#111",
-              boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
-              backdropFilter: "blur(6px)",
-              maxWidth: 760,
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-              <div style={{ fontWeight: 900, fontSize: 16 }}>
-                {active === "invite" && "Προσκλητήριο"}
-                {active === "rsvp" && "RSVP"}
-                {active === "church" && "Εκκλησία"}
-                {active === "venue" && "Κέντρο"}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActive(null)}
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "white",
-                  cursor: "pointer",
-                  fontWeight: 800,
-                }}
-              >
-                Κλείσιμο
-              </button>
-            </div>
-
-            <div style={{ height: 14 }} />
-
-            {active === "invite" && (
-              <div style={{ lineHeight: 1.6 }}>
-                <div style={{ fontWeight: 900, fontSize: 18 }}>{event.title}</div>
-                {event.subtitle && <div style={{ marginTop: 6 }}>{event.subtitle}</div>}
-                {(event.date_text || event.time_text) && (
-                  <div style={{ marginTop: 10, opacity: 0.9 }}>
-                    {event.date_text && (
-                      <div>
-                        Ημερομηνία: <b>{event.date_text}</b>
-                      </div>
-                    )}
-                    {event.time_text && (
-                      <div>
-                        Ώρα: <b>{event.time_text}</b>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {event.extra_note && <div style={{ marginTop: 10, opacity: 0.9 }}>{event.extra_note}</div>}
-              </div>
-            )}
-
-            {active === "rsvp" && (
-              <div>
-                {event.rsvp_deadline && (
-                  <div style={{ marginBottom: 10, fontWeight: 700 }}>
-                    Παρακαλούμε απαντήστε έως:{" "}
-                    <span style={{ textDecoration: "underline" }}>{event.rsvp_deadline}</span>
-                  </div>
-                )}
-
-                <a
-                  href={gcalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    padding: "12px 14px",
-                    borderRadius: 14,
-                    background: "#111",
-                    color: "white",
-                    fontWeight: 900,
-                  }}
-                >
-                  Προσθήκη στο Google Calendar
-                </a>
-
-                <a
-                  href={`/api/ics?slug=${encodeURIComponent(slug)}`}
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    marginTop: 10,
-                    padding: "12px 14px",
-                    borderRadius: 14,
-                    background: "#111",
-                    color: "white",
-                    fontWeight: 900,
-                    opacity: 0.92,
-                  }}
-                >
-                  Προσθήκη στο iPhone / Apple Calendar
-                </a>
-
-                <div style={{ height: 14 }} />
-                <RSVPForm slug={slug} />
-              </div>
-            )}
-
-            {active === "church" && (
-              <div style={{ lineHeight: 1.6 }}>
-                <div style={{ fontWeight: 900 }}>{event.church_name || "-"}</div>
-                {event.church_address && <div style={{ marginTop: 6, opacity: 0.9 }}>{event.church_address}</div>}
-                {event.church_map_url && (
-                  <a
-                    href={event.church_map_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ display: "inline-block", marginTop: 10, color: "#111", fontWeight: 900 }}
-                  >
-                    Άνοιγμα χάρτη →
-                  </a>
-                )}
-              </div>
-            )}
-
-            {active === "venue" && (
-              <div style={{ lineHeight: 1.6 }}>
-                <div style={{ fontWeight: 900 }}>{event.venue_name || "-"}</div>
-                {event.venue_address && <div style={{ marginTop: 6, opacity: 0.9 }}>{event.venue_address}</div>}
-                {event.venue_map_url && (
-                  <a
-                    href={event.venue_map_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ display: "inline-block", marginTop: 10, color: "#111", fontWeight: 900 }}
-                  >
-                    Άνοιγμα χάρτη →
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
