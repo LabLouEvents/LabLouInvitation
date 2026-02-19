@@ -1,66 +1,55 @@
-import SectionClient from "../SectionClient";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 
-function toGoogleDate(iso: string) {
-  return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-}
+type Props = {
+  params: {
+    slug: string;
+    section: string;
+  };
+};
 
-function addHours(iso: string, hours: number) {
-  const d = new Date(iso);
-  d.setHours(d.getHours() + hours);
-  return d.toISOString();
-}
+export default function SectionPage({ params }: Props) {
+  const { slug, section } = params;
 
-export default async function SectionPage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string; section: string };
-  searchParams?: { t?: string };
-}) {
-  const slug = params.slug;
-  const section = params.section; // invite | rsvp | church | venue
-  const t = searchParams?.t || "";
+  const valid = ["invite", "rsvp", "church", "venue"];
 
-  if (!t) {
-    return <div style={{ padding: 40 }}>Δεν έχεις πρόσβαση.</div>;
+  if (!valid.includes(section)) {
+    notFound();
   }
-
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://lablouinvitations.gr";
-
-  const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
-    { cache: "no-store" }
-  );
-  const data = await res.json();
-
-  if (!res.ok || !data.ok || !data.event) {
-    return <div style={{ padding: 40 }}>Δεν βρέθηκε event ή δεν έχεις πρόσβαση.</div>;
-  }
-
-  const event = data.event;
-
-  const startISO = event.start_iso;
-  const endISO = event.end_iso || addHours(event.start_iso, 2);
-
-  const gcalUrl =
-    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-    `&text=${encodeURIComponent(event.title)}` +
-    `&dates=${toGoogleDate(startISO)}/${toGoogleDate(endISO)}` +
-    `&details=${encodeURIComponent(event.subtitle || "")}` +
-    `&location=${encodeURIComponent(
-      (event.church_name || "") +
-        (event.church_address ? ", " + event.church_address : "")
-    )}`;
 
   return (
-    <SectionClient
-      event={event}
-      slug={slug}
-      t={t}
-      section={section}
-      gcalUrl={gcalUrl}
-    />
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: 40,
+        background: "#f6f2ea",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: 28, marginBottom: 20 }}>
+        {section === "invite" && "Προσκλητήριο"}
+        {section === "rsvp" && "RSVP"}
+        {section === "church" && "Εκκλησία"}
+        {section === "venue" && "Κέντρο"}
+      </h1>
+
+      <p>Εδώ θα βάλουμε το περιεχόμενο της ενότητας.</p>
+
+      <Link
+        href={`/e/${slug}`}
+        style={{
+          display: "inline-block",
+          marginTop: 30,
+          padding: "10px 16px",
+          borderRadius: 10,
+          background: "#111",
+          color: "white",
+          textDecoration: "none",
+          fontWeight: 600,
+        }}
+      >
+        ← Πίσω
+      </Link>
+    </div>
   );
 }
