@@ -189,7 +189,7 @@ export default function EventClient({
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
     padding: 24,
-    backgroundImage: `url(${pageBg})`,
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.18)), url(${pageBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",

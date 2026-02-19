@@ -16,15 +16,31 @@ export default function CollageNav({
   const sp = useSearchParams();
   const t = sp.get("t") || "";
 
-  // ✅ ΚΡΑΤΑΜΕ OVERLAP 430 όπως θες
-  const CARD_W = 520;
-  const CARD_H = 520;
-  const STEP_Y = 430; // 👈 αυτό είναι το “overlap”
-  const STEP_X = 90;
-  const ROT = 3;
+  // ✅ όπως το screenshot σου: portrait + overlap 430
+  const W = 320;
+  const H = 390;
+  const OVERLAP_Y = 430;
+  const STEP_X = 34;
+  const ROT = 6;
+  const RADIUS = 18;
+
+  const labelStyle: React.CSSProperties = {
+    position: "absolute",
+    left: 12,
+    top: 12,
+    padding: "7px 10px",
+    borderRadius: 999,
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: 0.2,
+    background: "rgba(255,255,255,0.72)",
+    color: "#111",
+    boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
+    textShadow: "0 1px 0 rgba(255,255,255,0.55)",
+    backdropFilter: "blur(6px)",
+  };
 
   function go(key: CardKey) {
-    // Πάμε σε /e/[slug]/[section]?t=...
     router.push(`/e/${encodeURIComponent(slug)}/${key}?t=${encodeURIComponent(t)}`);
   }
 
@@ -32,16 +48,16 @@ export default function CollageNav({
     <div
       style={{
         position: "relative",
-        width: "min(92vw, 720px)",
-        height: CARD_H + STEP_Y * (cards.length - 1) + 20,
+        width: "min(92vw, 420px)",
+        height: H + OVERLAP_Y * 3,
         margin: "0 auto",
-        marginTop: 20,
+        marginTop: 12,
       }}
     >
       {cards.map((c, i) => {
         const left = i % 2 === 0;
         const x = left ? -STEP_X : STEP_X;
-        const y = i * STEP_Y;
+        const y = i * OVERLAP_Y;
         const r = left ? -ROT : ROT;
 
         return (
@@ -54,37 +70,23 @@ export default function CollageNav({
               left: "50%",
               top: y,
               transform: `translateX(-50%) translateX(${x}px) rotate(${r}deg)`,
-              width: CARD_W,
-              height: CARD_H,
+              width: W,
+              height: H,
               maxWidth: "92vw",
-              borderRadius: 18,
-              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: RADIUS,
+              border: "1px solid rgba(255,255,255,0.35)",
               background: `url(${c.src}) center/cover no-repeat`,
-              boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
+              boxShadow: "0 20px 55px rgba(0,0,0,0.22)",
               cursor: "pointer",
               padding: 0,
               outline: "none",
               overflow: "hidden",
-              zIndex: 100 - i, // 👈 όλες clickable σωστά
+              zIndex: 100 - i, // ✅ η πάνω κάρτα είναι πάνω, αλλά ΟΛΕΣ πατιούνται
             }}
             aria-label={c.label}
             title={c.label}
           >
-            <div
-              style={{
-                position: "absolute",
-                left: 14,
-                top: 14,
-                padding: "8px 12px",
-                borderRadius: 999,
-                background: "rgba(255,255,255,0.85)",
-                fontSize: 14,
-                fontWeight: 800,
-                backdropFilter: "blur(6px)",
-              }}
-            >
-              {c.label}
-            </div>
+            <div style={labelStyle}>{c.label}</div>
           </button>
         );
       })}
