@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Countdown from "./Countdown";
 import { useRouter } from "next/navigation";
+import Countdown from "./Countdown";
 
 type CardKey = "invite" | "rsvp" | "church" | "venue";
 
@@ -170,7 +170,7 @@ export default function EventClient({
   const textShadowStrong = "0 3px 14px rgba(0,0,0,0.55)";
   const textShadowSoft = "0 2px 10px rgba(0,0,0,0.45)";
 
-  const MAIN_FADE = 0.45;
+  const MAIN_FADE = 0.65;
 
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
@@ -265,23 +265,19 @@ export default function EventClient({
      MAIN (cards + navigation)
   ========================= */
   return (
-    <div style={{ ...pageStyle, position: "relative" }}>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `rgba(255,255,255,${MAIN_FADE})`,
-          pointerEvents: "none",
-        }}
-      />
-
-      <div style={{ position: "relative", maxWidth: 980, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
-          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>{event.title}</div>
-          {event.subtitle && (
-            <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>{event.subtitle}</div>
-          )}
-        </div>
+<div style={{ ...pageStyle, position: "relative" }}>
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      background: `rgba(255,255,255,${MAIN_FADE})`,
+      pointerEvents: "none",
+    }}
+  />
+  <div style={{ position: "relative" }}>
+    ...
+  </div>
+</div>
 
         {event.start_iso && (
           <div
