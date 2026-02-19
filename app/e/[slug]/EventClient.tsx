@@ -11,23 +11,17 @@ type EventFull = {
   template?: "elegant" | "playful";
   title: string;
   subtitle?: string | null;
-
   inviter_names?: string | null;
-
   start_iso: string;
   end_iso?: string | null;
-
   rsvp_deadline?: string | null;
   extra_note?: string | null;
-
   church_name?: string | null;
   church_address?: string | null;
   church_map_url?: string | null;
-
   venue_name?: string | null;
   venue_address?: string | null;
   venue_map_url?: string | null;
-
   date_text?: string | null;
   time_text?: string | null;
 };
@@ -51,7 +45,7 @@ function CollageNav({ slug, t }: { slug: string; t: string }) {
 
   const W = 320;
   const H = 390;
-  const OVERLAP_Y = 430; // ✅ όπως το θες
+  const OVERLAP_Y = 430;
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
@@ -131,7 +125,7 @@ function CollageNav({ slug, t }: { slug: string; t: string }) {
 export default function EventClient({
   event,
   slug,
-  gcalUrl, // δεν χρησιμοποιείται εδώ, αλλά το κρατάμε για συμβατότητα
+  gcalUrl,
   t,
 }: {
   event: EventFull;
@@ -170,7 +164,6 @@ export default function EventClient({
   const textShadowStrong = "0 3px 14px rgba(0,0,0,0.55)";
   const textShadowSoft = "0 2px 10px rgba(0,0,0,0.45)";
 
-  // ✅ ΠΙΟ ΑΧΝΟ το background στη MAIN (0.55 πιο αχνό, 0.35 πιο έντονο)
   const MAIN_FADE = 0.45;
 
   const pageStyle: React.CSSProperties = {
@@ -182,9 +175,6 @@ export default function EventClient({
     backgroundRepeat: "no-repeat",
   };
 
-  /* =========================
-     INTRO
-  ========================= */
   if (showIntro) {
     return (
       <div
@@ -264,12 +254,8 @@ export default function EventClient({
     );
   }
 
-  /* =========================
-     MAIN (cards + navigation)
-  ========================= */
   return (
     <div style={{ ...pageStyle, position: "relative" }}>
-      {/* “πέπλο” για να γίνει πιο αχνό */}
       <div
         style={{
           position: "absolute",
