@@ -11,17 +11,23 @@ type EventFull = {
   template?: "elegant" | "playful";
   title: string;
   subtitle?: string | null;
+
   inviter_names?: string | null;
+
   start_iso: string;
   end_iso?: string | null;
+
   rsvp_deadline?: string | null;
   extra_note?: string | null;
+
   church_name?: string | null;
   church_address?: string | null;
   church_map_url?: string | null;
+
   venue_name?: string | null;
   venue_address?: string | null;
   venue_map_url?: string | null;
+
   date_text?: string | null;
   time_text?: string | null;
 };
@@ -45,7 +51,7 @@ function CollageNav({ slug, t }: { slug: string; t: string }) {
 
   const W = 320;
   const H = 390;
-  const OVERLAP_Y = 430;
+  const OVERLAP_Y = 430; // ✅ όπως το θες
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
@@ -130,7 +136,7 @@ export default function EventClient({
 }: {
   event: EventFull;
   slug: string;
-  gcalUrl: string;
+  gcalUrl: string; // το κρατάμε για συμβατότητα
   t: string;
 }) {
   const pageBg = "/intro/background.jpg";
@@ -175,6 +181,9 @@ export default function EventClient({
     backgroundRepeat: "no-repeat",
   };
 
+  /* =========================
+     INTRO
+  ========================= */
   if (showIntro) {
     return (
       <div
@@ -218,9 +227,7 @@ export default function EventClient({
             Έχεις πρόσκληση από
           </div>
 
-          <div style={{ fontSize: 20, fontWeight: 900 }}>
-            « {inviter || "—"} »
-          </div>
+          <div style={{ fontSize: 20, fontWeight: 900 }}>« {inviter || "—"} »</div>
 
           {event.start_iso && (
             <div style={{ marginTop: 18, fontSize: 20, fontWeight: 900 }}>
@@ -254,6 +261,9 @@ export default function EventClient({
     );
   }
 
+  /* =========================
+     MAIN (cards + navigation)
+  ========================= */
   return (
     <div style={{ ...pageStyle, position: "relative" }}>
       <div
@@ -267,13 +277,9 @@ export default function EventClient({
 
       <div style={{ position: "relative", maxWidth: 980, margin: "0 auto" }}>
         <div style={{ textAlign: "center", color: "white", textShadow: textShadowStrong }}>
-          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>
-            {event.title}
-          </div>
+          <div style={{ fontSize: 30, fontWeight: 900, marginTop: 10 }}>{event.title}</div>
           {event.subtitle && (
-            <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>
-              {event.subtitle}
-            </div>
+            <div style={{ marginTop: 8, opacity: 0.95, fontSize: 16 }}>{event.subtitle}</div>
           )}
         </div>
 
