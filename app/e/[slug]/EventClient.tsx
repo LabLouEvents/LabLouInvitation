@@ -39,13 +39,7 @@ function storageKey(slug: string, t: string) {
 /* -----------------------------
    Collage (click -> navigate)
 ------------------------------ */
-function CollageNav({
-  slug,
-  t,
-}: {
-  slug: string;
-  t: string;
-}) {
+function CollageNav({ slug, t }: { slug: string; t: string }) {
   const router = useRouter();
 
   const cards: { key: CardKey; label: string; src: string }[] = [
@@ -55,10 +49,9 @@ function CollageNav({
     { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
   ];
 
-  // Κρατάμε το δικό σου spacing
   const W = 320;
   const H = 390;
-  const OVERLAP_Y = 430; // ✅ το κρατάμε
+  const OVERLAP_Y = 430; // ✅ όπως το θες
   const STEP_X = 34;
   const ROT = 6;
   const RADIUS = 18;
@@ -138,7 +131,7 @@ function CollageNav({
 export default function EventClient({
   event,
   slug,
-  gcalUrl,
+  gcalUrl, // δεν χρησιμοποιείται εδώ, αλλά το κρατάμε για συμβατότητα
   t,
 }: {
   event: EventFull;
@@ -146,7 +139,6 @@ export default function EventClient({
   gcalUrl: string;
   t: string;
 }) {
-  // ✅ εικόνες μέσα στο /public/intro/
   const pageBg = "/intro/background.jpg";
   const envelopeImg = "/intro/envelope.png";
 
@@ -178,9 +170,8 @@ export default function EventClient({
   const textShadowStrong = "0 3px 14px rgba(0,0,0,0.55)";
   const textShadowSoft = "0 2px 10px rgba(0,0,0,0.45)";
 
-  // πόσο “αχνό” θες το background στη main:
-  // 0.0 = καθόλου πέπλο, 1.0 = σχεδόν άσπρο
-  const MAIN_FADE = 0.45; // 👈 κάν’ το 0.55 αν το θες πιο αχνό, 0.35 αν το θες πιο έντονο
+  // ✅ ΠΙΟ ΑΧΝΟ το background στη MAIN (0.55 πιο αχνό, 0.35 πιο έντονο)
+  const MAIN_FADE = 0.45;
 
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
