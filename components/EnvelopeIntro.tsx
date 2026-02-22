@@ -41,9 +41,7 @@ function TypewriterText({
   return (
     <div style={{ whiteSpace: "pre-wrap", ...style }}>
       {shown}
-      {active && shown.length < text.length ? (
-        <span style={{ opacity: 0.6 }}>▍</span>
-      ) : null}
+      {active && shown.length < text.length ? <span style={{ opacity: 0.6 }}>▍</span> : null}
     </div>
   );
 }
@@ -60,7 +58,7 @@ export default function EnvelopeIntro({
   backgroundUrl?: string;
 }) {
   const router = useRouter();
-  const [opening, setOpening] = useState(false);
+  const [go, setGo] = useState(false);
 
   const inviterLine = useMemo(() => {
     const v = clampText(inviter, 60);
@@ -68,31 +66,16 @@ export default function EnvelopeIntro({
   }, [inviter]);
 
   const handleOpen = () => {
-    if (opening) return;
-    setOpening(true);
-
-    // δείχνουμε animation και μετά πάμε στη σελίδα με τις 4 κάρτες
+    if (go) return;
+    setGo(true);
+    // μικρό “cinematic” pause και μετά πάμε στη 2η σελίδα
     setTimeout(() => {
-      router.push(
-        `/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`
-      );
-    }, 1200);
+      router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
+    }, 450);
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 18,
-        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundColor: "#efe7df",
-      }}
-    >
+    <div style={pageStyle(backgroundUrl)}>
       <div style={{ width: "min(560px, 92vw)", textAlign: "center" }}>
         {/* Brand */}
         <div
@@ -109,7 +92,7 @@ export default function EnvelopeIntro({
           LABLOU EVENTS
         </div>
 
-        {/* Envelope Scene */}
+        {/* Closed Envelope */}
         <div
           style={{
             position: "relative",
@@ -117,73 +100,18 @@ export default function EnvelopeIntro({
             height: "min(360px, 62vw)",
             margin: "0 auto",
             filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
-            perspective: "1200px",
+            transform: go ? "scale(0.98)" : "scale(1)",
+            opacity: go ? 0.92 : 1,
+            transition: "transform 220ms ease, opacity 220ms ease",
           }}
         >
-          {/* Letter (inside) - βγαίνει προς τα πάνω */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "grid",
-              placeItems: "center",
-              transform: opening ? "translateY(-18%)" : "translateY(6%)",
-              opacity: opening ? 1 : 0,
-              transition: "transform 900ms ease, opacity 450ms ease",
-              zIndex: 1,
-              pointerEvents: "none",
-            }}
-          >
-            <div style={{ position: "relative", width: "100%", height: "100%" }}>
-              <Image
-                src="/envelope/inside.png"
-                alt="Invitation letter"
-                fill
-                priority
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-          </div>
-
-          {/* Base */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              pointerEvents: "none",
-            }}
-          >
-            <Image
-              src="/envelope/base.png"
-              alt="Envelope"
-              fill
-              priority
-              style={{ objectFit: "contain" }}
-            />
-          </div>
-
-          {/* Flap - ανοίγει με rotate */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 3,
-              transformOrigin: "50% 12%",
-              transformStyle: "preserve-3d",
-              transform: opening ? "rotateX(165deg)" : "rotateX(0deg)",
-              transition: "transform 900ms ease",
-              pointerEvents: "none",
-            }}
-          >
-            <Image
-              src="/envelope/flap.png"
-              alt="Envelope flap"
-              fill
-              priority
-              style={{ objectFit: "contain", backfaceVisibility: "hidden" }}
-            />
-          </div>
+          <Image
+            src={"/envelope/envelope-closed.png"}
+            alt="Closed envelope"
+            fill
+            priority
+            style={{ objectFit: "contain" }}
+          />
         </div>
 
         <div style={{ height: 18 }} />
@@ -191,7 +119,7 @@ export default function EnvelopeIntro({
         {/* Text */}
         <TypewriterText
           text="Έχεις πρόσκληση από"
-          active={!opening}
+          active={!go}
           style={{
             fontSize: 24,
             fontWeight: 900,
@@ -202,7 +130,7 @@ export default function EnvelopeIntro({
         <div style={{ height: 8 }} />
         <TypewriterText
           text={inviterLine}
-          active={!opening}
+          active={!go}
           style={{
             fontSize: 20,
             fontWeight: 900,
@@ -212,9 +140,8 @@ export default function EnvelopeIntro({
           }}
         />
 
-        <div style={{ height: 22 }} />
+        <div style={{ height: 20 }} />
 
-        {/* Button */}
         <button
           type="button"
           onClick={handleOpen}
@@ -223,17 +150,33 @@ export default function EnvelopeIntro({
             padding: "14px 16px",
             borderRadius: 999,
             border: "1px solid rgba(255,255,255,0.35)",
-            background: "rgba(255,255,255,0.85)",
+            background: "rgba(255,255,255,0.88)",
             color: "#111",
             fontWeight: 900,
             cursor: "pointer",
             boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
-            opacity: opening ? 0.8 : 1,
+            opacity: go ? 0.85 : 1,
+            transform: go ? "translateY(1px)" : "translateY(0px)",
+            transition: "transform 120ms ease, opacity 200ms ease",
           }}
         >
-          {opening ? "Ανοίγει…" : "Άνοιγμα προσκλητηρίου"}
+          {go ? "Μεταφορά…" : "Άνοιγμα προσκλητηρίου"}
         </button>
       </div>
     </div>
   );
+}
+
+function pageStyle(bgUrl: string): React.CSSProperties {
+  return {
+    minHeight: "100vh",
+    display: "grid",
+    placeItems: "center",
+    padding: 18,
+    backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundColor: "#efe7df",
+  };
 }
