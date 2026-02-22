@@ -1,120 +1,143 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function RSVPClient({ slug, t }: { slug: string; t: string }) {
+export default function SectionClient({
+  slug,
+  t,
+  venueName,
+  churchName,
+  venueMapUrl,
+  churchMapUrl,
+}: {
+  slug: string;
+  t: string;
+  venueName?: string | null;
+  churchName?: string | null;
+  venueMapUrl?: string | null;
+  churchMapUrl?: string | null;
+}) {
   const router = useRouter();
 
-  const BG = "/intro/background.jpg";
-  const FADE = 0.72;
+  const BG = "/intro/background.jpg"; // ίδιο με intro
+  const FADE = 0.75; // 👈 πιο μεγάλο = πιο αχνό (δοκίμασε 0.70–0.82)
 
-  const [name, setName] = useState("");
-  const [attending, setAttending] = useState<"yes" | "no">("yes");
-  const [guests, setGuests] = useState(1);
-  const [note, setNote] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
-
-  const submit = async () => {
-    setLoading(true);
-    setMsg("");
-
-    try {
-      const res = await fetch("/api/rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          t,
-          name,
-          attending: attending === "yes",
-          guests,
-          note,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.error || "Κάτι πήγε στραβά");
-
-      setMsg("✅ Καταχωρήθηκε!");
-      setTimeout(() => {
-        router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
-      }, 900);
-    } catch (e: any) {
-      setMsg(`❌ ${e?.message || "Σφάλμα"}`);
-    } finally {
-      setLoading(false);
-    }
+  const openMap = (url?: string | null) => {
+    const u = (url || "").trim();
+    if (!u) return;
+    window.open(u, "_blank", "noopener,noreferrer");
   };
 
   return (
     <div style={page(BG)}>
+      {/* ΠΕΠΛΟ για να γίνει πιο αχνό το background */}
       <div style={veil(FADE)} />
-      <div style={{ position: "relative", width: "min(520px, 92vw)" }}>
-        <div style={card}>
-          <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 10, textShadow: "0 2px 10px rgba(0,0,0,0.25)" }}>
-            RSVP
-          </div>
 
-          <label style={lbl}>Όνομα</label>
-          <input style={inp} value={name} onChange={(e) => setName(e.target.value)} />
-
-          <div style={{ height: 10 }} />
-
-          <label style={lbl}>Θα έρθω</label>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button type="button" onClick={() => setAttending("yes")} style={pill(attending === "yes")}>
-              Ναι
-            </button>
-            <button type="button" onClick={() => setAttending("no")} style={pill(attending === "no")}>
-              Όχι
-            </button>
-          </div>
-
-          <div style={{ height: 10 }} />
-
-          <label style={lbl}>Άτομα</label>
-          <input
-            style={inp}
-            type="number"
-            min={1}
-            value={guests}
-            onChange={(e) => setGuests(Number(e.target.value || 1))}
-          />
-
-          <div style={{ height: 10 }} />
-
-          <label style={lbl}>Σημείωση</label>
-          <textarea style={{ ...inp, height: 90 }} value={note} onChange={(e) => setNote(e.target.value)} />
-
-          <div style={{ height: 14 }} />
-
-          <button type="button" onClick={submit} disabled={loading || !name.trim()} style={btn}>
-            {loading ? "Αποστολή…" : "Υποβολή"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => router.back()}
+      <div style={{ position: "relative", width: "min(1100px, 96vw)" }}>
+        {/* Decorative open envelope on top */}
+        <div style={{ display: "grid", placeItems: "center", marginBottom: 10 }}>
+          <div
             style={{
-              marginTop: 10,
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.18)",
-              background: "rgba(255,255,255,0.10)",
-              color: "white",
-              fontWeight: 900,
-              cursor: "pointer",
+              position: "relative",
+              width: "min(520px, 86vw)",
+              height: "min(260px, 40vw)",
             }}
           >
-            Πίσω
-          </button>
+            <Image
+              src="/envelope/envelope-open.png"
+              alt="Open envelope"
+              fill
+              priority
+              style={{
+                objectFit: "contain",
+                filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.18))",
+              }}
+            />
+          </div>
+        </div>
 
-          {msg ? <div style={{ marginTop: 10, opacity: 0.95 }}>{msg}</div> : null}
+        <div style={wrap}>
+          {/* Left: invite preview (NOT clickable) */}
+          <div style={left}>
+            <div style={leftCard}>
+              <Image
+                src="/section/invite.png"
+                alt="Προσκλητήριο"
+                fill
+                priority
+                style={{ objectFit: "contain" }}
+              />
+            </div>
+          </div>
+
+          {/* Right: cards */}
+          <div style={right}>
+            <div style={grid}>
+              {/* Venue */}
+              <button type="button" style={cardBtn} onClick={() => openMap(venueMapUrl)}>
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-venue.png"
+                    alt="Κέντρο"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>{venueName || "Κέντρο"}</div>
+                {!venueMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
+              </button>
+
+              {/* RSVP */}
+              <button
+                type="button"
+                style={cardBtn}
+                onClick={() =>
+                  router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+                }
+              >
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-rsvp.png"
+                    alt="RSVP"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>RSVP</div>
+              </button>
+
+              {/* Church */}
+              <button type="button" style={cardBtn} onClick={() => openMap(churchMapUrl)}>
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-church.png"
+                    alt="Εκκλησία"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>{churchName || "Εκκλησία"}</div>
+                {!churchMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
+              </button>
+
+              {/* Back */}
+              <button type="button" onClick={() => router.back()} style={backBtn}>
+                Πίσω
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Mobile: stack columns */}
+      <style>{`
+        @media (max-width: 900px){
+          ._wrap {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -122,9 +145,9 @@ export default function RSVPClient({ slug, t }: { slug: string; t: string }) {
 function page(bgUrl: string): React.CSSProperties {
   return {
     minHeight: "100vh",
+    padding: 20,
     display: "grid",
     placeItems: "center",
-    padding: 18,
     backgroundImage: `url(${bgUrl})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
@@ -143,46 +166,72 @@ function veil(fade: number): React.CSSProperties {
   };
 }
 
-const card: React.CSSProperties = {
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.10)",
-  padding: 16,
-  color: "white",
-  backdropFilter: "blur(10px)",
+const wrap: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1.2fr 0.8fr",
+  gap: 18,
+  alignItems: "center",
+};
+// βοηθάει το media query παραπάνω
+// (βάζουμε className με inline τρόπο)
+(wrap as any).className = "_wrap";
+
+const left: React.CSSProperties = { display: "grid", placeItems: "center" };
+
+const leftCard: React.CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: "min(620px, 70vh)",
+  borderRadius: 18,
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  overflow: "hidden",
   boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
 };
 
-const lbl: React.CSSProperties = { fontSize: 12, opacity: 0.85, textShadow: "0 2px 10px rgba(0,0,0,0.25)" };
+const right: React.CSSProperties = { display: "grid", placeItems: "center" };
 
-const inp: React.CSSProperties = {
+const grid: React.CSSProperties = { width: "100%", display: "grid", gap: 14 };
+
+const cardBtn: React.CSSProperties = {
   width: "100%",
-  marginTop: 6,
-  borderRadius: 12,
+  textAlign: "left",
+  borderRadius: 16,
   border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(0,0,0,0.18)",
+  background: "rgba(255,255,255,0.08)",
+  padding: 14,
+  cursor: "pointer",
   color: "white",
-  padding: "10px 12px",
-  outline: "none",
+  backdropFilter: "blur(6px)",
 };
 
-const btn: React.CSSProperties = {
+const imgBox: React.CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: 170,
+  borderRadius: 12,
+  background: "rgba(0,0,0,0.16)",
+  overflow: "hidden",
+};
+
+const label: React.CSSProperties = {
+  marginTop: 10,
+  fontWeight: 900,
+  fontSize: 16,
+  textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+};
+
+const sub: React.CSSProperties = { marginTop: 4, fontSize: 12, opacity: 0.75 };
+
+const backBtn: React.CSSProperties = {
+  marginTop: 6,
   width: "100%",
   padding: "12px 14px",
-  borderRadius: 12,
+  borderRadius: 14,
   border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.92)",
-  color: "#111",
+  background: "rgba(255,255,255,0.10)",
+  color: "white",
   fontWeight: 900,
   cursor: "pointer",
+  backdropFilter: "blur(6px)",
 };
-
-const pill = (active: boolean): React.CSSProperties => ({
-  padding: "10px 12px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: active ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.18)",
-  color: active ? "#111" : "white",
-  fontWeight: 900,
-  cursor: "pointer",
-});
