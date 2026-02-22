@@ -35,7 +35,6 @@ function TypewriterText({
       setShown(text.slice(0, i));
       if (i >= text.length) clearInterval(id);
     }, speed);
-
     return () => clearInterval(id);
   }, [text, active, speed]);
 
@@ -70,21 +69,35 @@ export default function EnvelopeIntro({
     if (opening) return;
     setOpening(true);
 
+    // δείχνουμε το “άνοιγμα” για λίγο…
     setTimeout(() => {
       router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
     }, 1200);
   };
 
   return (
-    <div style={pageStyle(backgroundUrl)}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: 18,
+        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "#efe7df",
+      }}
+    >
       <div style={{ width: "min(560px, 92vw)", textAlign: "center" }}>
+        {/* Brand */}
         <div
           style={{
             fontSize: 12,
             letterSpacing: 2,
             fontWeight: 900,
             color: "white",
-            textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+            textShadow: "0 3px 14px rgba(0,0,0,0.45)",
             opacity: 0.92,
             marginBottom: 14,
           }}
@@ -92,14 +105,15 @@ export default function EnvelopeIntro({
           LABLOU EVENTS
         </div>
 
+        {/* Envelope */}
         <div
           style={{
             position: "relative",
             width: "min(520px, 86vw)",
-            height: "min(360px, 62vw)",
+            height: "min(380px, 62vw)",
             margin: "0 auto",
             filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
-            transform: opening ? "translateY(-6px)" : "translateY(0px)",
+            transform: opening ? "translateY(-6px) scale(1.02)" : "translateY(0px) scale(1)",
             transition: "transform 600ms ease",
           }}
         >
@@ -114,6 +128,7 @@ export default function EnvelopeIntro({
 
         <div style={{ height: 18 }} />
 
+        {/* Text */}
         <TypewriterText
           text="Έχεις πρόσκληση από"
           active={!opening}
@@ -124,9 +139,7 @@ export default function EnvelopeIntro({
             textShadow: "0 3px 14px rgba(0,0,0,0.45)",
           }}
         />
-
         <div style={{ height: 8 }} />
-
         <TypewriterText
           text={inviterLine}
           active={!opening}
@@ -162,18 +175,4 @@ export default function EnvelopeIntro({
       </div>
     </div>
   );
-}
-
-function pageStyle(bgUrl: string): React.CSSProperties {
-  return {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: 18,
-    backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    backgroundColor: "#efe7df",
-  };
 }
