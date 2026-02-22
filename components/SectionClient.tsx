@@ -32,11 +32,17 @@ export default function SectionClient({
 }) {
   const router = useRouter();
 
-  const venueTitle = useMemo(() => event.venue_name || "Κέντρο", [event.venue_name]);
-  const churchTitle = useMemo(() => event.church_name || "Εκκλησία", [event.church_name]);
+  const venueTitle = useMemo(
+    () => (event.venue_name || "Κέντρο").trim(),
+    [event.venue_name]
+  );
+  const churchTitle = useMemo(
+    () => (event.church_name || "Εκκλησία").trim(),
+    [event.church_name]
+  );
 
-  const venueMapUrl = event.venue_map_url || "";
-  const churchMapUrl = event.church_map_url || "";
+  const venueMapUrl = (event.venue_map_url || "").trim();
+  const churchMapUrl = (event.church_map_url || "").trim();
 
   const openMap = (url: string) => {
     if (!url) return;
@@ -45,19 +51,19 @@ export default function SectionClient({
 
   return (
     <div style={page(backgroundUrl)}>
-      {/* extra fog για να γίνει ΠΟΛΥ αχνό */}
+      {/* Κάνει το background ΠΟΛΥ αχνό */}
       <div style={fog} />
 
       <div style={shell}>
-        {/* μικρός ανοιχτός φάκελος πάνω */}
+        {/* Ανοιχτός φάκελος πάνω */}
         <div style={topEnvelope}>
           <Image
             src="/envelope/envelope-open.png"
             alt="Envelope"
-            width={160}
-            height={120}
-            style={{ objectFit: "contain", opacity: 0.9 }}
+            width={200}
+            height={150}
             priority
+            style={{ objectFit: "contain" }}
           />
         </div>
 
@@ -76,9 +82,8 @@ export default function SectionClient({
             <div style={leftLabel}>Προσκλητήριο</div>
           </div>
 
-          {/* Μέση: 2 μικρές κάρτες (Εκκλησία + RSVP) */}
+          {/* Μέση: Εκκλησία + RSVP (μικρές) */}
           <div style={midCol}>
-            {/* Εκκλησία (clickable maps) */}
             <button
               type="button"
               style={smallCardBtn}
@@ -98,17 +103,18 @@ export default function SectionClient({
                 {event.church_address
                   ? event.church_address
                   : churchMapUrl
-                    ? "Άνοιγμα χάρτη"
-                    : "Δεν υπάρχει link χάρτη"}
+                  ? "Άνοιγμα χάρτη"
+                  : "Δεν υπάρχει link χάρτη"}
               </div>
             </button>
 
-            {/* RSVP (clickable σε φόρμα) */}
             <button
               type="button"
               style={smallCardBtn}
               onClick={() =>
-                router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+                router.push(
+                  `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`
+                )
               }
               title="RSVP"
             >
@@ -125,7 +131,7 @@ export default function SectionClient({
             </button>
           </div>
 
-          {/* Δεξιά: Μεγάλη κάρτα Κέντρο (clickable maps) */}
+          {/* Δεξιά: Κέντρο (μεγάλη) */}
           <div style={rightCol}>
             <button
               type="button"
@@ -141,14 +147,13 @@ export default function SectionClient({
                   style={{ objectFit: "contain" }}
                 />
               </div>
-
               <div style={largeTitle}>{venueTitle}</div>
               <div style={largeSub}>
                 {event.venue_address
                   ? event.venue_address
                   : venueMapUrl
-                    ? "Άνοιγμα χάρτη"
-                    : "Δεν υπάρχει link χάρτη"}
+                  ? "Άνοιγμα χάρτη"
+                  : "Δεν υπάρχει link χάρτη"}
               </div>
             </button>
           </div>
@@ -156,11 +161,7 @@ export default function SectionClient({
 
         <div style={{ height: 16 }} />
 
-        <button
-          type="button"
-          onClick={() => router.back()}
-          style={backBtn}
-        >
+        <button type="button" onClick={() => router.back()} style={backBtn}>
           Πίσω
         </button>
       </div>
@@ -189,7 +190,7 @@ function page(bgUrl: string): React.CSSProperties {
 const fog: React.CSSProperties = {
   position: "absolute",
   inset: 0,
-  background: "rgba(255,255,255,0.70)", // ΠΟΛΥ πιο αχνό
+  background: "rgba(255,255,255,0.78)", // 👈 πιο μεγάλο = πιο αχνό
   pointerEvents: "none",
 };
 
@@ -203,7 +204,7 @@ const topEnvelope: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   marginBottom: 12,
-  opacity: 0.85,
+  opacity: 0.92,
 };
 
 const layout: React.CSSProperties = {
@@ -230,7 +231,7 @@ const bigCard: React.CSSProperties = {
   ...glass,
   position: "relative",
   width: "100%",
-  height: "min(540px, 70vh)",
+  height: "min(560px, 72vh)",
   overflow: "hidden",
 };
 
