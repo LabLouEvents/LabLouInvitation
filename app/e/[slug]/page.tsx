@@ -24,7 +24,9 @@ export default async function EventPage({
     "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(
+      slug
+    )}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -40,7 +42,9 @@ export default async function EventPage({
 
   const event = data.event;
 
-  const inviter = (event.inviter_names || event.subtitle || event.title || "").trim();
+  // Από πού θα παίρνει τα ονόματα
+  const inviter = (event.inviter_names || event.subtitle || event.title || "")
+    .trim();
 
   return (
     <EnvelopeIntro
