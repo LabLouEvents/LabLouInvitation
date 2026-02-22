@@ -42,7 +42,7 @@ export default async function EventPage({
 
   const event = data.event;
 
-  // Από πού θα παίρνει τα ονόματα
+  // Αν δεν έχει inviter_names, πάρε subtitle ή title
   const inviter = (event.inviter_names || event.subtitle || event.title || "")
     .trim();
 
