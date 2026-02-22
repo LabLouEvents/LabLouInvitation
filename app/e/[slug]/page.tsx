@@ -39,9 +39,14 @@ export default async function EventPage({
   }
 
   const event = data.event;
-
-  // inviter: θα το παίρνουμε από inviter_names (αν υπάρχει) αλλιώς subtitle/title
   const inviter = (event.inviter_names || event.subtitle || event.title || "").trim();
 
-  return <EnvelopeIntro slug={slug} t={t} inviter={inviter} backgroundUrl="/intro/background.jpg" />;
+  return (
+    <EnvelopeIntro
+      slug={slug}
+      t={t}
+      inviter={inviter}
+      backgroundUrl="/intro/background.jpg"
+    />
+  );
 }

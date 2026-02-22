@@ -70,7 +70,6 @@ export default function EnvelopeIntro({
     if (opening) return;
     setOpening(true);
 
-    // δείχνουμε “άνοιγμα” για λίγο και μετά πάμε στη σελίδα με τις 4 κάρτες
     setTimeout(() => {
       router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
     }, 1200);
@@ -79,7 +78,6 @@ export default function EnvelopeIntro({
   return (
     <div style={pageStyle(backgroundUrl)}>
       <div style={{ width: "min(560px, 92vw)", textAlign: "center" }}>
-        {/* Brand */}
         <div
           style={{
             fontSize: 12,
@@ -94,7 +92,6 @@ export default function EnvelopeIntro({
           LABLOU EVENTS
         </div>
 
-        {/* Envelope */}
         <div
           style={{
             position: "relative",
@@ -117,7 +114,6 @@ export default function EnvelopeIntro({
 
         <div style={{ height: 18 }} />
 
-        {/* Text κάτω από φάκελο */}
         <TypewriterText
           text="Έχεις πρόσκληση από"
           active={!opening}
