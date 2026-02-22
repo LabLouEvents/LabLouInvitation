@@ -8,12 +8,10 @@ type EventFull = {
   title: string;
   subtitle?: string;
 
-  // venue (κέντρο)
   venue_name?: string;
   venue_address?: string;
   venue_map_url?: string;
 
-  // church (εκκλησία)
   church_name?: string;
   church_address?: string;
   church_map_url?: string;
@@ -23,74 +21,110 @@ export default function SectionClient({
   event,
   slug,
   t,
+  venueName,
+  churchName,
+  venueMapUrl,
+  churchMapUrl,
   backgroundUrl = "/intro/background.jpg",
 }: {
   event: EventFull;
   slug: string;
   t: string;
+  venueName: string;
+  churchName: string;
+  venueMapUrl: string;
+  churchMapUrl: string;
   backgroundUrl?: string;
 }) {
   const router = useRouter();
 
   const venueTitle = useMemo(
-    () => (event.venue_name || "Κέντρο").trim(),
-    [event.venue_name]
+    () => (event.venue_name || venueName || "Κέντρο").trim(),
+    [event.venue_name, venueName]
   );
   const churchTitle = useMemo(
-    () => (event.church_name || "Εκκλησία").trim(),
-    [event.church_name]
+    () => (event.church_name || churchName || "Εκκλησία").trim(),
+    [event.church_name, churchName]
   );
-
-  const venueMapUrl = (event.venue_map_url || "").trim();
-  const churchMapUrl = (event.church_map_url || "").trim();
 
   const openMap = (url: string) => {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  /**
+   * Μετατρέπουμε “cm” σε οθόνη με κλίμακα.
+   * ΔΕΝ είναι πραγματικά cm στην οθόνη, είναι “σχετική κλίμακα”.
+   * Αλλά κρατάμε τις αναλογίες σωστές.
+   */
+  const UNIT = "clamp(10px, 0.9vw, 16px)"; // 1 “μονάδα”
+  // Invite 16x23 => 16u x 23u
+  // Mid cards 8x5 => 8u x 5u
+  // Right card 13x19 => 13u x 19u
+
   return (
     <div style={page(backgroundUrl)}>
-      {/* Κάνει το background ΠΟΛΥ αχνό */}
+      {/* Fog layer για να γίνει ΠΟΛΥ αχνό */}
       <div style={fog} />
 
       <div style={shell}>
-        {/* Ανοιχτός φάκελος πάνω */}
-        <div style={topEnvelope}>
-          <Image
-            src="/envelope/envelope-open.png"
-            alt="Envelope"
-            width={200}
-            height={150}
-            priority
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-
         <div style={layout}>
-          {/* Αριστερά: Προσκλητήριο (ΜΗ clickable) */}
+          {/* LEFT: Προσκλητήριο (ΜΗ clickable) */}
           <div style={leftCol}>
-            <div style={bigCard}>
-              <Image
-                src="/section/invite.png"
-                alt="Προσκλητήριο"
-                fill
-                priority
-                style={{ objectFit: "contain" }}
-              />
+            <div style={{ position: "relative" }}>
+              {/* Φάκελος: μεγαλύτερος και λίγο πίσω/κάτω από το προσκλητήριο */}
+              <div style={envelopeWrap}>
+                <div style={envelopeBox}>
+                  <Image
+                    src="/envelope/envelope-open.png"
+                    alt="Envelope"
+                    fill
+                    priority
+                    style={{
+                      objectFit: "contain",
+                      filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
+                      opacity: 0.95,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Προσκλητήριο */}
+              <div
+                style={{
+                  ...glass,
+                  ...inviteCard,
+                  width: `calc(${UNIT} * 16)`,
+                  aspectRatio: "16 / 23",
+                }}
+              >
+                <Image
+                  src="/section/invite.png"
+                  alt="Προσκλητήριο"
+                  fill
+                  priority
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
             </div>
+
             <div style={leftLabel}>Προσκλητήριο</div>
           </div>
 
-          {/* Μέση: Εκκλησία + RSVP (μικρές) */}
+          {/* MID: 2 μικρές κάρτες (Εκκλησία + RSVP) */}
           <div style={midCol}>
+            {/* Εκκλησία */}
             <button
               type="button"
-              style={smallCardBtn}
+              style={{
+                ...glass,
+                ...smallCardBtn,
+                width: `calc(${UNIT} * 8)`,
+                aspectRatio: "8 / 5",
+              }}
               onClick={() => openMap(churchMapUrl)}
-              title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link χάρτη"}
             >
-              <div style={smallCardImg}>
+              <div style={smallImg}>
                 <Image
                   src="/section/card-church.png"
                   alt="Εκκλησία"
@@ -99,26 +133,22 @@ export default function SectionClient({
                 />
               </div>
               <div style={cardTitle}>{churchTitle}</div>
-              <div style={cardSub}>
-                {event.church_address
-                  ? event.church_address
-                  : churchMapUrl
-                  ? "Άνοιγμα χάρτη"
-                  : "Δεν υπάρχει link χάρτη"}
-              </div>
             </button>
 
+            {/* RSVP */}
             <button
               type="button"
-              style={smallCardBtn}
+              style={{
+                ...glass,
+                ...smallCardBtn,
+                width: `calc(${UNIT} * 8)`,
+                aspectRatio: "8 / 5",
+              }}
               onClick={() =>
-                router.push(
-                  `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`
-                )
+                router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
               }
-              title="RSVP"
             >
-              <div style={smallCardImg}>
+              <div style={smallImg}>
                 <Image
                   src="/section/card-rsvp.png"
                   alt="RSVP"
@@ -127,19 +157,22 @@ export default function SectionClient({
                 />
               </div>
               <div style={cardTitle}>RSVP</div>
-              <div style={cardSub}>Δήλωση παρουσίας</div>
             </button>
           </div>
 
-          {/* Δεξιά: Κέντρο (μεγάλη) */}
+          {/* RIGHT: Μεγάλη κάρτα Κέντρο */}
           <div style={rightCol}>
             <button
               type="button"
-              style={largeCardBtn}
+              style={{
+                ...glass,
+                ...largeCardBtn,
+                width: `calc(${UNIT} * 13)`,
+                aspectRatio: "13 / 19",
+              }}
               onClick={() => openMap(venueMapUrl)}
-              title={venueMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link χάρτη"}
             >
-              <div style={largeCardImg}>
+              <div style={largeImg}>
                 <Image
                   src="/section/card-venue.png"
                   alt="Κέντρο"
@@ -147,21 +180,19 @@ export default function SectionClient({
                   style={{ objectFit: "contain" }}
                 />
               </div>
+
               <div style={largeTitle}>{venueTitle}</div>
-              <div style={largeSub}>
-                {event.venue_address
-                  ? event.venue_address
-                  : venueMapUrl
-                  ? "Άνοιγμα χάρτη"
-                  : "Δεν υπάρχει link χάρτη"}
-              </div>
             </button>
           </div>
         </div>
 
         <div style={{ height: 16 }} />
 
-        <button type="button" onClick={() => router.back()} style={backBtn}>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          style={backBtn}
+        >
           Πίσω
         </button>
       </div>
@@ -174,7 +205,6 @@ export default function SectionClient({
 function page(bgUrl: string): React.CSSProperties {
   return {
     minHeight: "100vh",
-    position: "relative",
     display: "grid",
     placeItems: "center",
     padding: 22,
@@ -183,6 +213,7 @@ function page(bgUrl: string): React.CSSProperties {
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundColor: "#efe7df",
+    position: "relative",
     overflow: "hidden",
   };
 }
@@ -190,7 +221,7 @@ function page(bgUrl: string): React.CSSProperties {
 const fog: React.CSSProperties = {
   position: "absolute",
   inset: 0,
-  background: "rgba(255,255,255,0.78)", // 👈 πιο μεγάλο = πιο αχνό
+  background: "rgba(255,255,255,0.78)", // πιο αχνό
   pointerEvents: "none",
 };
 
@@ -200,24 +231,17 @@ const shell: React.CSSProperties = {
   zIndex: 1,
 };
 
-const topEnvelope: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "center",
-  marginBottom: 12,
-  opacity: 0.92,
-};
-
 const layout: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "1.25fr 0.75fr 1fr",
-  gap: 18,
+  gridTemplateColumns: "1.25fr 0.85fr 1fr",
+  gap: 22,
   alignItems: "start",
 };
 
 const glass: React.CSSProperties = {
   borderRadius: 20,
   border: "1px solid rgba(0,0,0,0.10)",
-  background: "rgba(255,255,255,0.45)",
+  background: "rgba(255,255,255,0.55)",
   backdropFilter: "blur(10px)",
   boxShadow: "0 18px 50px rgba(0,0,0,0.12)",
 };
@@ -225,89 +249,99 @@ const glass: React.CSSProperties = {
 const leftCol: React.CSSProperties = {
   display: "grid",
   gap: 10,
+  alignContent: "start",
 };
 
-const bigCard: React.CSSProperties = {
-  ...glass,
+const inviteCard: React.CSSProperties = {
   position: "relative",
-  width: "100%",
-  height: "min(560px, 72vh)",
   overflow: "hidden",
+  borderRadius: 18,
+  justifySelf: "start",
+};
+
+const envelopeWrap: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  top: "8%",
+  transform: "translateX(-50%)",
+  zIndex: 0,
+  pointerEvents: "none",
+};
+
+const envelopeBox: React.CSSProperties = {
+  position: "relative",
+  width: "min(560px, 60vw)",
+  height: "min(320px, 34vw)",
+  transform: "translateY(85px)", // να “μπαίνει” λίγο κάτω από προσκλητήριο
+  opacity: 0.95,
 };
 
 const leftLabel: React.CSSProperties = {
   fontWeight: 900,
-  color: "#2a2a2a",
+  color: "#1a1a1a",
   opacity: 0.9,
-  textAlign: "left",
   paddingLeft: 6,
 };
 
 const midCol: React.CSSProperties = {
   display: "grid",
-  gap: 14,
+  gap: 16,
+  alignContent: "start",
 };
 
 const smallCardBtn: React.CSSProperties = {
-  ...glass,
-  width: "100%",
-  padding: 14,
   cursor: "pointer",
   textAlign: "left",
+  padding: 14,
+  color: "#111",
+  position: "relative",
 };
 
-const smallCardImg: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  height: 120,
+const smallImg: React.CSSProperties = {
+  position: "absolute",
+  inset: 12,
+  borderRadius: 14,
   overflow: "hidden",
 };
 
 const cardTitle: React.CSSProperties = {
-  marginTop: 10,
+  position: "absolute",
+  left: 14,
+  bottom: 12,
   fontWeight: 950,
-  fontSize: 16,
-  color: "#1a1a1a",
-};
-
-const cardSub: React.CSSProperties = {
-  marginTop: 4,
-  fontSize: 12,
-  opacity: 0.75,
-  color: "#1a1a1a",
+  fontSize: 14,
+  color: "#111",
+  textShadow: "0 2px 10px rgba(255,255,255,0.7)",
 };
 
 const rightCol: React.CSSProperties = {
   display: "grid",
+  alignContent: "start",
 };
 
 const largeCardBtn: React.CSSProperties = {
-  ...glass,
-  width: "100%",
-  padding: 16,
   cursor: "pointer",
   textAlign: "left",
+  padding: 16,
+  color: "#111",
+  position: "relative",
 };
 
-const largeCardImg: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  height: 260,
+const largeImg: React.CSSProperties = {
+  position: "absolute",
+  inset: 12,
+  borderRadius: 16,
   overflow: "hidden",
 };
 
 const largeTitle: React.CSSProperties = {
-  marginTop: 12,
+  position: "absolute",
+  left: 16,
+  bottom: 14,
   fontWeight: 1000,
-  fontSize: 18,
+  fontSize: 16,
   color: "#111",
-};
-
-const largeSub: React.CSSProperties = {
-  marginTop: 6,
-  fontSize: 13,
-  opacity: 0.8,
-  color: "#111",
+  textShadow: "0 2px 10px rgba(255,255,255,0.7)",
 };
 
 const backBtn: React.CSSProperties = {
@@ -315,8 +349,7 @@ const backBtn: React.CSSProperties = {
   padding: "12px 14px",
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(255,255,255,0.55)",
-  backdropFilter: "blur(8px)",
+  background: "rgba(255,255,255,0.75)",
   fontWeight: 900,
   cursor: "pointer",
 };
