@@ -63,5 +63,5 @@ export default async function EventPage({
         (event.church_address ? ", " + event.church_address : "")
     )}`;
 
-  return <EventClient event={event} slug={slug} gcalUrl={gcalUrl} t={t} />;
+    return <EventClient event={event} slug={slug} t={t} />;
 }
