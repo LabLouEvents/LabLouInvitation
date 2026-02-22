@@ -9,6 +9,5 @@ export default function RSVPPage({
 }) {
   const slug = params.slug;
   const t = searchParams?.t || "";
-
   return <RSVPClient slug={slug} t={t} />;
 }

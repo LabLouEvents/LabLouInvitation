@@ -44,29 +44,8 @@ export default function SectionClient({
         {/* Δεξιά: 3 κάρτες */}
         <div style={right}>
           <div style={grid}>
-            {/* RSVP */}
-            <button
-              type="button"
-              style={cardBtn}
-              onClick={() => router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)}
-            >
-              <div style={imgBox}>
-                <Image
-                  src="/section/card-rsvp.png"
-                  alt="RSVP"
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-              <div style={label}>RSVP</div>
-            </button>
-
             {/* Κέντρο */}
-            <button
-              type="button"
-              style={cardBtn}
-              onClick={() => openMap(venueMapUrl)}
-            >
+            <button type="button" style={cardBtn} onClick={() => openMap(venueMapUrl)}>
               <div style={imgBox}>
                 <Image
                   src="/section/card-venue.png"
@@ -79,12 +58,22 @@ export default function SectionClient({
               {!venueMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
             </button>
 
-            {/* Εκκλησία */}
+            {/* RSVP */}
             <button
               type="button"
               style={cardBtn}
-              onClick={() => openMap(churchMapUrl)}
+              onClick={() =>
+                router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+              }
             >
+              <div style={imgBox}>
+                <Image src="/section/card-rsvp.png" alt="RSVP" fill style={{ objectFit: "contain" }} />
+              </div>
+              <div style={label}>RSVP</div>
+            </button>
+
+            {/* Εκκλησία */}
+            <button type="button" style={cardBtn} onClick={() => openMap(churchMapUrl)}>
               <div style={imgBox}>
                 <Image
                   src="/section/card-church.png"
@@ -95,6 +84,25 @@ export default function SectionClient({
               </div>
               <div style={label}>{churchName}</div>
               {!churchMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
+            </button>
+
+            {/* μικρό κουμπί πίσω στο intro αν θες */}
+            <button
+              type="button"
+              onClick={() => router.back()}
+              style={{
+                marginTop: 6,
+                width: "100%",
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.18)",
+                background: "rgba(255,255,255,0.10)",
+                color: "white",
+                fontWeight: 900,
+                cursor: "pointer",
+              }}
+            >
+              Πίσω
             </button>
           </div>
         </div>
@@ -119,10 +127,7 @@ const wrap: React.CSSProperties = {
   alignItems: "center",
 };
 
-const left: React.CSSProperties = {
-  display: "grid",
-  placeItems: "center",
-};
+const left: React.CSSProperties = { display: "grid", placeItems: "center" };
 
 const leftCard: React.CSSProperties = {
   position: "relative",
@@ -134,16 +139,9 @@ const leftCard: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const right: React.CSSProperties = {
-  display: "grid",
-  placeItems: "center",
-};
+const right: React.CSSProperties = { display: "grid", placeItems: "center" };
 
-const grid: React.CSSProperties = {
-  width: "100%",
-  display: "grid",
-  gap: 14,
-};
+const grid: React.CSSProperties = { width: "100%", display: "grid", gap: 14 };
 
 const cardBtn: React.CSSProperties = {
   width: "100%",
@@ -154,7 +152,6 @@ const cardBtn: React.CSSProperties = {
   padding: 14,
   cursor: "pointer",
   color: "white",
-  transition: "transform 120ms ease, background 200ms ease",
 };
 
 const imgBox: React.CSSProperties = {
@@ -166,14 +163,6 @@ const imgBox: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const label: React.CSSProperties = {
-  marginTop: 10,
-  fontWeight: 900,
-  fontSize: 16,
-};
+const label: React.CSSProperties = { marginTop: 10, fontWeight: 900, fontSize: 16 };
 
-const sub: React.CSSProperties = {
-  marginTop: 4,
-  fontSize: 12,
-  opacity: 0.7,
-};
+const sub: React.CSSProperties = { marginTop: 4, fontSize: 12, opacity: 0.7 };

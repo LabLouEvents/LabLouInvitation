@@ -10,7 +10,7 @@ export default function RSVPClient({ slug, t }: { slug: string; t: string }) {
   const [guests, setGuests] = useState(1);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string>("");
+  const [msg, setMsg] = useState("");
 
   const submit = async () => {
     setLoading(true);
@@ -34,7 +34,10 @@ export default function RSVPClient({ slug, t }: { slug: string; t: string }) {
       if (!res.ok || !data.ok) throw new Error(data.error || "Κάτι πήγε στραβά");
 
       setMsg("✅ Καταχωρήθηκε!");
-      setTimeout(() => router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`), 900);
+      setTimeout(
+        () => router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`),
+        900
+      );
     } catch (e: any) {
       setMsg(`❌ ${e?.message || "Σφάλμα"}`);
     } finally {
@@ -54,18 +57,10 @@ export default function RSVPClient({ slug, t }: { slug: string; t: string }) {
 
         <label style={lbl}>Θα έρθω</label>
         <div style={{ display: "flex", gap: 10 }}>
-          <button
-            type="button"
-            onClick={() => setAttending("yes")}
-            style={pill(attending === "yes")}
-          >
+          <button type="button" onClick={() => setAttending("yes")} style={pill(attending === "yes")}>
             Ναι
           </button>
-          <button
-            type="button"
-            onClick={() => setAttending("no")}
-            style={pill(attending === "no")}
-          >
+          <button type="button" onClick={() => setAttending("no")} style={pill(attending === "no")}>
             Όχι
           </button>
         </div>
