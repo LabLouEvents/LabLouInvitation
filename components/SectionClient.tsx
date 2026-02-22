@@ -20,90 +20,103 @@ export default function SectionClient({
 }) {
   const router = useRouter();
 
+  const BG = "/intro/background.jpg"; // ίδιο με intro
+  const FADE = 0.72; // 👈 πιο μεγάλο = πιο αχνό το background (0.70–0.82 προτείνω)
+
   const openMap = (url: string) => {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <div style={page}>
-      <div style={wrap}>
-        {/* Αριστερά: preview (ΟΧΙ clickable) */}
-        <div style={left}>
-          <div style={leftCard}>
+    <div style={page(BG, FADE)}>
+      <div style={{ position: "relative", width: "min(1100px, 96vw)" }}>
+        {/* Decorative open envelope on top */}
+        <div style={{ display: "grid", placeItems: "center", marginBottom: 10 }}>
+          <div style={{ position: "relative", width: "min(520px, 86vw)", height: "min(260px, 40vw)" }}>
             <Image
-              src="/section/invite.png"
-              alt="Προσκλητήριο"
+              src="/envelope/envelope-open.png"
+              alt="Open envelope"
               fill
               priority
-              style={{ objectFit: "contain" }}
+              style={{ objectFit: "contain", filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.18))" }}
             />
           </div>
         </div>
 
-        {/* Δεξιά: 3 κάρτες */}
-        <div style={right}>
-          <div style={grid}>
-            {/* Κέντρο */}
-            <button type="button" style={cardBtn} onClick={() => openMap(venueMapUrl)}>
-              <div style={imgBox}>
-                <Image
-                  src="/section/card-venue.png"
-                  alt="Κέντρο"
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-              <div style={label}>{venueName}</div>
-              {!venueMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
-            </button>
+        <div style={wrap}>
+          {/* Left: invite preview (NOT clickable) */}
+          <div style={left}>
+            <div style={leftCard}>
+              <Image
+                src="/section/invite.png"
+                alt="Προσκλητήριο"
+                fill
+                priority
+                style={{ objectFit: "contain" }}
+              />
+            </div>
+          </div>
 
-            {/* RSVP */}
-            <button
-              type="button"
-              style={cardBtn}
-              onClick={() =>
-                router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
-              }
-            >
-              <div style={imgBox}>
-                <Image src="/section/card-rsvp.png" alt="RSVP" fill style={{ objectFit: "contain" }} />
-              </div>
-              <div style={label}>RSVP</div>
-            </button>
+          {/* Right: cards */}
+          <div style={right}>
+            <div style={grid}>
+              {/* Venue */}
+              <button type="button" style={cardBtn} onClick={() => openMap(venueMapUrl)}>
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-venue.png"
+                    alt="Κέντρο"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>{venueName}</div>
+                {!venueMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
+              </button>
 
-            {/* Εκκλησία */}
-            <button type="button" style={cardBtn} onClick={() => openMap(churchMapUrl)}>
-              <div style={imgBox}>
-                <Image
-                  src="/section/card-church.png"
-                  alt="Εκκλησία"
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-              <div style={label}>{churchName}</div>
-              {!churchMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
-            </button>
+              {/* RSVP */}
+              <button
+                type="button"
+                style={cardBtn}
+                onClick={() =>
+                  router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+                }
+              >
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-rsvp.png"
+                    alt="RSVP"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>RSVP</div>
+              </button>
 
-            {/* μικρό κουμπί πίσω στο intro αν θες */}
-            <button
-              type="button"
-              onClick={() => router.back()}
-              style={{
-                marginTop: 6,
-                width: "100%",
-                padding: "12px 14px",
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.10)",
-                color: "white",
-                fontWeight: 900,
-                cursor: "pointer",
-              }}
-            >
-              Πίσω
-            </button>
+              {/* Church */}
+              <button type="button" style={cardBtn} onClick={() => openMap(churchMapUrl)}>
+                <div style={imgBox}>
+                  <Image
+                    src="/section/card-church.png"
+                    alt="Εκκλησία"
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div style={label}>{churchName}</div>
+                {!churchMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
+              </button>
+
+              {/* Back */}
+              <button
+                type="button"
+                onClick={() => router.back()}
+                style={backBtn}
+              >
+                Πίσω
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,16 +124,23 @@ export default function SectionClient({
   );
 }
 
-const page: React.CSSProperties = {
-  minHeight: "100vh",
-  padding: 20,
-  display: "grid",
-  placeItems: "center",
-  background: "#0b1220",
-};
+function page(bgUrl: string, fade: number): React.CSSProperties {
+  return {
+    minHeight: "100vh",
+    padding: 20,
+    display: "grid",
+    placeItems: "center",
+    backgroundImage: `url(${bgUrl})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    position: "relative",
+    color: "white",
+    overflow: "hidden",
+  };
+}
 
 const wrap: React.CSSProperties = {
-  width: "min(1100px, 96vw)",
   display: "grid",
   gridTemplateColumns: "1.2fr 0.8fr",
   gap: 18,
@@ -137,6 +157,7 @@ const leftCard: React.CSSProperties = {
   background: "rgba(255,255,255,0.06)",
   border: "1px solid rgba(255,255,255,0.12)",
   overflow: "hidden",
+  boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
 };
 
 const right: React.CSSProperties = { display: "grid", placeItems: "center" };
@@ -147,22 +168,41 @@ const cardBtn: React.CSSProperties = {
   width: "100%",
   textAlign: "left",
   borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.14)",
-  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.08)",
   padding: 14,
   cursor: "pointer",
   color: "white",
+  backdropFilter: "blur(6px)",
 };
 
 const imgBox: React.CSSProperties = {
   position: "relative",
   width: "100%",
-  height: 160,
+  height: 170,
   borderRadius: 12,
-  background: "rgba(0,0,0,0.18)",
+  background: "rgba(0,0,0,0.16)",
   overflow: "hidden",
 };
 
-const label: React.CSSProperties = { marginTop: 10, fontWeight: 900, fontSize: 16 };
+const label: React.CSSProperties = {
+  marginTop: 10,
+  fontWeight: 900,
+  fontSize: 16,
+  textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+};
 
-const sub: React.CSSProperties = { marginTop: 4, fontSize: 12, opacity: 0.7 };
+const sub: React.CSSProperties = { marginTop: 4, fontSize: 12, opacity: 0.75 };
+
+const backBtn: React.CSSProperties = {
+  marginTop: 6,
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.18)",
+  background: "rgba(255,255,255,0.10)",
+  color: "white",
+  fontWeight: 900,
+  cursor: "pointer",
+  backdropFilter: "blur(6px)",
+};
