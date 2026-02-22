@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import EnvelopeIntro from "./EnvelopeIntro";
 
 type EventFull = {
   title: string;
@@ -37,13 +36,5 @@ export default function EventClient({
     router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
   };
 
-  return (
-    <EnvelopeIntro
-      inviter={inviter}
-      onOpen={handleOpen}
-      // ΒΑΛΕ εδώ το background που είχες (αν έχεις την εικόνα)
-      // π.χ. "/bg-paper.jpg"
-      backgroundUrl={"/bg.jpg"}
-    />
-  );
+    return null;
 }

@@ -39,6 +39,7 @@ export default async function EventPage({
   }
 
   const event = data.event;
+
   const inviter = (event.inviter_names || event.subtitle || event.title || "").trim();
 
   return (
