@@ -1,6 +1,6 @@
 "use client";
 
-import RSVPForm from "./RSVPForm";
+import RSVPForm from "../RSVPForm";
 
 type EventFull = {
   title: string;

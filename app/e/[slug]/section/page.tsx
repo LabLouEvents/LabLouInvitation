@@ -1,7 +1,6 @@
-import Link from "next/link";
-import Image from "next/image";
+import SectionClient from "@/components/SectionClient";
 
-export default function SectionHubPage({
+export default async function SectionPage({
   params,
   searchParams,
 }: {
@@ -11,60 +10,55 @@ export default function SectionHubPage({
   const slug = params.slug;
   const t = searchParams?.t || "";
 
-  // ΕΔΩ αλλάζεις τα links/ενότητες όπως θες
-  const cards = [
-    { key: "welcome", title: "Καλωσόρισμα", img: "/collage/1.jpg" },
-    { key: "venue", title: "Τοποθεσία", img: "/collage/2.jpg" },
-    { key: "program", title: "Πρόγραμμα", img: "/collage/3.jpg" },
-    { key: "rsvp", title: "RSVP", img: "/collage/4.jpg" },
-  ];
+  if (!t) {
+    return (
+      <div style={{ padding: 40, fontFamily: "system-ui" }}>
+        <h2>Δεν έχεις πρόσβαση</h2>
+        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
+      </div>
+    );
+  }
+
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+    "https://lablouinvitations.gr";
+
+  const res = await fetch(
+    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    { cache: "no-store" }
+  );
+  const data = await res.json();
+
+  if (!res.ok || !data?.ok || !data?.event) {
+    return (
+      <div style={{ padding: 40, fontFamily: "system-ui" }}>
+        Δεν βρέθηκε event ή δεν έχεις πρόσβαση.
+      </div>
+    );
+  }
+
+  const event = data.event;
+
+  const venueMapUrl =
+    event.venue_map_url ||
+    (event.venue_address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venue_address)}`
+      : "");
+
+  const churchMapUrl =
+    event.church_map_url ||
+    (event.church_address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.church_address)}`
+      : "");
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 22,
-        background: "#0f0f12",
-        color: "white",
-        fontFamily: "system-ui",
-      }}
-    >
-      <div style={{ maxWidth: 980, margin: "0 auto" }}>
-        <div style={{ marginBottom: 14, fontWeight: 900, letterSpacing: 1 }}>
-          Επέλεξε ενότητα
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 14,
-          }}
-        >
-          {cards.map((c) => (
-            <Link
-              key={c.key}
-              href={`/e/${encodeURIComponent(slug)}/section/${encodeURIComponent(
-                c.key
-              )}?t=${encodeURIComponent(t)}`}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                borderRadius: 18,
-                overflow: "hidden",
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.04)",
-                boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
-              }}
-            >
-              <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
-                <Image src={c.img} alt={c.title} fill style={{ objectFit: "cover" }} />
-              </div>
-              <div style={{ padding: 12, fontWeight: 900 }}>{c.title}</div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+    <SectionClient
+      slug={slug}
+      t={t}
+      venueName={event.venue_name || "Κέντρο"}
+      churchName={event.church_name || "Εκκλησία"}
+      venueMapUrl={venueMapUrl}
+      churchMapUrl={churchMapUrl}
+    />
   );
 }
