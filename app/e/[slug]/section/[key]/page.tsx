@@ -1,4 +1,4 @@
-import SectionClient from "./SectionClient";
+import SectionClient from "@/components/SectionClient";
 
 async function getEvent(slug: string, t: string) {
   const res = await fetch(
@@ -33,5 +33,12 @@ export default async function Page({
   const data = await getEvent(slug, t);
   const event = data?.event ?? data;
 
-  return <SectionClient event={event} slug={slug} t={t} section={key} />;
+  return (
+    <SectionClient
+      event={event}
+      slug={slug}
+      t={t}
+      backgroundUrl="/intro/background.jpg"
+    />
+  );
 }
