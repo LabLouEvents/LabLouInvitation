@@ -5,13 +5,7 @@ import { useRouter } from "next/navigation";
 
 export type CardKey = "invite" | "rsvp" | "church" | "venue";
 
-export default function CollageNav({
-  slug,
-  t,
-}: {
-  slug: string;
-  t: string;
-}) {
+export default function CollageNav({ slug, t }: { slug: string; t: string }) {
   const router = useRouter();
 
   const cards: { key: CardKey; label: string; src: string }[] = [
@@ -21,7 +15,7 @@ export default function CollageNav({
     { key: "venue", label: "Κέντρο", src: "/invites/4.png" },
   ];
 
-  // ΚΡΑΤΑΜΕ ΤΟ OVERLAP ΠΟΥ ΣΟΥ ΑΡΕΣΕΙ
+  // Κρατάμε το overlap που σου αρέσει
   const W = 320;
   const H = 390;
   const OVERLAP_Y = 430;
@@ -29,11 +23,8 @@ export default function CollageNav({
   const ROT = 6;
   const RADIUS = 18;
 
-  // cache-buster για να παίρνει νέες εικόνες
-  const ASSET_VER = "v3";
-
   function go(key: CardKey) {
-    router.push(`/e/${encodeURIComponent(slug)}/${key}?t=${encodeURIComponent(t)}`);
+    router.push(`/e/${encodeURIComponent(slug)}/section/${key}?t=${encodeURIComponent(t || "")}`);
   }
 
   return (
@@ -41,9 +32,10 @@ export default function CollageNav({
       style={{
         position: "relative",
         width: "min(92vw, 420px)",
-        height: H + OVERLAP_Y * 3,
+        height: H + OVERLAP_Y * (cards.length - 1),
         margin: "0 auto",
         marginTop: 18,
+        marginBottom: 8,
       }}
     >
       {cards.map((c, i) => {
@@ -66,9 +58,9 @@ export default function CollageNav({
               height: H,
               maxWidth: "92vw",
               borderRadius: RADIUS,
-              border: "1px solid rgba(255,255,255,0.35)",
-              background: `url(${c.src}?${ASSET_VER}) center/cover no-repeat`,
-              boxShadow: "0 20px 55px rgba(0,0,0,0.22)",
+              border: "1px solid rgba(0,0,0,0.08)",
+              boxShadow: "0 14px 34px rgba(0,0,0,0.14)",
+              background: `url(${c.src}) center/cover no-repeat`,
               cursor: "pointer",
               padding: 0,
               outline: "none",
@@ -84,16 +76,12 @@ export default function CollageNav({
                 position: "absolute",
                 left: 12,
                 top: 12,
-                padding: "7px 10px",
-                borderRadius: 999,
-                fontSize: 13,
+                background: "rgba(255,255,255,0.82)",
+                backdropFilter: "blur(8px)",
+                padding: "8px 10px",
+                borderRadius: 12,
+                fontSize: 14,
                 fontWeight: 800,
-                letterSpacing: 0.2,
-                background: "rgba(255,255,255,0.72)",
-                color: "#111",
-                boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
-                textShadow: "0 1px 0 rgba(255,255,255,0.55)",
-                backdropFilter: "blur(6px)",
               }}
             >
               {c.label}
