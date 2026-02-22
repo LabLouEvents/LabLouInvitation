@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-function clampText(s: string, max = 48) {
+function clampText(s: string, max = 60) {
   const t = (s || "").trim();
   if (!t) return "";
   return t.length > max ? t.slice(0, max - 1) + "…" : t;
@@ -34,28 +35,30 @@ function TypewriterText({
       setShown(text.slice(0, i));
       if (i >= text.length) clearInterval(id);
     }, speed);
+
     return () => clearInterval(id);
   }, [text, active, speed]);
 
   return (
     <div style={{ whiteSpace: "pre-wrap", ...style }}>
       {shown}
-      {active && shown.length < text.length ? (
-        <span style={{ opacity: 0.7 }}>▍</span>
-      ) : null}
+      {active && shown.length < text.length ? <span style={{ opacity: 0.6 }}>▍</span> : null}
     </div>
   );
 }
 
 export default function EnvelopeIntro({
+  slug,
+  t,
   inviter,
-  onOpen,
-  backgroundUrl,
+  backgroundUrl = "/intro/background.jpg",
 }: {
+  slug: string;
+  t: string;
   inviter: string;
-  onOpen: () => void;
-  backgroundUrl?: string; // π.χ. "/bg.jpg"
+  backgroundUrl?: string;
 }) {
+  const router = useRouter();
   const [opening, setOpening] = useState(false);
 
   const inviterLine = useMemo(() => {
@@ -67,86 +70,80 @@ export default function EnvelopeIntro({
     if (opening) return;
     setOpening(true);
 
-    // μικρό “πάτημα” για να δεις το άνοιγμα, μετά πηγαίνει στη 2η σελίδα
+    // δείχνουμε “άνοιγμα” για λίγο και μετά πάμε στη σελίδα με τις 4 κάρτες
     setTimeout(() => {
-      onOpen();
-    }, 750);
+      router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
+    }, 1200);
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 18,
-        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        // fallback αν δεν βάλεις background εικόνα
-        backgroundColor: "#efe7df",
-      }}
-    >
-      <div style={{ width: "min(520px, 92vw)", textAlign: "center" }}>
+    <div style={pageStyle(backgroundUrl)}>
+      <div style={{ width: "min(560px, 92vw)", textAlign: "center" }}>
+        {/* Brand */}
         <div
           style={{
+            fontSize: 12,
             letterSpacing: 2,
-            fontWeight: 800,
-            opacity: 0.85,
+            fontWeight: 900,
+            color: "white",
+            textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+            opacity: 0.92,
             marginBottom: 14,
           }}
         >
           LABLOU EVENTS
         </div>
 
+        {/* Envelope */}
         <div
           style={{
             position: "relative",
-            width: "min(420px, 86vw)",
-            height: "min(320px, 64vw)",
+            width: "min(520px, 86vw)",
+            height: "min(360px, 62vw)",
             margin: "0 auto",
-            filter: "drop-shadow(0 16px 30px rgba(0,0,0,0.18))",
+            filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
             transform: opening ? "translateY(-6px)" : "translateY(0px)",
             transition: "transform 600ms ease",
           }}
         >
           <Image
-            src={opening ? "/envelope-open.png" : "/envelope-closed.png"}
+            src={opening ? "/envelope/envelope-open.png" : "/envelope/envelope-closed.png"}
             alt={opening ? "Open envelope" : "Closed envelope"}
             fill
             priority
-            style={{
-              objectFit: "contain",
-              transition: "opacity 280ms ease",
-              opacity: 1,
-            }}
+            style={{ objectFit: "contain" }}
           />
         </div>
 
-        <div style={{ height: 14 }} />
+        <div style={{ height: 18 }} />
 
+        {/* Text κάτω από φάκελο */}
         <TypewriterText
-          text={"Έχεις πρόσκληση από"}
+          text="Έχεις πρόσκληση από"
           active={!opening}
           style={{
             fontSize: 24,
             fontWeight: 900,
-            textShadow: "0 2px 10px rgba(0,0,0,0.15)",
+            color: "white",
+            textShadow: "0 3px 14px rgba(0,0,0,0.45)",
           }}
         />
-        <div style={{ height: 6 }} />
+
+        <div style={{ height: 8 }} />
+
         <TypewriterText
           text={inviterLine}
           active={!opening}
           style={{
             fontSize: 20,
             fontWeight: 900,
-            opacity: 0.92,
-            textShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            color: "white",
+            opacity: 0.95,
+            textShadow: "0 3px 14px rgba(0,0,0,0.40)",
           }}
         />
 
-        <div style={{ height: 18 }} />
+        <div style={{ height: 20 }} />
 
         <button
           type="button"
@@ -155,24 +152,32 @@ export default function EnvelopeIntro({
             width: "min(360px, 92vw)",
             padding: "14px 16px",
             borderRadius: 999,
-            border: "1px solid rgba(0,0,0,0.12)",
-            background: "rgba(255,255,255,0.55)",
-            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.35)",
+            background: "rgba(255,255,255,0.85)",
+            color: "#111",
             fontWeight: 900,
             cursor: "pointer",
-            transition: "transform 120ms ease, opacity 200ms ease",
-            opacity: opening ? 0.75 : 1,
+            boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
+            opacity: opening ? 0.8 : 1,
           }}
         >
-          Άνοιγμα προσκλητηρίου
+          {opening ? "Ανοίγει…" : "Άνοιγμα προσκλητηρίου"}
         </button>
-
-        <div style={{ height: 10 }} />
-
-        <div style={{ fontSize: 12, opacity: 0.65 }}>
-          {opening ? "Ανοίγει…" : ""}
-        </div>
       </div>
     </div>
   );
+}
+
+function pageStyle(bgUrl: string): React.CSSProperties {
+  return {
+    minHeight: "100vh",
+    display: "grid",
+    placeItems: "center",
+    padding: 18,
+    backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundColor: "#efe7df",
+  };
 }

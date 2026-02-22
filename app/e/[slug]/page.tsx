@@ -1,4 +1,4 @@
-import EventClient from "./EventClient";
+import EnvelopeIntro from "@/components/EnvelopeIntro";
 
 export default async function EventPage({
   params,
@@ -14,9 +14,7 @@ export default async function EventPage({
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         <h2>Δεν έχεις πρόσβαση</h2>
-        <div style={{ opacity: 0.8 }}>
-          Χρειάζεται το ειδικό link του event.
-        </div>
+        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
       </div>
     );
   }
@@ -26,9 +24,7 @@ export default async function EventPage({
     "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(
-      slug
-    )}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -44,5 +40,8 @@ export default async function EventPage({
 
   const event = data.event;
 
-  return <EventClient event={event} slug={slug} t={t} />;
+  // inviter: θα το παίρνουμε από inviter_names (αν υπάρχει) αλλιώς subtitle/title
+  const inviter = (event.inviter_names || event.subtitle || event.title || "").trim();
+
+  return <EnvelopeIntro slug={slug} t={t} inviter={inviter} backgroundUrl="/intro/background.jpg" />;
 }
