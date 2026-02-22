@@ -27,9 +27,10 @@ export default async function SectionPage({
     `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
+
   const data = await res.json();
 
-  if (!res.ok || !data?.ok || !data?.event) {
+  if (!res.ok || !data.ok || !data.event) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         Δεν βρέθηκε event ή δεν έχεις πρόσβαση.
@@ -39,25 +40,12 @@ export default async function SectionPage({
 
   const event = data.event;
 
-  const venueMapUrl =
-    event.venue_map_url ||
-    (event.venue_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venue_address)}`
-      : "");
-
-  const churchMapUrl =
-    event.church_map_url ||
-    (event.church_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.church_address)}`
-      : "");
-
   return (
-    return (
-      <SectionClient
-        event={event}
-        slug={slug}
-        t={t}
-        backgroundUrl="/intro/background.jpg"
-      />
-    );
+    <SectionClient
+      event={event}
+      slug={slug}
+      t={t}
+      backgroundUrl="/intro/background.jpg"
+    />
+  );
 }
