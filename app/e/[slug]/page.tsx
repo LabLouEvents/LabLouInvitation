@@ -1,4 +1,4 @@
-import EventClient from "./EventClient";
+import EnvelopeIntro from "@/components/EnvelopeIntro";
 
 function toGoogleDate(iso: string) {
   return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -24,7 +24,9 @@ export default async function EventPage({
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
         <h2>Δεν έχεις πρόσβαση</h2>
-        <div style={{ opacity: 0.8 }}>Χρειάζεται το ειδικό link του event.</div>
+        <div style={{ opacity: 0.8 }}>
+          Χρειάζεται το ειδικό link του event.
+        </div>
       </div>
     );
   }
@@ -34,7 +36,9 @@ export default async function EventPage({
     "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(
+      slug
+    )}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -50,18 +54,6 @@ export default async function EventPage({
 
   const event = data.event;
 
-  const startISO = event.start_iso;
-  const endISO = event.end_iso || addHours(event.start_iso, 2);
-
-  const gcalUrl =
-    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-    `&text=${encodeURIComponent(event.title)}` +
-    `&dates=${toGoogleDate(startISO)}/${toGoogleDate(endISO)}` +
-    `&details=${encodeURIComponent(event.subtitle || "")}` +
-    `&location=${encodeURIComponent(
-      (event.church_name || "") +
-        (event.church_address ? ", " + event.church_address : "")
-    )}`;
-
-    return <EventClient event={event} slug={slug} t={t} />;
+  // 👇 Εδώ δείχνουμε ΜΟΝΟ envelope
+  return <EnvelopeIntro slug={slug} />;
 }

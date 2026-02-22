@@ -16,16 +16,18 @@ function storageKey(slug: string, t: string) {
 }
 
 /* =============================
-   Envelope Component
+   Envelope (single image) + paper animation
 ============================= */
 function Envelope({
-  opening,
+  phase,
   envelopeImg,
 }: {
-  opening: boolean;
+  phase: "idle" | "opening";
   envelopeImg: string;
 }) {
-  const W = 360;
+  const W = 380;
+
+  const opening = phase === "opening";
 
   return (
     <div
@@ -34,61 +36,93 @@ function Envelope({
         maxWidth: "88vw",
         margin: "0 auto",
         position: "relative",
-        perspective: 1000,
+        overflow: "visible",
       }}
     >
-      {/* Paper */}
+      {/* Glow behind */}
+      <div
+        style={{
+          position: "absolute",
+          inset: -40,
+          background:
+            "radial-gradient(circle at 50% 55%, rgba(255,255,255,0.55), rgba(255,255,255,0) 62%)",
+          opacity: opening ? 1 : 0.25,
+          transform: opening ? "scale(1.04)" : "scale(1)",
+          transition: "opacity 380ms ease, transform 900ms cubic-bezier(.2,.9,.2,1)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Paper comes out */}
       <div
         style={{
           position: "absolute",
           left: "10%",
           right: "10%",
-          top: "20%",
-          height: "60%",
+          top: "18%",
+          height: "62%",
           borderRadius: 14,
-          background: "white",
-          boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
-          transform: opening ? "translateY(-42px)" : "translateY(24px)",
+          background: "linear-gradient(180deg, #fff, #fbfbfb)",
+          boxShadow: "0 22px 55px rgba(0,0,0,0.22)",
+          transform: opening
+            ? "translateY(-88px) rotate(-1.2deg)"
+            : "translateY(34px) rotate(0deg)",
           opacity: opening ? 1 : 0,
           transition:
-            "transform 800ms cubic-bezier(.2,.9,.2,1), opacity 400ms ease",
+            "transform 950ms cubic-bezier(.18,.95,.2,1), opacity 240ms ease",
           zIndex: 1,
         }}
-      />
+      >
+        {/* tiny top cut */}
+        <div
+          style={{
+            position: "absolute",
+            left: 18,
+            right: 18,
+            top: 18,
+            height: 2,
+            background: "rgba(0,0,0,0.06)",
+            borderRadius: 2,
+          }}
+        />
+      </div>
 
-      {/* Envelope body */}
+      {/* Envelope image (single png) */}
       <img
         src={envelopeImg}
         alt="envelope"
         style={{
           width: "100%",
           display: "block",
-          filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.3))",
-          transform: opening ? "translateY(6px) scale(0.98)" : "scale(1)",
-          transition: "transform 700ms cubic-bezier(.2,.9,.2,1)",
           position: "relative",
           zIndex: 2,
+          filter: "drop-shadow(0 22px 55px rgba(0,0,0,0.35))",
+          transform: opening
+            ? "translateY(12px) rotate(0.6deg) scale(0.985)"
+            : "translateY(0px) rotate(0deg) scale(1)",
+          transition: "transform 950ms cubic-bezier(.18,.95,.2,1)",
+          userSelect: "none",
+          WebkitUserSelect: "none",
         }}
       />
 
-      {/* Flap */}
+      {/* little “lift” highlight on click */}
       <div
         style={{
           position: "absolute",
-          left: "6%",
-          right: "6%",
-          top: "8%",
-          height: "34%",
-          borderRadius: 16,
+          left: "12%",
+          right: "12%",
+          top: "52%",
+          height: 26,
+          borderRadius: 999,
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.15))",
-          transformOrigin: "top center",
-          transform: opening ? "rotateX(155deg)" : "rotateX(0deg)",
-          transition: "transform 800ms cubic-bezier(.2,.9,.2,1)",
+            "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.35), rgba(255,255,255,0))",
+          opacity: opening ? 1 : 0,
+          transform: opening ? "translateY(-10px)" : "translateY(0px)",
+          transition: "opacity 220ms ease, transform 700ms ease",
+          pointerEvents: "none",
           zIndex: 3,
-          boxShadow: opening
-            ? "none"
-            : "0 14px 30px rgba(0,0,0,0.18)",
         }}
       />
     </div>
@@ -98,7 +132,6 @@ function Envelope({
 /* =============================
    Main Component
 ============================= */
-
 export default function EventClient({
   event,
   slug,
@@ -117,7 +150,7 @@ export default function EventClient({
   }, [event.inviter_names]);
 
   const [showIntro, setShowIntro] = useState(true);
-  const [opening, setOpening] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "opening">("idle");
 
   useEffect(() => {
     try {
@@ -127,17 +160,18 @@ export default function EventClient({
   }, [slug, t]);
 
   function handleOpenInvite() {
-    if (opening) return;
-    setOpening(true);
+    if (phase === "opening") return;
+    setPhase("opening");
 
+    // μετά από λίγο πάμε στη 2η οθόνη
     setTimeout(() => {
       try {
         localStorage.setItem(storageKey(slug, t), "1");
       } catch {}
       setShowIntro(false);
-      setOpening(false);
+      setPhase("idle");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 900);
+    }, 1100);
   }
 
   const basePageStyle: React.CSSProperties = {
@@ -153,7 +187,7 @@ export default function EventClient({
   const textShadowSoft = "0 2px 10px rgba(0,0,0,0.45)";
 
   /* =============================
-     INTRO SCREEN
+     INTRO
   ============================= */
   if (showIntro) {
     return (
@@ -163,13 +197,15 @@ export default function EventClient({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          position: "relative",
         }}
       >
+        {/* πιο διακριτικό πέπλο, όχι “κουτί” */}
         <div
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.18)",
+            background: "rgba(0,0,0,0.12)",
           }}
         />
 
@@ -179,7 +215,7 @@ export default function EventClient({
             textAlign: "center",
             color: "white",
             textShadow: textShadowStrong,
-            width: "min(94vw, 520px)",
+            width: "min(94vw, 560px)",
           }}
         >
           <div style={{ fontSize: 13, fontWeight: 900, opacity: 0.9 }}>
@@ -188,9 +224,9 @@ export default function EventClient({
 
           <div style={{ height: 16 }} />
 
-          <Envelope opening={opening} envelopeImg={envelopeImg} />
+          <Envelope phase={phase} envelopeImg={envelopeImg} />
 
-          <div style={{ height: 20 }} />
+          <div style={{ height: 18 }} />
 
           <div style={{ fontSize: 26, fontWeight: 900 }}>
             Έχεις πρόσκληση από
@@ -201,12 +237,12 @@ export default function EventClient({
           </div>
 
           {event.start_iso ? (
-            <div style={{ marginTop: 18, textShadow: textShadowSoft }}>
+            <div style={{ marginTop: 16, textShadow: textShadowSoft }}>
               <Countdown startISO={event.start_iso} />
             </div>
           ) : null}
 
-          <div style={{ height: 20 }} />
+          <div style={{ height: 18 }} />
 
           <button
             type="button"
@@ -215,18 +251,30 @@ export default function EventClient({
               width: "min(92vw, 420px)",
               padding: "14px 16px",
               borderRadius: 16,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "rgba(255,255,255,0.14)",
+              border: "1px solid rgba(255,255,255,0.28)",
+              background: "rgba(255,255,255,0.16)",
               color: "white",
               fontWeight: 900,
               cursor: "pointer",
               backdropFilter: "blur(8px)",
               boxShadow: "0 18px 55px rgba(0,0,0,0.22)",
-              opacity: opening ? 0.8 : 1,
+              opacity: phase === "opening" ? 0.85 : 1,
             }}
           >
-            {opening ? "Ανοίγει..." : "Άνοιγμα προσκλητηρίου"}
+            {phase === "opening" ? "Ανοίγει..." : "Άνοιγμα προσκλητηρίου"}
           </button>
+
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              opacity: 0.85,
+              textShadow: textShadowSoft,
+            }}
+          >
+            (Αν θες να το ξαναδείς από την αρχή, άνοιξε incognito ή καθάρισε το
+            localStorage.)
+          </div>
         </div>
       </div>
     );
@@ -254,12 +302,10 @@ export default function EventClient({
             textShadow: textShadowStrong,
           }}
         >
-          <div style={{ fontSize: 30, fontWeight: 900 }}>
-            {event.title}
-          </div>
+          <div style={{ fontSize: 30, fontWeight: 900 }}>{event.title}</div>
 
           {event.subtitle ? (
-            <div style={{ marginTop: 8 }}>{event.subtitle}</div>
+            <div style={{ marginTop: 8, opacity: 0.95 }}>{event.subtitle}</div>
           ) : null}
         </div>
 
