@@ -52,13 +52,12 @@ export default async function SectionPage({
       : "");
 
   return (
-    <SectionClient
-      slug={slug}
-      t={t}
-      venueName={event.venue_name || "Κέντρο"}
-      churchName={event.church_name || "Εκκλησία"}
-      venueMapUrl={venueMapUrl}
-      churchMapUrl={churchMapUrl}
-    />
-  );
+    return (
+      <SectionClient
+        event={event}
+        slug={slug}
+        t={t}
+        backgroundUrl="/intro/background.jpg"
+      />
+    );
 }
