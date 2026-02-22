@@ -1,14 +1,4 @@
-import EnvelopeIntro from "@/components/EnvelopeIntro";
-
-function toGoogleDate(iso: string) {
-  return new Date(iso).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-}
-
-function addHours(iso: string, hours: number) {
-  const d = new Date(iso);
-  d.setHours(d.getHours() + hours);
-  return d.toISOString();
-}
+import EventClient from "./EventClient";
 
 export default async function EventPage({
   params,
@@ -54,6 +44,5 @@ export default async function EventPage({
 
   const event = data.event;
 
-  // 👇 Εδώ δείχνουμε ΜΟΝΟ envelope
-  return <EnvelopeIntro slug={slug} />;
+  return <EventClient event={event} slug={slug} t={t} />;
 }
