@@ -55,6 +55,11 @@ export default function SectionClient({
     router.push(`/e/${encodeURIComponent(slug)}?t=${encodeURIComponent(t)}`);
   };
 
+  const goRSVP = () => {
+    const url = `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`;
+    window.location.assign(url);
+  };
+
   return (
     <div style={page(backgroundUrl)}>
       <div style={fog} />
@@ -93,94 +98,106 @@ export default function SectionClient({
             <div style={midCol}>
               {/* Εκκλησία -> MAPS */}
               <button
-  type="button"
-  style={smallCard}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-    e.currentTarget.style.boxShadow = "0 35px 90px rgba(0,0,0,0.28)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0) scale(1)";
-    e.currentTarget.style.boxShadow = "0 18px 55px rgba(0,0,0,0.16)";
-  }}
-  onClick={() => openMap(churchMapUrl)}
-  title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
->
-  <div style={imgShadow}>
-    <Image
-      src="/section/card-church.png"
-      alt="Εκκλησία"
-      fill
-      style={{ objectFit: "cover" }}
-    />
-  </div>
-</button>
+                type="button"
+                className="liftBtn liftSmall"
+                style={smallCard}
+                onClick={() => openMap(churchMapUrl)}
+                title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
+              >
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-church.png"
+                    alt="Εκκλησία"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </button>
               <div style={miniLabel}>{churchTitle}</div>
 
               {/* RSVP -> φόρμα */}
               <button
-  type="button"
-  style={smallCard}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-    e.currentTarget.style.boxShadow = "0 35px 90px rgba(0,0,0,0.28)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0) scale(1)";
-    e.currentTarget.style.boxShadow = "0 18px 55px rgba(0,0,0,0.16)";
-  }}
-  onClick={() => {
-    const url = `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`;
-    window.location.assign(url);
-  }}
-  title="RSVP"
->
-  <div style={imgShadow}>
-    <Image
-      src="/section/card-rsvp.png"
-      alt="RSVP"
-      fill
-      style={{ objectFit: "cover" }}
-    />
-  </div>
-</button>
+                type="button"
+                className="liftBtn liftSmall"
+                style={smallCard}
+                onClick={goRSVP}
+                title="RSVP"
+              >
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-rsvp.png"
+                    alt="RSVP"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </button>
               <div style={miniLabel}>RSVP</div>
             </div>
 
             {/* ΔΕΞΙΑ – μεγάλη κάρτα Κέντρο -> MAPS */}
             <div style={rightCol}>
-            <button
-  type="button"
-  style={largeCard}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-10px) scale(1.02)";
-    e.currentTarget.style.boxShadow = "0 45px 110px rgba(0,0,0,0.30)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0) scale(1)";
-    e.currentTarget.style.boxShadow = "0 26px 80px rgba(0,0,0,0.18)";
-  }}
-  onClick={() => openMap(venueMapUrl)}
-  title={venueMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
->
-  <div style={imgShadow}>
-    <Image
-      src="/section/card-venue.png"
-      alt="Κέντρο"
-      fill
-      style={{ objectFit: "cover" }}
-    />
-  </div>
-</button>
+              <button
+                type="button"
+                className="liftBtn liftLarge"
+                style={largeCard}
+                onClick={() => openMap(venueMapUrl)}
+                title={venueMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
+              >
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-venue.png"
+                    alt="Κέντρο"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </button>
               <div style={bigLabel}>{venueTitle}</div>
             </div>
           </div>
 
-          <button style={backBtn} onClick={goBackSafe}>
+          <button className="pressBtn" style={backBtn} onClick={goBackSafe}>
             Πίσω
           </button>
         </div>
       </div>
+
+      {/* ✅ animations για ΟΛΑ τα clickable κουμπιά */}
+      <style>{`
+        .liftBtn{
+          transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+          will-change: transform;
+        }
+        .liftBtn:hover{
+          transform: translateY(-8px) scale(1.02);
+        }
+        .liftBtn:active{
+          transform: translateY(-4px) scale(1.01);
+        }
+
+        /* μικρές κάρτες: πιο “γλυκιά” σκιά */
+        .liftSmall:hover{ box-shadow: 0 35px 90px rgba(0,0,0,0.28) !important; }
+        .liftSmall:active{ box-shadow: 0 22px 60px rgba(0,0,0,0.22) !important; }
+
+        /* μεγάλη κάρτα: πιο “βαριά” σκιά */
+        .liftLarge:hover{ box-shadow: 0 45px 110px rgba(0,0,0,0.30) !important; }
+        .liftLarge:active{ box-shadow: 0 30px 90px rgba(0,0,0,0.24) !important; }
+
+        /* Πίσω κουμπί: μικρό lift */
+        .pressBtn{
+          transition: transform .18s ease, box-shadow .18s ease;
+          will-change: transform;
+        }
+        .pressBtn:hover{
+          transform: translateY(-50%) translateY(-3px);
+          box-shadow: 0 14px 40px rgba(0,0,0,0.14);
+        }
+        .pressBtn:active{
+          transform: translateY(-50%) translateY(-1px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+        }
+      `}</style>
     </div>
   );
 }
@@ -251,8 +268,6 @@ const inviteWrapper: React.CSSProperties = {
   overflow: "hidden",
   zIndex: 2,
   transform: "translateX(-30px)", // 👈 ΜΟΝΟ αυτό κουνάει το προσκλητήριο
-
-  // ✅ shadow στο προσκλητήριο
   boxShadow: "0 22px 70px rgba(0,0,0,0.22)",
 };
 
@@ -264,11 +279,10 @@ const envelopeWrapper: React.CSSProperties = {
   width: "850px",
   height: "460px",
   pointerEvents: "none",
-  zIndex: 1, // 👈 πίσω
+  zIndex: 1,
   opacity: 0.95,
 };
 
-// ✅ σκιά για τον φάκελο (καλύτερα σε wrapper για να μην μπερδεύεται το Image)
 const envelopeShadow: React.CSSProperties = {
   position: "absolute",
   inset: 0,
@@ -293,13 +307,9 @@ const smallCard: React.CSSProperties = {
   cursor: "pointer",
   padding: 0,
   background: "transparent",
-  transition: "transform 0.25s ease, box-shadow 0.25s ease",
-
-  // ✅ base shadow
   boxShadow: "0 18px 55px rgba(0,0,0,0.16)",
 };
 
-// ✅ wrapper για drop-shadow στις εικόνες καρτών (αποφεύγουμε λάθη σε style μέσα στο Image)
 const imgShadow: React.CSSProperties = {
   position: "absolute",
   inset: 0,
@@ -331,9 +341,6 @@ const largeCard: React.CSSProperties = {
   cursor: "pointer",
   padding: 0,
   background: "transparent",
-  transition: "transform 0.28s cubic-bezier(.22,.61,.36,1), box-shadow 0.28s ease",
-
-  // ✅ πιο “βαριά” σκιά στο μεγάλο
   boxShadow: "0 26px 80px rgba(0,0,0,0.18)",
 };
 
@@ -347,7 +354,7 @@ const bigLabel: React.CSSProperties = {
 
 const backBtn: React.CSSProperties = {
   position: "absolute",
-  left: "-80px",
+  left: "-150px",
   top: "50%",
   transform: "translateY(-50%)",
   padding: "12px 28px",
