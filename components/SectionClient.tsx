@@ -20,7 +20,6 @@ type EventFull = {
   venue_card_image_url?: string;
 };
 
-
 export default function SectionClient({
   event,
   slug,
@@ -34,26 +33,35 @@ export default function SectionClient({
 }) {
   const router = useRouter();
 
-  // ✅ Σταθεροί τίτλοι (όπως θες)
+  // ✅ Σταθεροί τίτλοι
   const venueTitle = "Κέντρο";
   const churchTitle = "Εκκλησία";
   const rsvpTitle = "RSVP";
 
-  // ✅ Εικόνες (dynamic από admin/Supabase) + fallback στα παλιά local
-  const churchImg = (event.church_card_image_url || "").trim() || "/section/card-church.png";
-  const venueImg = (event.venue_card_image_url || "").trim() || "/section/card-venue.png";
+  // ✅ Εικόνες (dynamic από admin/Supabase) + fallback στα local
+  const inviteImg =
+    (event.invite_image_url || "").trim() || "/section/invite.png";
+  const churchImg =
+    (event.church_card_image_url || "").trim() || "/section/card-church.png";
+  const venueImg =
+    (event.venue_card_image_url || "").trim() || "/section/card-venue.png";
   const rsvpImg = (event.rsvp_image_url || "").trim() || "/section/card-rsvp.png";
 
+  // ✅ URLs (από admin ή fallback σε maps search με address)
   const venueMapUrl =
     (event.venue_map_url || "").trim() ||
     (event.venue_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venue_address)}`
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          event.venue_address
+        )}`
       : "");
 
   const churchMapUrl =
     (event.church_map_url || "").trim() ||
     (event.church_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.church_address)}`
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          event.church_address
+        )}`
       : "");
 
   const openMap = (url: string) => {
@@ -80,17 +88,24 @@ export default function SectionClient({
             {/* ΑΡΙΣΤΕΡΑ – ΠΡΟΣΚΛΗΤΗΡΙΟ + ΦΑΚΕΛΟΣ */}
             <div style={leftCol} className="leftCol">
               <div style={inviteWrapper} className="inviteWrapper">
-              <Image
-  src={(event.invite_image_url || "/section/invite.png").trim()}
-  alt="Προσκλητήριο"
-  fill
-  priority
-  style={{ objectFit: "cover" }}
-/>
+                {/* ❌ ΜΗ clickable */}
+                <Image
+                  src={inviteImg}
+                  alt="Προσκλητήριο"
+                  fill
+                  priority
+                  quality={95}
+                  sizes="(max-width: 768px) 92vw, 260px"
+                  style={{ objectFit: "cover" }}
+                />
               </div>
 
               {/* ΦΑΚΕΛΟΣ πίσω */}
-              <div style={envelopeWrapper} className="envelopeWrapper" aria-hidden="true">
+              <div
+                style={envelopeWrapper}
+                className="envelopeWrapper"
+                aria-hidden="true"
+              >
                 <div style={envelopeShadow}>
                   <Image
                     src="/envelope/envelope-open.png"
@@ -105,6 +120,7 @@ export default function SectionClient({
 
             {/* ΜΕΣΗ – 2 μικρές κάρτες */}
             <div style={midCol} className="midCol">
+              {/* Εκκλησία */}
               <div className="cardBlock">
                 <button
                   type="button"
@@ -114,19 +130,20 @@ export default function SectionClient({
                   title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
                 >
                   <div style={imgShadow}>
-                  <Image
-  src={churchImg}
-  alt="Εκκλησία"
-  fill
-  sizes="(max-width: 768px) 45vw, 130px"
-  quality={100}
-  style={{ objectFit: "cover" }}
-/>
+                    <Image
+                      src={churchImg}
+                      alt="Εκκλησία"
+                      fill
+                      quality={95}
+                      sizes="(max-width: 768px) 45vw, 130px"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
                 </button>
                 <div style={miniLabel}>{churchTitle}</div>
               </div>
 
+              {/* RSVP */}
               <div className="cardBlock">
                 <button
                   type="button"
@@ -136,14 +153,14 @@ export default function SectionClient({
                   title="RSVP"
                 >
                   <div style={imgShadow}>
-                  <Image
-  src={rsvpImg}
-  alt="RSVP"
-  fill
-  sizes="(max-width: 768px) 45vw, 130px"
-  quality={100}
-  style={{ objectFit: "cover" }}
-/>
+                    <Image
+                      src={rsvpImg}
+                      alt="RSVP"
+                      fill
+                      quality={95}
+                      sizes="(max-width: 768px) 45vw, 130px"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
                 </button>
                 <div style={miniLabel}>{rsvpTitle}</div>
@@ -160,14 +177,14 @@ export default function SectionClient({
                 title={venueMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
               >
                 <div style={imgShadow}>
-                <Image
-  src={venueImg}
-  alt="Κέντρο"
-  fill
-  sizes="(max-width: 768px) 82vw, 220px"
-  quality={100}
-  style={{ objectFit: "cover" }}
-/>
+                  <Image
+                    src={venueImg}
+                    alt="Κέντρο"
+                    fill
+                    quality={95}
+                    sizes="(max-width: 768px) 82vw, 220px"
+                    style={{ objectFit: "cover" }}
+                  />
                 </div>
               </button>
               <div style={bigLabel}>{venueTitle}</div>
@@ -175,7 +192,12 @@ export default function SectionClient({
           </div>
 
           {/* ΠΙΣΩ */}
-          <button type="button" className="pressBtn backBtn" style={backBtn} onClick={goBackSafe}>
+          <button
+            type="button"
+            className="pressBtn backBtn"
+            style={backBtn}
+            onClick={goBackSafe}
+          >
             Πίσω
           </button>
         </div>
@@ -183,24 +205,30 @@ export default function SectionClient({
 
       <style jsx>{`
         /* ------------------ CLICKABLE ANIMATIONS ------------------ */
+
+        /* ΚΑΡΤΕΣ */
         .liftBtn {
           transition: transform 0.22s ease, box-shadow 0.22s ease;
           will-change: transform;
         }
+
         .liftBtn:hover {
           transform: translateY(-8px) scale(1.02);
           box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
         }
+
         .liftBtn:active {
           transform: translateY(-4px) scale(1.01);
           box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
         }
+
         .liftSmall:hover {
           box-shadow: 0 35px 90px rgba(0, 0, 0, 0.28) !important;
         }
         .liftSmall:active {
           box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22) !important;
         }
+
         .liftLarge:hover {
           box-shadow: 0 45px 110px rgba(0, 0, 0, 0.3) !important;
         }
@@ -208,25 +236,48 @@ export default function SectionClient({
           box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24) !important;
         }
 
-        /* ΠΙΣΩ (desktop base: absolute με top:50%) */
+        /* ΠΙΣΩ (DESKTOP BASE: επειδή είναι absolute με top:50%) */
         .pressBtn {
           transition: transform 0.18s ease, box-shadow 0.18s ease;
           will-change: transform;
         }
+
         .backBtn {
           transform: translateY(-50%);
         }
+
         .backBtn:hover {
           transform: translateY(calc(-50% - 6px));
           box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14);
         }
+
         .backBtn:active {
           transform: translateY(calc(-50% - 3px));
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
+        /* Touch συσκευές: δεν υπάρχει hover */
+        @media (hover: none) {
+          .liftBtn:hover {
+            transform: none !important;
+            box-shadow: inherit !important;
+          }
+          .liftBtn:active {
+            transform: translateY(-4px) scale(1.01);
+          }
+
+          .backBtn:hover {
+            transform: translateY(-50%);
+            box-shadow: inherit;
+          }
+          .backBtn:active {
+            transform: translateY(calc(-50% - 3px));
+          }
+        }
+
         /* ------------------ MOBILE LAYOUT ------------------ */
         @media (max-width: 768px) {
+          /* κόβουμε scale + margins */
           .scaleWrap {
             transform: none !important;
             width: 100% !important;
@@ -234,6 +285,7 @@ export default function SectionClient({
             margin-left: 0 !important;
           }
 
+          /* grid -> στήλη */
           .layoutGrid {
             display: flex !important;
             flex-direction: column !important;
@@ -255,6 +307,7 @@ export default function SectionClient({
             transform: none !important;
           }
 
+          /* ΦΑΚΕΛΟΣ να φαίνεται στο mobile */
           .envelopeWrapper {
             display: block !important;
             left: 50% !important;
@@ -266,12 +319,21 @@ export default function SectionClient({
             pointer-events: none !important;
           }
 
+          /* 2 μικρές κάρτες δίπλα-δίπλα */
           .midCol {
             flex-direction: row !important;
             gap: 14px !important;
             align-items: flex-start !important;
           }
 
+          .cardBlock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+          }
+
+          /* μεγάλη κάρτα */
           .rightCol {
             width: 92vw !important;
             max-width: 360px !important;
@@ -281,18 +343,34 @@ export default function SectionClient({
             height: 240px !important;
           }
 
+          /* ΠΙΣΩ: fixed πάνω αριστερά */
           .backBtn {
             position: fixed !important;
             left: 14px !important;
             top: 14px !important;
             z-index: 9999 !important;
+
+            /* στο mobile ΔΕΝ θέλουμε -50% βάση */
             transform: translateY(0) !important;
           }
+
           .backBtn:hover {
             transform: translateY(-4px) !important;
           }
+
           .backBtn:active {
             transform: translateY(-2px) !important;
+          }
+
+          @media (hover: none) {
+            .backBtn:hover {
+              transform: translateY(0) !important;
+              box-shadow: inherit !important;
+            }
+            .backBtn:active {
+              transform: translateY(-3px) !important;
+              box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14) !important;
+            }
           }
         }
       `}</style>
