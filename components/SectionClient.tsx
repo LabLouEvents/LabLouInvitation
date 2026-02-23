@@ -13,7 +13,7 @@ type EventFull = {
   church_address?: string;
   church_map_url?: string;
 
-  // εικόνες από Supabase (public urls)
+  // εικόνες από Supabase (public URLs)
   invite_image_url?: string;
   rsvp_image_url?: string;
   church_card_image_url?: string;
