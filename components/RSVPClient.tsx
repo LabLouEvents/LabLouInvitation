@@ -157,7 +157,13 @@ export default function RSVPClient({
 >
   Πίσω
 </button>
-        <div style={title}>RSVP</div>
+{rsvpImageUrl ? (
+  <div style={rsvpImageWrap}>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={rsvpImageUrl} alt="RSVP" style={rsvpImage} />
+  </div>
+) : null}
+ <div style={title}>RSVP</div>
         <div style={sub}>
           Παρακαλώ συμπλήρωσε τα στοιχεία σου.
         </div>
@@ -323,7 +329,21 @@ export default function RSVPClient({
 }
 
 /* ---------------- STYLES ---------------- */
+const rsvpImageWrap: React.CSSProperties = {
+  width: "100%",
+  height: 200,
+  borderRadius: 18,
+  overflow: "hidden",
+  marginBottom: 14,
+  boxShadow: "0 18px 60px rgba(0,0,0,0.12)",
+};
 
+const rsvpImage: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+};
 const page: React.CSSProperties = {
   minHeight: "100vh",
   backgroundImage: `url(/intro/background.jpg)`,
