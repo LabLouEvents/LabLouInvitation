@@ -162,7 +162,7 @@ export default function EnvelopeIntro({
     minHeight: 28, // για να μη “πηδάει” το layout όσο γράφει
   };
 
-  cconst buttonStyle: React.CSSProperties = {
+  const buttonStyle: React.CSSProperties = {
     marginTop: 18,
     padding: "14px 22px",
     borderRadius: 999,
