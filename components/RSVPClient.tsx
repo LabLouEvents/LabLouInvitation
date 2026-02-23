@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -46,9 +47,11 @@ function toInt(value: string) {
 export default function RSVPClient({
   slug,
   t,
+  rsvpImageUrl,
 }: {
   slug: string;
   t: string;
+  rsvpImageUrl?: string;
 }) {
   const router = useRouter();
 
@@ -134,6 +137,17 @@ export default function RSVPClient({
       <div style={veil} />
 
       <div style={card}>
+      {rsvpImageUrl ? (
+  <div style={topImgWrap}>
+    <Image
+      src={rsvpImageUrl}
+      alt="RSVP"
+      fill
+      priority
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+) : null}
       <button
   type="button"
   onClick={() =>
@@ -341,7 +355,15 @@ const veil: React.CSSProperties = {
   background: "rgba(255,255,255,0.70)",
   pointerEvents: "none",
 };
-
+const topImgWrap: React.CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: 180,
+  borderRadius: 18,
+  overflow: "hidden",
+  marginBottom: 14,
+  boxShadow: "0 18px 55px rgba(0,0,0,0.14)",
+};
 const card: React.CSSProperties = {
   position: "relative",
   width: "min(560px, 92vw)",

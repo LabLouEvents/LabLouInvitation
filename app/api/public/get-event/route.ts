@@ -21,10 +21,26 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabase
       .from("events")
-      .select("*")
+      .select(`
+  id,
+  slug,
+  title,
+  subtitle,
+  church_name,
+  church_address,
+  church_map_url,
+  venue_name,
+  venue_address,
+  venue_map_url,
+  rsvp_image_url,
+  church_card_image_url,
+  invite_image_url,
+  venue_card_image_url
+`)
       .eq("slug", slug)
       .eq("share_token", token)
       .single();
+      console.log("get-event debug:", { slug, token, error, data });
 
     if (error || !data) {
       return NextResponse.json({ ok: false }, { status: 404 });
