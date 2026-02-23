@@ -3,68 +3,89 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Props = { slug: string; t: string };
+type Attendance =
+  | "decline"
+  | "ceremony_only"
+  | "ceremony_and_reception";
 
-type AttendanceChoice =
-  | "Δυστυχώς δεν θα μπορέσω"
-  | "Ναι, μόνο στην τελετή"
-  | "Ναι, στην τελετή και στην δεξίωση";
+const attendanceLabel: Record<Attendance, string> = {
+  decline: "Δυστυχώς δεν θα μπορέσω",
+  ceremony_only: "Ναι, μόνο στην τελετή",
+  ceremony_and_reception: "Ναι, στην τελετή και στην δεξίωση",
+};
 
-export default function RSVPClient({ slug }: Props) {
+function digitsOnly(s: string) {
+  return (s || "").replace(/\D+/g, "");
+}
+
+/** Επιτρέπει:
+ * - 69xxxxxxxx
+ * - +3069xxxxxxxx
+ * - 003069xxxxxxxx
+ */
+function normalizeGreekMobile(input: string) {
+  const d = digitsOnly(input);
+
+  // +30 / 0030 prefix
+  if (d.startsWith("0030")) return `+30 ${d.slice(4)}`;
+  if (d.startsWith("30") && d.length >= 12) return `+30 ${d.slice(2)}`;
+
+  // plain 69xxxxxxxx
+  if (d.startsWith("69")) return d;
+
+  // fallback: show digits as-is (user still can type)
+  return d;
+}
+
+function toInt(value: string) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.floor(n));
+}
+
+export default function RSVPClient({
+  slug,
+  t,
+}: {
+  slug: string;
+  t: string;
+}) {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [attendance, setAttendance] = useState<AttendanceChoice>(
-    "Ναι, στην τελετή και στην δεξίωση"
-  );
-
-  const [adults, setAdults] = useState(1);
-  const [kids, setKids] = useState(0);
+  const [attendance, setAttendance] = useState<Attendance>("ceremony_and_reception");
+  const [adults, setAdults] = useState<number>(1);
+  const [kids, setKids] = useState<number>(0);
   const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const isDecline = attendance === "Δυστυχώς δεν θα μπορέσω";
+  const isAttending = attendance !== "decline";
 
-  const totalPeople = useMemo(() => {
-    const a = Number.isFinite(adults) ? adults : 0;
-    const k = Number.isFinite(kids) ? kids : 0;
-    return Math.max(0, a) + Math.max(0, k);
-  }, [adults, kids]);
+  const totalGuests = useMemo(() => {
+    if (!isAttending) return 0;
+    return Math.max(0, adults) + Math.max(0, kids);
+  }, [isAttending, adults, kids]);
 
   const canSubmit = useMemo(() => {
-    if (!name.trim()) return false;
-    // κινητό: δεν κάνουμε πολύ αυστηρό regex για να μη σπάει με +30 / κενά
-    if (!phone.trim()) return false;
+    const n = name.trim().length > 1;
+    const p = digitsOnly(phone).length >= 10; // απλό check για κινητό
+    if (!n || !p) return false;
 
-    if (isDecline) return true;
-
-    // αν έρθει, πρέπει να υπάρχει τουλάχιστον 1 άτομο (συνήθως)
-    if (totalPeople < 1) return false;
+    // αν έρθει, να έχει τουλάχιστον 1 ενήλικα (συνήθως)
+    if (isAttending && adults <= 0) return false;
 
     return true;
-  }, [name, phone, isDecline, totalPeople]);
-
-  const clampInt = (n: number, min: number, max: number) => {
-    const x = Math.round(Number(n));
-    if (!Number.isFinite(x)) return min;
-    return Math.min(max, Math.max(min, x));
-  };
-
-  const normalizePhone = (v: string) =>
-    v
-      .replace(/[^\d+ ]/g, "") // αφήνει νούμερα, +, κενά
-      .replace(/\s+/g, " ")
-      .trim();
+  }, [name, phone, isAttending, adults]);
 
   async function submit() {
-    setErr(null);
+    setError(null);
 
     if (!canSubmit) {
-      setErr("Συμπλήρωσε όνομα και κινητό. Αν έρχεσαι, συμπλήρωσε και άτομα.");
+      setError("Συμπλήρωσε ονοματεπώνυμο και έγκυρο κινητό.");
       return;
     }
 
@@ -72,19 +93,20 @@ export default function RSVPClient({ slug }: Props) {
     try {
       const payload = {
         slug,
+        t,
+
+        // νέα πεδία
         name: name.trim(),
-        phone: normalizePhone(phone),
-        attendance, // <-- νέο
-        // κρατάμε και attending boolean για συμβατότητα αν θες
-        attending: !isDecline,
+        phone: normalizeGreekMobile(phone),
+        attendance, // "decline" | "ceremony_only" | "ceremony_and_reception"
+        adults: isAttending ? adults : 0,
+        kids: isAttending ? kids : 0,
+        notes: isAttending ? notes.trim() : "",
 
-        adults: isDecline ? 0 : clampInt(adults, 0, 20),
-        kids: isDecline ? 0 : clampInt(kids, 0, 20),
-
-        // αν θες συνολικό για εύκολα reports:
-        peopleCount: isDecline ? 0 : clampInt(totalPeople, 0, 40),
-
-        notes: isDecline ? "" : notes.trim(),
+        // συμβατότητα με το παλιό route (αν δεν το έχεις αλλάξει ακόμα)
+        attending: isAttending, // boolean
+        guests: totalGuests, // integer
+        allergies: isAttending ? notes.trim() : "", // (παλιά στήλη)
       };
 
       const res = await fetch("/api/rsvp", {
@@ -93,14 +115,15 @@ export default function RSVPClient({ slug }: Props) {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => null);
+
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Κάτι πήγε στραβά. Δοκίμασε ξανά.");
       }
 
       setDone(true);
     } catch (e: any) {
-      setErr(e?.message || "Κάτι πήγε στραβά.");
+      setError(e?.message || "Κάτι πήγε στραβά.");
     } finally {
       setLoading(false);
     }
@@ -108,163 +131,168 @@ export default function RSVPClient({ slug }: Props) {
 
   return (
     <div style={page}>
+      <div style={veil} />
+
       <div style={card}>
         <div style={title}>RSVP</div>
-        <div style={sub}>Παρακαλώ συμπλήρωσε τα στοιχεία σου.</div>
-
-        <div style={field}>
-          <label style={label}>Ονοματεπώνυμο</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="π.χ. Μαρία Σταυριανάκου"
-            style={input}
-          />
+        <div style={sub}>
+          Παρακαλώ συμπλήρωσε τα στοιχεία σου.
         </div>
 
-        <div style={field}>
-          <label style={label}>Κινητό τηλέφωνο</label>
-          <input
-            value={phone}
-            onChange={(e) => setPhone(normalizePhone(e.target.value))}
-            placeholder="π.χ. 69XXXXXXXX ή +30 69XXXXXXXX"
-            inputMode="tel"
-            style={input}
-          />
-        </div>
+        {done ? (
+          <div style={successBox}>
+            <div style={successTitle}>Ευχαριστούμε! ✅</div>
+            <div style={successText}>Η απάντησή σου καταχωρήθηκε.</div>
 
-        <div style={field}>
-          <label style={label}>Θα παρευρεθείς;</label>
-          <div style={choiceWrap}>
-            {(
-              [
-                "Δυστυχώς δεν θα μπορέσω",
-                "Ναι, μόνο στην τελετή",
-                "Ναι, στην τελετή και στην δεξίωση",
-              ] as AttendanceChoice[]
-            ).map((opt) => {
-              const active = attendance === opt;
-              return (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setAttendance(opt)}
-                  style={{
-                    ...choiceBtn,
-                    ...(active ? choiceBtnActive : null),
-                  }}
-                >
-                  {opt}
-                </button>
-              );
-            })}
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button
+                type="button"
+                style={btnGhost}
+                onClick={() => router.back()}
+              >
+                Πίσω
+              </button>
+              <button
+                type="button"
+                style={btn}
+                onClick={() => {
+                  // ξανά νέα υποβολή αν χρειαστεί
+                  setDone(false);
+                  setName("");
+                  setPhone("");
+                  setAttendance("ceremony_and_reception");
+                  setAdults(1);
+                  setKids(0);
+                  setNotes("");
+                  setError(null);
+                }}
+              >
+                Νέα απάντηση
+              </button>
+            </div>
           </div>
-        </div>
-        const textarea: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.15)",
-  background: "rgba(255,255,255,0.95)",
-  color: "#111",
-  fontSize: 15,
-  outline: "none",
-  minHeight: 110,
-  resize: "vertical",
-};
-        {!isDecline && (
+        ) : (
           <>
-            <div style={row2}>
-              <div style={field}>
-                <label style={label}>Ενήλικοι</label>
-                <div style={counter}>
-                  <button
-                    type="button"
-                    style={counterBtn}
-                    onClick={() => setAdults((v) => clampInt(v - 1, 0, 20))}
-                  >
-                    −
-                  </button>
-                  <input
-                    value={String(adults)}
-                    onChange={(e) => setAdults(clampInt(Number(e.target.value), 0, 20))}
-                    inputMode="numeric"
-                    style={counterInput}
-                  />
-                  <button
-                    type="button"
-                    style={counterBtn}
-                    onClick={() => setAdults((v) => clampInt(v + 1, 0, 20))}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+            {/* Ονοματεπώνυμο */}
+            <div style={field}>
+              <label style={label}>Ονοματεπώνυμο</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="π.χ. Μαρία Σταυριανάκου"
+                style={input}
+                autoComplete="name"
+              />
+            </div>
 
-              <div style={field}>
-                <label style={label}>Παιδιά</label>
-                <div style={counter}>
-                  <button
-                    type="button"
-                    style={counterBtn}
-                    onClick={() => setKids((v) => clampInt(v - 1, 0, 20))}
-                  >
-                    −
-                  </button>
-                  <input
-                    value={String(kids)}
-                    onChange={(e) => setKids(clampInt(Number(e.target.value), 0, 20))}
-                    inputMode="numeric"
-                    style={counterInput}
-                  />
-                  <button
-                    type="button"
-                    style={counterBtn}
-                    onClick={() => setKids((v) => clampInt(v + 1, 0, 20))}
-                  >
-                    +
-                  </button>
-                </div>
+            {/* Κινητό */}
+            <div style={field}>
+              <label style={label}>Κινητό τηλέφωνο</label>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(normalizeGreekMobile(e.target.value))}
+                placeholder="π.χ. 69xxxxxxxx ή +30 69xxxxxxxx"
+                style={input}
+                inputMode="tel"
+                autoComplete="tel"
+              />
+              <div style={hint}>Τα στοιχεία χρησιμοποιούνται μόνο για την οργάνωση της εκδήλωσης.</div>
+            </div>
+
+            {/* Παρουσία */}
+            <div style={field}>
+              <label style={label}>Θα παρευρεθείς;</label>
+
+              <div style={radioGroup}>
+                {(
+                  ["decline", "ceremony_only", "ceremony_and_reception"] as Attendance[]
+                ).map((key) => (
+                  <label key={key} style={radioRow}>
+                    <input
+                      type="radio"
+                      name="attendance"
+                      checked={attendance === key}
+                      onChange={() => setAttendance(key)}
+                      style={radio}
+                    />
+                    <span style={radioText}>{attendanceLabel[key]}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
+            {/* Μετρήσεις */}
+            <div style={twoCols}>
+              <div style={field}>
+                <label style={label}>Ενήλικοι (πόσοι)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={adults}
+                  disabled={!isAttending}
+                  onChange={(e) => setAdults(toInt(e.target.value))}
+                  style={{ ...input, opacity: isAttending ? 1 : 0.55 }}
+                />
+              </div>
+
+              <div style={field}>
+                <label style={label}>Παιδιά (πόσα)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={kids}
+                  disabled={!isAttending}
+                  onChange={(e) => setKids(toInt(e.target.value))}
+                  style={{ ...input, opacity: isAttending ? 1 : 0.55 }}
+                />
+              </div>
+            </div>
+
+            {/* Σχόλια */}
             <div style={field}>
               <label style={label}>Σχόλια / Παρατηρήσεις</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="π.χ. αλλεργίες, ειδικές πληροφορίες, σχόλια"
-                style={textarea}
+                style={textareaStyle}
                 rows={4}
+                disabled={!isAttending}
               />
             </div>
-          </>
-        )}
 
-        {err ? <div style={errorBox}>{err}</div> : null}
+            {/* Σύνολο */}
+            <div style={summaryRow}>
+              <div style={summaryLabel}>Σύνολο ατόμων:</div>
+              <div style={summaryValue}>{totalGuests}</div>
+            </div>
 
-        {!done ? (
-          <button
-            type="button"
-            onClick={submit}
-            disabled={loading || !canSubmit}
-            style={{
-              ...primaryBtn,
-              opacity: loading || !canSubmit ? 0.6 : 1,
-              cursor: loading || !canSubmit ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Αποστολή..." : "Υποβολή"}
-          </button>
-        ) : (
-          <div style={successBox}>
-            ✅ Καταχωρήθηκε!
-            <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
-              <button type="button" style={ghostBtn} onClick={() => router.back()}>
-                Επιστροφή
+            {error ? <div style={errorBox}>{error}</div> : null}
+
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button
+                type="button"
+                style={btnGhost}
+                onClick={() => router.back()}
+                disabled={loading}
+              >
+                Πίσω
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  ...btn,
+                  opacity: loading || !canSubmit ? 0.6 : 1,
+                  cursor: loading || !canSubmit ? "not-allowed" : "pointer",
+                }}
+                onClick={submit}
+                disabled={loading || !canSubmit}
+              >
+                {loading ? "Αποστολή..." : "Αποστολή"}
               </button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -275,160 +303,193 @@ export default function RSVPClient({ slug }: Props) {
 
 const page: React.CSSProperties = {
   minHeight: "100vh",
+  backgroundImage: `url(/intro/background.jpg)`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  position: "relative",
   display: "grid",
   placeItems: "center",
   padding: 20,
-  background: "linear-gradient(180deg, rgba(250,250,250,1), rgba(245,245,245,1))",
+};
+
+const veil: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  background: "rgba(255,255,255,0.70)",
+  pointerEvents: "none",
 };
 
 const card: React.CSSProperties = {
-  width: "min(560px, 94vw)",
+  position: "relative",
+  width: "min(560px, 92vw)",
   borderRadius: 22,
   padding: 22,
-  background: "rgba(255,255,255,0.88)",
-  border: "1px solid rgba(0,0,0,0.08)",
-  boxShadow: "0 20px 70px rgba(0,0,0,0.10)",
+  background: "rgba(255,255,255,0.92)",
+  border: "1px solid rgba(0,0,0,0.06)",
+  boxShadow: "0 24px 70px rgba(0,0,0,0.14)",
 };
 
 const title: React.CSSProperties = {
   fontSize: 22,
   fontWeight: 900,
-  letterSpacing: 0.4,
   color: "#2b2b2b",
 };
 
 const sub: React.CSSProperties = {
   marginTop: 6,
   marginBottom: 18,
-  opacity: 0.7,
-  color: "#2b2b2b",
+  color: "rgba(0,0,0,0.60)",
+  fontSize: 14,
+  fontWeight: 600,
 };
 
-const field: React.CSSProperties = { marginBottom: 14 };
+const field: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  marginTop: 12,
+};
 
 const label: React.CSSProperties = {
-  display: "block",
-  marginBottom: 8,
-  fontWeight: 800,
+  color: "rgba(0,0,0,0.75)",
   fontSize: 13,
-  opacity: 0.85,
-  color: "#2b2b2b",
+  fontWeight: 800,
 };
 
 const input: React.CSSProperties = {
   width: "100%",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.12)",
-  padding: "12px 12px",
-  fontSize: 14,
-  outline: "none",
-  background: "rgba(255,255,255,0.9)",
-};
-
-const textarea: React.CSSProperties = {
-  width: "100%",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.12)",
-  padding: "12px 12px",
-  fontSize: 14,
-  outline: "none",
-  background: "rgba(255,255,255,0.9)",
-  resize: "vertical",
-};
-
-const choiceWrap: React.CSSProperties = {
-  display: "grid",
-  gap: 10,
-};
-
-const choiceBtn: React.CSSProperties = {
-  textAlign: "left",
   padding: "12px 14px",
   borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(255,255,255,0.9)",
-  cursor: "pointer",
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.98)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+};
+
+const textareaStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.98)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+  minHeight: 110,
+  resize: "vertical",
+  opacity: 1,
+};
+
+const hint: React.CSSProperties = {
+  marginTop: 2,
+  fontSize: 12,
+  color: "rgba(0,0,0,0.50)",
+  fontWeight: 600,
+};
+
+const radioGroup: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  marginTop: 4,
+};
+
+const radioRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 10,
+  padding: "10px 12px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(255,255,255,0.7)",
+};
+
+const radio: React.CSSProperties = {
+  marginTop: 2,
+};
+
+const radioText: React.CSSProperties = {
+  color: "#222",
   fontWeight: 700,
-  color: "#2b2b2b",
+  lineHeight: 1.25,
 };
 
-const choiceBtnActive: React.CSSProperties = {
-  border: "1px solid rgba(110,90,99,0.35)",
-  background: "rgba(110,90,99,0.10)",
-};
-
-const row2: React.CSSProperties = {
+const twoCols: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   gap: 12,
+  marginTop: 6,
 };
 
-const counter: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "44px 1fr 44px",
-  gap: 8,
+const summaryRow: React.CSSProperties = {
+  marginTop: 14,
+  display: "flex",
+  justifyContent: "space-between",
   alignItems: "center",
+  padding: "10px 12px",
+  borderRadius: 14,
+  background: "rgba(0,0,0,0.04)",
+  border: "1px solid rgba(0,0,0,0.06)",
 };
 
-const counterBtn: React.CSSProperties = {
-  height: 44,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(255,255,255,0.9)",
-  cursor: "pointer",
-  fontSize: 20,
+const summaryLabel: React.CSSProperties = {
   fontWeight: 900,
-  color: "#2b2b2b",
+  color: "rgba(0,0,0,0.65)",
 };
 
-const counterInput: React.CSSProperties = {
-  height: 44,
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.12)",
-  textAlign: "center",
+const summaryValue: React.CSSProperties = {
   fontWeight: 900,
+  color: "#111",
   fontSize: 16,
-  outline: "none",
-  background: "rgba(255,255,255,0.9)",
 };
 
-const primaryBtn: React.CSSProperties = {
-  width: "100%",
-  marginTop: 8,
+const btn: React.CSSProperties = {
+  flex: 1,
   padding: "12px 14px",
   borderRadius: 16,
-  border: "1px solid rgba(110,90,99,0.25)",
+  border: "1px solid rgba(0,0,0,0.10)",
   background: "rgba(110,90,99,0.12)",
-  color: "#2b2b2b",
+  color: "#6e5a63",
   fontWeight: 900,
+};
+
+const btnGhost: React.CSSProperties = {
+  padding: "12px 14px",
+  borderRadius: 16,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "rgba(255,255,255,0.75)",
+  color: "#333",
+  fontWeight: 900,
+  cursor: "pointer",
 };
 
 const errorBox: React.CSSProperties = {
-  marginTop: 8,
-  marginBottom: 8,
+  marginTop: 12,
   padding: "10px 12px",
   borderRadius: 14,
-  background: "rgba(255, 90, 90, 0.12)",
-  border: "1px solid rgba(255, 90, 90, 0.22)",
-  color: "#7a1f1f",
-  fontWeight: 700,
+  background: "rgba(255, 0, 0, 0.08)",
+  border: "1px solid rgba(255, 0, 0, 0.20)",
+  color: "#8a1f1f",
+  fontWeight: 800,
 };
 
 const successBox: React.CSSProperties = {
-  marginTop: 8,
-  padding: "12px 14px",
-  borderRadius: 16,
-  background: "rgba(80, 200, 120, 0.12)",
-  border: "1px solid rgba(80, 200, 120, 0.22)",
-  color: "#1f5a34",
-  fontWeight: 900,
+  marginTop: 10,
+  padding: "14px 12px",
+  borderRadius: 18,
+  background: "rgba(0, 150, 90, 0.08)",
+  border: "1px solid rgba(0, 150, 90, 0.18)",
 };
 
-const ghostBtn: React.CSSProperties = {
-  padding: "10px 14px",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(255,255,255,0.8)",
-  cursor: "pointer",
-  fontWeight: 800,
+const successTitle: React.CSSProperties = {
+  fontWeight: 1000,
+  color: "#0b5b3a",
+  fontSize: 16,
+};
+
+const successText: React.CSSProperties = {
+  marginTop: 4,
+  color: "rgba(0,0,0,0.65)",
+  fontWeight: 700,
 };

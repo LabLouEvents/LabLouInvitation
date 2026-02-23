@@ -17,41 +17,19 @@ export async function POST(req: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // ---- helpers ----
-    const s = (v: any) => String(v ?? "").trim();
-    const n = (v: any) => {
-      const num = Number(v);
-      return Number.isFinite(num) ? num : 0;
-    };
+    const slug = String(body.slug || "").trim();
+    const name = String(body.name || "").trim();
+    const phone = String(body.phone || "").trim();
 
-    // ---- fields from client ----
-    const slug = s(body.slug);
-    const name = s(body.name);
-    const phone = s(body.phone);
+    const attendance = String(body.attendance || "");
+    const attending = attendance !== "decline";
 
-    const attendanceRaw = s(body.attendance);
-    const attendance =
-      attendanceRaw ||
-      (body.attending === false
-        ? "Δυστυχώς δεν θα μπορέσω"
-        : "Ναι, στην τελετή και στην δεξίωση");
+    const adults = attending ? Math.max(0, Number(body.adults) || 0) : 0;
+    const kids = attending ? Math.max(0, Number(body.kids) || 0) : 0;
 
-    const attendingBool =
-      attendance !== "Δυστυχώς δεν θα μπορέσω" &&
-      (typeof body.attending === "boolean" ? body.attending : true);
+    const guests = attending ? adults + kids : 0;
+    const notes = attending ? String(body.notes || "").trim() : "";
 
-    const adults = attendingBool ? Math.max(0, Math.round(n(body.adults))) : 0;
-    const kids = attendingBool ? Math.max(0, Math.round(n(body.kids))) : 0;
-
-    // κρατάμε και συνολικό (βοηθάει σε reports)
-    const peopleCount = attendingBool
-      ? Math.max(0, Math.round(n(body.peopleCount ?? adults + kids)))
-      : 0;
-
-    const notes = attendingBool ? s(body.notes) : "";
-    const allergies = attendingBool ? s(body.allergies) : ""; // αν κάπου το χρησιμοποιείς ακόμα
-
-    // ---- validation ----
     if (!slug || !name) {
       return NextResponse.json(
         { ok: false, error: "Missing slug/name" },
@@ -66,20 +44,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // ---- payload to DB ----
-    // ⚠️ Βάλε εδώ ΜΟΝΟ columns που ΥΠΑΡΧΟΥΝ στον πίνακα "rsvps" στο Supabase.
-    // Αν δεν έχεις κάποια από αυτά τα columns, θα σκάσει με error "column does not exist".
-    const payload: any = {
+    const payload = {
       slug,
       name,
       phone,
-      attending: attendingBool,
-      attendance, // κείμενο επιλογής
+      attendance,
+      attending,
       adults,
       kids,
-      peopleCount,
+      guests,
       notes,
-      allergies,
+      allergies: notes, // αν θέλεις να κρατάει και το παλιό column
     };
 
     const { error } = await supabase.from("rsvps").insert([payload]);
