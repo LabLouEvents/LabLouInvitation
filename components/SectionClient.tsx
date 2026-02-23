@@ -130,14 +130,14 @@ export default function SectionClient({
                   title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
                 >
                   <div style={imgShadow}>
-                    <Image
-                      src={churchImg}
-                      alt="Εκκλησία"
-                      fill
-                      quality={95}
-                      sizes="(max-width: 768px) 45vw, 130px"
-                      style={{ objectFit: "cover" }}
-                    />
+                  <Image
+  src={churchImg}              // ή rsvpImg αντίστοιχα
+  alt="Εκκλησία"
+  fill
+  quality={100}
+  sizes="(max-width: 768px) 45vw, 130px"
+  style={{ objectFit: "cover" }}
+/>
                   </div>
                 </button>
                 <div style={miniLabel}>{churchTitle}</div>
@@ -153,14 +153,14 @@ export default function SectionClient({
                   title="RSVP"
                 >
                   <div style={imgShadow}>
-                    <Image
-                      src={rsvpImg}
-                      alt="RSVP"
-                      fill
-                      quality={95}
-                      sizes="(max-width: 768px) 45vw, 130px"
-                      style={{ objectFit: "cover" }}
-                    />
+                  <Image
+  src={rsvpImg}
+  alt="RSVP"
+  fill
+  quality={100}
+  sizes="(max-width: 768px) 45vw, 130px"
+  style={{ objectFit: "cover" }}
+/>
                   </div>
                 </button>
                 <div style={miniLabel}>{rsvpTitle}</div>
