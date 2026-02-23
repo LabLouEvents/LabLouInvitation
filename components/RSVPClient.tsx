@@ -134,6 +134,15 @@ export default function RSVPClient({
       <div style={veil} />
 
       <div style={card}>
+      <button
+  type="button"
+  onClick={() =>
+    router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`)
+  }
+  style={backBtn}
+>
+  Πίσω
+</button>
         <div style={title}>RSVP</div>
         <div style={sub}>
           Παρακαλώ συμπλήρωσε τα στοιχεία σου.
@@ -311,6 +320,19 @@ const page: React.CSSProperties = {
   display: "grid",
   placeItems: "center",
   padding: 20,
+};
+
+const backBtn: React.CSSProperties = {
+  position: "absolute",
+  top: 18,
+  right: 18,
+  padding: "8px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.1)",
+  background: "rgba(255,255,255,0.85)",
+  cursor: "pointer",
+  fontWeight: 700,
+  color: "#444",
 };
 
 const veil: React.CSSProperties = {
