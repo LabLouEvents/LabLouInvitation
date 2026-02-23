@@ -32,18 +32,32 @@ export default function SectionClient({
   const venueMapUrl =
     (event.venue_map_url || "").trim() ||
     (event.venue_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venue_address)}`
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          event.venue_address
+        )}`
       : "");
 
   const churchMapUrl =
     (event.church_map_url || "").trim() ||
     (event.church_address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.church_address)}`
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          event.church_address
+        )}`
       : "");
 
   const openMap = (url: string) => {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  // ✅ ΣΙΓΟΥΡΟ “πίσω” (όχι router.back που μπορεί να σε πετάξει 404)
+  const goBackSafe = () => {
+    router.push(`/e/${encodeURIComponent(slug)}?t=${encodeURIComponent(t)}`);
+  };
+
+  // ✅ RSVP -> φόρμα
+  const goRSVP = () => {
+    router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`);
   };
 
   return (
@@ -80,7 +94,7 @@ export default function SectionClient({
 
             {/* ΜΕΣΗ – 2 μικρές κάρτες */}
             <div style={midCol}>
-              {/* Εκκλησία */}
+              {/* Εκκλησία -> MAPS */}
               <button
                 type="button"
                 style={smallCard}
@@ -96,13 +110,8 @@ export default function SectionClient({
               </button>
               <div style={miniLabel}>{churchTitle}</div>
 
-              {/* RSVP */}
-              <button
-                type="button"
-                style={smallCard}
-                onClick={() => router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)}
-                title="RSVP"
-              >
+              {/* RSVP -> φόρμα */}
+              <button type="button" style={smallCard} onClick={goRSVP} title="RSVP">
                 <Image
                   src="/section/card-rsvp.png"
                   alt="RSVP"
@@ -113,7 +122,7 @@ export default function SectionClient({
               <div style={miniLabel}>RSVP</div>
             </div>
 
-            {/* ΔΕΞΙΑ – μεγάλη κάρτα Κέντρο */}
+            {/* ΔΕΞΙΑ – μεγάλη κάρτα Κέντρο -> MAPS */}
             <div style={rightCol}>
               <button
                 type="button"
@@ -132,12 +141,9 @@ export default function SectionClient({
             </div>
           </div>
 
-          <button
-  style={backBtn}
-  onClick={() => router.back()}
->
-  Πίσω
-</button>
+          <button style={backBtn} onClick={goBackSafe}>
+            Πίσω
+          </button>
         </div>
       </div>
     </div>
@@ -161,7 +167,7 @@ function page(bgUrl: string): React.CSSProperties {
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-start",
-paddingTop: "120px",
+    paddingTop: "120px",
     overflow: "hidden",
   };
 }
@@ -209,7 +215,6 @@ const inviteWrapper: React.CSSProperties = {
   borderRadius: 20,
   overflow: "hidden",
   zIndex: 2,
-
   transform: "translateX(-30px)", // 👈 ΜΟΝΟ αυτό κουνάει το προσκλητήριο
 };
 
@@ -217,12 +222,11 @@ const envelopeWrapper: React.CSSProperties = {
   position: "absolute",
   left: "40%",
   transform: "translateX(-50%)",
-  // πιο κάτω = φαίνεται λιγότερο, πιο πάνω = φαίνεται περισσότερο
-  top: "5px", // 👈 εδώ ρυθμίζεις πόσο φαίνεται (στόχος ~1/4)
+  top: "5px", // 👈 ρυθμίζεις πόσο φαίνεται
   width: "850px",
   height: "460px",
   pointerEvents: "none",
-  zIndex: 1, // 👈 πίσω
+  zIndex: 1,
   opacity: 0.95,
 };
 
@@ -236,7 +240,7 @@ const midCol: React.CSSProperties = {
 
 const smallCard: React.CSSProperties = {
   position: "relative",
-  width: "130px", // 8x5 αναλογία
+  width: "130px",
   height: "80px",
   borderRadius: 16,
   overflow: "hidden",
@@ -264,7 +268,7 @@ const rightCol: React.CSSProperties = {
 
 const largeCard: React.CSSProperties = {
   position: "relative",
-  width: "220px", // 13x19 αναλογία
+  width: "220px",
   height: "320px",
   borderRadius: 20,
   overflow: "hidden",
@@ -288,22 +292,16 @@ const backBtn: React.CSSProperties = {
   left: "-80px",
   top: "50%",
   transform: "translateY(-50%)",
-
   padding: "12px 28px",
   borderRadius: 20,
-
   background: "rgba(255,255,255,0.85)",
   backdropFilter: "blur(6px)",
-
-  color: "#6e5a63", // απαλή ροζ-μπορντώ απόχρωση
+  color: "#6e5a63",
   fontWeight: 600,
   fontSize: "15px",
   letterSpacing: "0.5px",
-
   border: "1px solid rgba(110,90,99,0.25)",
-
   cursor: "pointer",
   zIndex: 10,
-
   boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
 };
