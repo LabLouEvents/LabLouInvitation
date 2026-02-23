@@ -13,7 +13,7 @@ type Props = {
 
 export default function TypewriterText({
   text,
-  speed = 55,
+  speed = 120,
   active = true,
   cursor = true,
   className,

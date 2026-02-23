@@ -36,7 +36,7 @@ export default function EnvelopeIntro({
   // ΡΥΘΜΙΣΕΙΣ ΘΕΣΗΣ (μόνο αυτά πείραζε)
   // =========================
   const LOGO_Y = -140; // logo μόνο του
-  const EVENTS_Y = -20; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
+  const EVENTS_Y = -180; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
   const CONTENT_Y = -40; // φάκελος + "Έχεις πρόσκληση από" + όνομα + κουμπί (όλα μαζί)
   // =========================
 
@@ -162,17 +162,20 @@ export default function EnvelopeIntro({
     minHeight: 28, // για να μη “πηδάει” το layout όσο γράφει
   };
 
-  const buttonStyle: React.CSSProperties = {
-    marginTop: 16,
-    padding: "12px 22px",
+  cconst buttonStyle: React.CSSProperties = {
+    marginTop: 18,
+    padding: "14px 22px",
     borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.35)",
-    background: "rgba(255,255,255,0.18)",
-    color: "rgba(255,255,255,0.95)",
-    fontSize: "clamp(14px, 2.2vw, 16px)",
-    letterSpacing: "0.04em",
+    color: "rgba(20,20,20,0.95)",
+background: "rgba(255,255,255,0.55)",
+border: "1px solid rgba(255,255,255,0.75)",
+    fontSize: 16,
+    fontWeight: 600,
+    letterSpacing: "0.02em",
     cursor: "pointer",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
     backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
   };
 
   return (
