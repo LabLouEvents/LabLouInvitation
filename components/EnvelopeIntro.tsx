@@ -155,12 +155,12 @@ export default function EnvelopeIntro({
             fontWeight: 900,
             cursor: "pointer",
             boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
-            opacity: go ? 0.85 : 1,
-            transform: go ? "translateY(1px)" : "translateY(0px)",
+            transform: "translateY(0px)",
+opacity: 1,
             transition: "transform 120ms ease, opacity 200ms ease",
           }}
         >
-          {go ? "Μεταφορά…" : "Άνοιγμα προσκλητηρίου"}
+          Άνοιγμα προσκλητηρίου
         </button>
       </div>
     </div>

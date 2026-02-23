@@ -354,7 +354,7 @@ const bigLabel: React.CSSProperties = {
 
 const backBtn: React.CSSProperties = {
   position: "absolute",
-  left: "-150px",
+  left: "-180px",
   top: "50%",
   transform: "translateY(-50%)",
   padding: "12px 28px",
