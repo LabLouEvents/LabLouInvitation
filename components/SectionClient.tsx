@@ -50,7 +50,6 @@ export default function SectionClient({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // ✅ ΣΙΓΟΥΡΟ “πίσω”
   const goBackSafe = () => {
     router.push(`/e/${encodeURIComponent(slug)}?t=${encodeURIComponent(t)}`);
   };
@@ -67,7 +66,7 @@ export default function SectionClient({
       <div style={shell} className="shell">
         <div style={scaleWrap} className="scaleWrap">
           <div style={layout} className="layoutGrid">
-            {/* ΑΡΙΣΤΕΡΑ – ΠΡΟΣΚΛΗΤΗΡΙΟ + ΦΑΚΕΛΟΣ ΠΙΣΩ */}
+            {/* ΑΡΙΣΤΕΡΑ – ΠΡΟΣΚΛΗΤΗΡΙΟ + ΦΑΚΕΛΟΣ */}
             <div style={leftCol} className="leftCol">
               <div style={inviteWrapper} className="inviteWrapper">
                 <Image
@@ -80,7 +79,11 @@ export default function SectionClient({
               </div>
 
               {/* ΦΑΚΕΛΟΣ πίσω */}
-              <div style={envelopeWrapper} className="envelopeWrapper" aria-hidden="true">
+              <div
+                style={envelopeWrapper}
+                className="envelopeWrapper"
+                aria-hidden="true"
+              >
                 <div style={envelopeShadow}>
                   <Image
                     src="/envelope/envelope-open.png"
@@ -95,7 +98,6 @@ export default function SectionClient({
 
             {/* ΜΕΣΗ – 2 μικρές κάρτες */}
             <div style={midCol} className="midCol">
-              {/* Εκκλησία -> MAPS */}
               <div className="cardBlock">
                 <button
                   type="button"
@@ -116,7 +118,6 @@ export default function SectionClient({
                 <div style={miniLabel}>{churchTitle}</div>
               </div>
 
-              {/* RSVP -> φόρμα */}
               <div className="cardBlock">
                 <button
                   type="button"
@@ -138,7 +139,7 @@ export default function SectionClient({
               </div>
             </div>
 
-            {/* ΔΕΞΙΑ – μεγάλη κάρτα Κέντρο -> MAPS */}
+            {/* ΔΕΞΙΑ – μεγάλη κάρτα Κέντρο */}
             <div style={rightCol} className="rightCol">
               <button
                 type="button"
@@ -160,10 +161,10 @@ export default function SectionClient({
             </div>
           </div>
 
-          {/* ΠΙΣΩ (desktop: στη μέση αριστερά, mobile: fixed πάνω αριστερά) */}
+          {/* ΠΙΣΩ */}
           <button
             type="button"
-            className="pressBtn backBtnMobile"
+            className="pressBtn backBtn"
             style={backBtn}
             onClick={goBackSafe}
           >
@@ -172,162 +173,177 @@ export default function SectionClient({
         </div>
       </div>
 
-      {/* ✅ animations + mobile layout */}
       <style jsx>{`
-  /* ------------------ CLICKABLE ANIMATIONS ------------------ */
+        /* ------------------ CLICKABLE ANIMATIONS ------------------ */
 
-  /* ΚΑΡΤΕΣ */
-  .liftBtn {
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
-    will-change: transform;
-  }
+        /* ΚΑΡΤΕΣ */
+        .liftBtn {
+          transition: transform 0.22s ease, box-shadow 0.22s ease;
+          will-change: transform;
+        }
 
-  .liftBtn:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
-  }
+        .liftBtn:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
+        }
 
-  .liftBtn:active {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
-  }
+        .liftBtn:active {
+          transform: translateY(-4px) scale(1.01);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+        }
 
-  /* μικρές κάρτες: πιο “γλυκιά” σκιά */
-  .liftSmall:hover {
-    box-shadow: 0 35px 90px rgba(0, 0, 0, 0.28) !important;
-  }
-  .liftSmall:active {
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22) !important;
-  }
+        .liftSmall:hover {
+          box-shadow: 0 35px 90px rgba(0, 0, 0, 0.28) !important;
+        }
+        .liftSmall:active {
+          box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22) !important;
+        }
 
-  /* μεγάλη κάρτα: πιο “βαριά” σκιά */
-  .liftLarge:hover {
-    box-shadow: 0 45px 110px rgba(0, 0, 0, 0.3) !important;
-  }
-  .liftLarge:active {
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24) !important;
-  }
+        .liftLarge:hover {
+          box-shadow: 0 45px 110px rgba(0, 0, 0, 0.3) !important;
+        }
+        .liftLarge:active {
+          box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24) !important;
+        }
 
-  /* ΠΙΣΩ */
-  .pressBtn {
-    will-change: transform;
-  }
-  
-  .pressBtn:hover {
-    transform: translateY(-50%) translateY(-6px);
-    box-shadow: 0 18px 50px rgba(0,0,0,0.18);
-  }
-  
-  .pressBtn:active {
-    transform: translateY(-50%) translateY(-3px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.14);
-  }
+        /* ΠΙΣΩ (DESKTOP BASE: επειδή είναι absolute με top:50%) */
+        .pressBtn {
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          will-change: transform;
+        }
 
-  /* Touch devices: δεν υπάρχει hover, κρατάμε μόνο active */
-  @media (hover: none) {
-    .liftBtn:hover {
-      transform: none;
-      box-shadow: inherit;
-    }
-    /* ΠΙΣΩ */
-.pressBtn {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  will-change: transform;
-}
+        .backBtn {
+          transform: translateY(-50%);
+        }
 
-.pressBtn:hover {
-  transform: translateY(-50%) translateY(-6px);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
-}
+        .backBtn:hover {
+          transform: translateY(calc(-50% - 6px));
+          box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14);
+        }
 
-.pressBtn:active {
-  transform: translateY(-50%) translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
-}
-  }
+        .backBtn:active {
+          transform: translateY(calc(-50% - 3px));
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
-  /* ------------------ MOBILE LAYOUT ------------------ */
-  @media (max-width: 768px) {
+        /* Touch συσκευές: δεν υπάρχει hover */
+        @media (hover: none) {
+          .liftBtn:hover {
+            transform: none !important;
+            box-shadow: inherit !important;
+          }
+          .liftBtn:active {
+            transform: translateY(-4px) scale(1.01);
+          }
 
-    .scaleWrap {
-      transform: none !important;
-      width: 100% !important;
-      margin: 0 auto !important;
-      margin-left: 0 !important;
-    }
-  
-    .layoutGrid {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 18px !important;
-      align-items: center !important;
-      margin-left: 0 !important;
-    }
-  
-    .leftCol {
-      width: 92vw !important;
-      max-width: 360px !important;
-      height: auto !important;
-    }
-  
-    .inviteWrapper {
-      width: 92vw !important;
-      max-width: 360px !important;
-      height: 520px !important;
-      transform: none !important;
-    }
-  
-    .envelopeWrapper {
-      left: 50% !important;
-      top: -20px !important;
-      transform: translateX(-50%) scale(0.6) !important;
-      width: 500px !important;
-      height: 260px !important;
-      opacity: 0.85 !important;
-      pointer-events: none !important;
-    }
-  
-    .midCol {
-      flex-direction: row !important;
-      gap: 14px !important;
-      align-items: flex-start !important;
-    }
-  
-    .cardBlock {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-  
-    .rightCol button {
-      transform: none !important;
-      width: 82vw !important;
-      max-width: 360px !important;
-      height: 240px !important;
-    }
-  
-    .backBtnMobile {
-      position: fixed !important;
-      left: 14px !important;
-      top: 14px !important;
-      z-index: 9999 !important;
-    }
-  
-    .backBtnMobile.pressBtn {
-      transform: none !important;
-    }
-  
-    .backBtnMobile.pressBtn:hover {
-      transform: translateY(-4px) !important;
-    }
-  
-    .backBtnMobile.pressBtn:active {
-      transform: translateY(-2px) !important;
-    }
-  
-  }
-`}</style>
+          .backBtn:hover {
+            transform: translateY(-50%);
+            box-shadow: inherit;
+          }
+          .backBtn:active {
+            transform: translateY(calc(-50% - 3px));
+          }
+        }
+
+        /* ------------------ MOBILE LAYOUT ------------------ */
+        @media (max-width: 768px) {
+          /* κόβουμε scale + margins */
+          .scaleWrap {
+            transform: none !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+            margin-left: 0 !important;
+          }
+
+          /* grid -> στήλη */
+          .layoutGrid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 18px !important;
+            align-items: center !important;
+            margin-left: 0 !important;
+          }
+
+          .leftCol {
+            width: 92vw !important;
+            max-width: 360px !important;
+            height: auto !important;
+          }
+
+          .inviteWrapper {
+            width: 92vw !important;
+            max-width: 360px !important;
+            height: 520px !important;
+            transform: none !important;
+          }
+
+          /* ΦΑΚΕΛΟΣ να φαίνεται στο mobile */
+          .envelopeWrapper {
+            display: block !important;
+            left: 50% !important;
+            top: -10px !important;
+            transform: translateX(-50%) scale(0.6) !important;
+            width: 500px !important;
+            height: 260px !important;
+            opacity: 0.85 !important;
+            pointer-events: none !important;
+          }
+
+          /* 2 μικρές κάρτες δίπλα-δίπλα */
+          .midCol {
+            flex-direction: row !important;
+            gap: 14px !important;
+            align-items: flex-start !important;
+          }
+
+          .cardBlock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+          }
+
+          /* μεγάλη κάρτα */
+          .rightCol {
+            width: 92vw !important;
+            max-width: 360px !important;
+          }
+          .rightCol button {
+            width: 100% !important;
+            height: 240px !important;
+          }
+
+          /* ΠΙΣΩ: fixed πάνω αριστερά */
+          .backBtn {
+            position: fixed !important;
+            left: 14px !important;
+            top: 14px !important;
+            z-index: 9999 !important;
+
+            /* στο mobile ΔΕΝ θέλουμε -50% βάση */
+            transform: translateY(0) !important;
+          }
+
+          .backBtn:hover {
+            transform: translateY(-4px) !important;
+          }
+
+          .backBtn:active {
+            transform: translateY(-2px) !important;
+          }
+
+          @media (hover: none) {
+            .backBtn:hover {
+              transform: translateY(0) !important;
+              box-shadow: inherit !important;
+            }
+            .backBtn:active {
+              transform: translateY(-3px) !important;
+              box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14) !important;
+            }
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -485,8 +501,6 @@ const backBtn: React.CSSProperties = {
   position: "absolute",
   left: "-180px",
   top: "50%",
-transform: "translateY(-50%)",
-transition: "transform 0.18s ease, box-shadow 0.18s ease",
   padding: "12px 28px",
   borderRadius: 20,
   background: "rgba(255,255,255,0.85)",

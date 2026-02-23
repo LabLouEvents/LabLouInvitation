@@ -43,10 +43,10 @@ export default async function EventPage({
 
   return (
     <EnvelopeIntro
-      slug={slug}
-      t={t}
-      inviter={inviter}
-      backgroundUrl="/intro/background.jpg"
-    />
+  slug={slug}
+  t={t}
+  fromName={inviter}
+  backgroundUrl="/intro/background.jpg"
+/>
   );
 }

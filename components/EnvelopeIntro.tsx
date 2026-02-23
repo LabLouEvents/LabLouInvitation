@@ -1,182 +1,239 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { Inter } from "next/font/google";
+import TypewriterText from "@/components/TypewriterText";
 
-function clampText(s: string, max = 60) {
+const brandFont = Inter({
+  subsets: ["latin", "greek"],
+  weight: ["300", "400", "500", "600"],
+});
+
+function clampText(s: string, max = 50) {
   const t = (s || "").trim();
   if (!t) return "";
   return t.length > max ? t.slice(0, max - 1) + "…" : t;
-}
-
-function TypewriterText({
-  text,
-  active,
-  speed = 28,
-  style,
-}: {
-  text: string;
-  active: boolean;
-  speed?: number;
-  style?: React.CSSProperties;
-}) {
-  const [shown, setShown] = useState("");
-
-  useEffect(() => {
-    if (!active) {
-      setShown("");
-      return;
-    }
-    let i = 0;
-    setShown("");
-    const id = setInterval(() => {
-      i += 1;
-      setShown(text.slice(0, i));
-      if (i >= text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, active, speed]);
-
-  return (
-    <div style={{ whiteSpace: "pre-wrap", ...style }}>
-      {shown}
-      {active && shown.length < text.length ? <span style={{ opacity: 0.6 }}>▍</span> : null}
-    </div>
-  );
 }
 
 export default function EnvelopeIntro({
   slug,
   t,
   inviter,
+  fromName,
   backgroundUrl = "/intro/background.jpg",
 }: {
   slug: string;
   t: string;
-  inviter: string;
+  inviter?: string;
+  fromName?: string;
   backgroundUrl?: string;
 }) {
   const router = useRouter();
-  const [go, setGo] = useState(false);
 
-  const inviterLine = useMemo(() => {
-    const v = clampText(inviter, 60);
-    return v ? `« ${v} »` : "« — »";
-  }, [inviter]);
+  // =========================
+  // ΡΥΘΜΙΣΕΙΣ ΘΕΣΗΣ (μόνο αυτά πείραζε)
+  // =========================
+  const LOGO_Y = -140; // logo μόνο του
+  const EVENTS_Y = -20; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
+  const CONTENT_Y = -40; // φάκελος + "Έχεις πρόσκληση από" + όνομα + κουμπί (όλα μαζί)
+  // =========================
 
-  const handleOpen = () => {
-    if (go) return;
-    setGo(true);
-    // μικρό “cinematic” pause και μετά πάμε στη 2η σελίδα
-    setTimeout(() => {
-      router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`);
-    }, 450);
+  const safeFrom = useMemo(
+    () => clampText((inviter || fromName || "").trim(), 40),
+    [inviter, fromName]
+  );
+
+  const openInvite = () => {
+    // ΠΗΓΑΙΝΕΙ ΣΤΗΝ ΑΛΛΗ ΣΕΛΙΔΑ
+    // Αν η σελίδα σου είναι αλλού, άλλαξε μόνο το "/section" (δες σημείωση στο τέλος)
+    const url = `/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`;
+    router.push(url);
+  };
+
+  const pageStyle: React.CSSProperties = {
+    minHeight: "100vh",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundImage: `url(${backgroundUrl})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    position: "relative",
+    overflow: "hidden",
+    fontFamily: "system-ui",
+  };
+
+  const glass: React.CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), transparent 55%)",
+    pointerEvents: "none",
+  };
+
+  const shell: React.CSSProperties = {
+    width: "min(560px, 92vw)",
+    textAlign: "center",
+    position: "relative",
+  };
+
+  // ---------- LOGO GROUP (μόνο logo) ----------
+  const logoGroup: React.CSSProperties = {
+    marginTop: LOGO_Y,
+    position: "relative",
+    zIndex: 5,
+  };
+
+  const logoWrap: React.CSSProperties = {
+    position: "relative",
+    display: "inline-block",
+  };
+
+  const halo: React.CSSProperties = {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    width: "72%",
+    height: "72%",
+    transform: "translate(-50%, -50%)",
+    background:
+      "radial-gradient(circle, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.08) 38%, transparent 72%)",
+    filter: "blur(10px)",
+    opacity: 0.55,
+    pointerEvents: "none",
+    zIndex: 0,
+  };
+
+  const logoStyle: React.CSSProperties = {
+    width: "min(230px, 52vw)",
+    height: "auto",
+    objectFit: "contain",
+    position: "relative",
+    zIndex: 1,
+    filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.22))",
+  };
+
+  // ---------- EVENTS TITLE (μόνο Lab Lou Events) ----------
+  const eventsStyle: React.CSSProperties = {
+    marginTop: EVENTS_Y,
+    fontSize: "clamp(22px, 4vw, 40px)",
+    fontWeight: 400,
+    letterSpacing: "0.06em",
+    color: "white",
+    textShadow: "0 6px 20px rgba(0,0,0,0.45)",
+    opacity: 0.9,
+    lineHeight: 1.05,
+    position: "relative",
+    zIndex: 5,
+  };
+
+  // ---------- CONTENT GROUP (φάκελος + κείμενα + κουμπί μαζί) ----------
+  const contentGroup: React.CSSProperties = {
+    marginTop: CONTENT_Y,
+    position: "relative",
+    zIndex: 4,
+  };
+
+  const envelopeBox: React.CSSProperties = {
+    position: "relative",
+    width: "min(520px, 86vw)",
+    height: "min(360px, 62vw)",
+    margin: "0 auto",
+    filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
+  };
+
+  const inviteLine: React.CSSProperties = {
+    marginTop: 18,
+    fontSize: "clamp(14px, 2.2vw, 18px)",
+    color: "rgba(255,255,255,0.85)",
+    textShadow: "0 4px 14px rgba(0,0,0,0.35)",
+    letterSpacing: "0.04em",
+  };
+
+  const fromLine: React.CSSProperties = {
+    marginTop: 6,
+    fontSize: "clamp(16px, 2.8vw, 22px)",
+    color: "rgba(255,255,255,0.95)",
+    textShadow: "0 6px 18px rgba(0,0,0,0.4)",
+    letterSpacing: "0.05em",
+    minHeight: 28, // για να μη “πηδάει” το layout όσο γράφει
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    marginTop: 16,
+    padding: "12px 22px",
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.35)",
+    background: "rgba(255,255,255,0.18)",
+    color: "rgba(255,255,255,0.95)",
+    fontSize: "clamp(14px, 2.2vw, 16px)",
+    letterSpacing: "0.04em",
+    cursor: "pointer",
+    backdropFilter: "blur(6px)",
   };
 
   return (
-    <div style={pageStyle(backgroundUrl)}>
-      <div style={{ width: "min(560px, 92vw)", textAlign: "center" }}>
-        {/* Brand */}
-        <div
-          style={{
-            fontSize: 12,
-            letterSpacing: 2,
-            fontWeight: 900,
-            color: "white",
-            textShadow: "0 3px 14px rgba(0,0,0,0.45)",
-            opacity: 0.92,
-            marginBottom: 14,
-          }}
-        >
-          LABLOU EVENTS
+    <div style={pageStyle}>
+      <div style={glass} />
+
+      <div style={shell}>
+        {/* LOGO (μόνο του) */}
+        <div style={logoGroup}>
+          <div style={logoWrap}>
+            <div style={halo} aria-hidden="true" />
+            <Image
+              src="/brand/logo.png"
+              alt="Lab Lou"
+              width={220}
+              height={220}
+              priority
+              style={logoStyle}
+            />
+          </div>
         </div>
 
-        {/* Closed Envelope */}
-        <div
-          style={{
-            position: "relative",
-            width: "min(520px, 86vw)",
-            height: "min(360px, 62vw)",
-            margin: "0 auto",
-            filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.20))",
-            transform: go ? "scale(0.98)" : "scale(1)",
-            opacity: go ? 0.92 : 1,
-            transition: "transform 220ms ease, opacity 220ms ease",
-          }}
-        >
-          <Image
-            src={"/envelope/envelope-closed.png"}
-            alt="Closed envelope"
-            fill
-            priority
-            style={{ objectFit: "contain" }}
-          />
+        {/* Lab Lou Events (ξεχωριστό από logo) */}
+        <div className={brandFont.className} style={eventsStyle}>
+          Lab Lou Events
         </div>
 
-        <div style={{ height: 18 }} />
+        {/* CONTENT GROUP (όλα μαζί) */}
+        <div style={contentGroup}>
+          <div style={envelopeBox}>
+            <Image
+              src="/envelope/envelope-closed.png"
+              alt="Closed envelope"
+              fill
+              priority
+              style={{ objectFit: "contain" }}
+            />
+          </div>
 
-        {/* Text */}
-        <TypewriterText
-          text="Έχεις πρόσκληση από"
-          active={!go}
-          style={{
-            fontSize: 24,
-            fontWeight: 900,
-            color: "white",
-            textShadow: "0 3px 14px rgba(0,0,0,0.45)",
-          }}
-        />
-        <div style={{ height: 8 }} />
-        <TypewriterText
-          text={inviterLine}
-          active={!go}
-          style={{
-            fontSize: 20,
-            fontWeight: 900,
-            color: "white",
-            opacity: 0.95,
-            textShadow: "0 3px 14px rgba(0,0,0,0.40)",
-          }}
-        />
+          <div className={brandFont.className} style={inviteLine}>
+            Έχεις πρόσκληση από
+          </div>
 
-        <div style={{ height: 20 }} />
+          <div className={brandFont.className} style={fromLine}>
+            {safeFrom ? (
+              <TypewriterText
+                key={safeFrom} // σημαντικό: restart όταν αλλάξει όνομα
+                text={safeFrom}
+                active={true}
+                speed={55}
+              />
+            ) : (
+              "…"
+            )}
+          </div>
 
-        <button
-          type="button"
-          onClick={handleOpen}
-          style={{
-            width: "min(360px, 92vw)",
-            padding: "14px 16px",
-            borderRadius: 999,
-            border: "1px solid rgba(255,255,255,0.35)",
-            background: "rgba(255,255,255,0.88)",
-            color: "#111",
-            fontWeight: 900,
-            cursor: "pointer",
-            boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
-            transform: "translateY(0px)",
-opacity: 1,
-            transition: "transform 120ms ease, opacity 200ms ease",
-          }}
-        >
-          Άνοιγμα προσκλητηρίου
-        </button>
+          <button type="button" style={buttonStyle} onClick={openInvite}>
+            Άνοιγμα προσκλητηρίου
+          </button>
+        </div>
       </div>
     </div>
   );
-}
-
-function pageStyle(bgUrl: string): React.CSSProperties {
-  return {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: 18,
-    backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    backgroundColor: "#efe7df",
-  };
 }
