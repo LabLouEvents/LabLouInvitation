@@ -130,6 +130,8 @@ export default function RSVPClient({
     } finally {
       setLoading(false);
     }
+  }
+    
 
   return (
     <div style={page}>
