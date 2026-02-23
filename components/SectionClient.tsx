@@ -111,14 +111,22 @@ export default function SectionClient({
               <div style={miniLabel}>{churchTitle}</div>
 
               {/* RSVP -> φόρμα */}
-              <button type="button" style={smallCard} onClick={goRSVP} title="RSVP">
-                <Image
-                  src="/section/card-rsvp.png"
-                  alt="RSVP"
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
-              </button>
+              <button
+  type="button"
+  style={smallCard}
+  onClick={() => {
+    const url = `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`;
+    window.location.assign(url);
+  }}
+  title="RSVP"
+>
+  <Image
+    src="/section/card-rsvp.png"
+    alt="RSVP"
+    fill
+    style={{ objectFit: "cover" }}
+  />
+</button>
               <div style={miniLabel}>RSVP</div>
             </div>
 
