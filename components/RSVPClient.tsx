@@ -121,19 +121,6 @@ export default function RSVPClient({ slug }: Props) {
             style={input}
           />
         </div>
-        
-        const textarea: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.15)",
-  background: "rgba(255,255,255,0.95)",
-  color: "#111",
-  fontSize: 15,
-  outline: "none",
-  minHeight: 110,
-  resize: "vertical",
-};
 
         <div style={field}>
           <label style={label}>Κινητό τηλέφωνο</label>
@@ -173,7 +160,18 @@ export default function RSVPClient({ slug }: Props) {
             })}
           </div>
         </div>
-
+        const textarea: React.CSSProperties = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.95)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+  minHeight: 110,
+  resize: "vertical",
+};
         {!isDecline && (
           <>
             <div style={row2}>
@@ -327,9 +325,14 @@ const input: React.CSSProperties = {
   background: "rgba(255,255,255,0.9)",
 };
 
-const textareaStyle: React.CSSProperties = {
-  ...inputStyle,
-  minHeight: 110,
+const textarea: React.CSSProperties = {
+  width: "100%",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.12)",
+  padding: "12px 12px",
+  fontSize: 14,
+  outline: "none",
+  background: "rgba(255,255,255,0.9)",
   resize: "vertical",
 };
 
