@@ -86,44 +86,42 @@ export default function RSVPClient({
 
   async function submit() {
     setError(null);
-
+  
     if (!canSubmit) {
       setError("Συμπλήρωσε ονοματεπώνυμο και έγκυρο κινητό.");
       return;
     }
-
+  
     setLoading(true);
     try {
       const payload = {
         slug,
         t,
-
-        // νέα πεδία
+  
         name: name.trim(),
         phone: normalizeGreekMobile(phone),
-        attendance, // "decline" | "ceremony_only" | "ceremony_and_reception"
+        attendance,
         adults: isAttending ? adults : 0,
         kids: isAttending ? kids : 0,
         notes: isAttending ? notes.trim() : "",
-
-        // συμβατότητα με το παλιό route (αν δεν το έχεις αλλάξει ακόμα)
-        attending: isAttending, // boolean
-        guests: totalGuests, // integer
-        allergies: isAttending ? notes.trim() : "", // (παλιά στήλη)
+  
+        attending: isAttending,
+        guests: totalGuests,
+        allergies: isAttending ? notes.trim() : "",
       };
-
+  
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+  
       const data = await res.json().catch(() => null);
-
+  
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Κάτι πήγε στραβά. Δοκίμασε ξανά.");
       }
-
+  
       setDone(true);
     } catch (e: any) {
       setError(e?.message || "Κάτι πήγε στραβά.");
