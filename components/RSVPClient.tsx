@@ -93,7 +93,9 @@ export default function SectionClient({
                 type="button"
                 style={cardBtn}
                 onClick={() =>
-                  router.push(`/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+                  router.push(
+                    `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`
+                  )
                 }
               >
                 <div style={imgBox}>
