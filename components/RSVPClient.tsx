@@ -314,14 +314,9 @@ const input: React.CSSProperties = {
   background: "rgba(255,255,255,0.9)",
 };
 
-const textarea: React.CSSProperties = {
-  width: "100%",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.12)",
-  padding: "12px 12px",
-  fontSize: 14,
-  outline: "none",
-  background: "rgba(255,255,255,0.9)",
+const textareaStyle: React.CSSProperties = {
+  ...inputStyle,
+  minHeight: 110,
   resize: "vertical",
 };
 
