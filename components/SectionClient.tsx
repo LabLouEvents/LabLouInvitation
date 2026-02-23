@@ -157,7 +157,7 @@ export default function SectionClient({
             </div>
           </div>
 
-          <button className="pressBtn" style={backBtn} onClick={goBackSafe}>
+          <button className="liftBtn" style={backBtn} onClick={goBackSafe}>
             Πίσω
           </button>
         </div>
@@ -166,14 +166,18 @@ export default function SectionClient({
       {/* ✅ animations για ΟΛΑ τα clickable κουμπιά */}
       <style>{`
         .liftBtn{
-          transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+          transition: transform .22s ease, box-shadow .22s ease;
           will-change: transform;
         }
+        
         .liftBtn:hover{
           transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 18px 45px rgba(0,0,0,0.18);
         }
+        
         .liftBtn:active{
           transform: translateY(-4px) scale(1.01);
+          box-shadow: 0 12px 28px rgba(0,0,0,0.14);
         }
 
         /* μικρές κάρτες: πιο “γλυκιά” σκιά */
@@ -369,4 +373,5 @@ const backBtn: React.CSSProperties = {
   cursor: "pointer",
   zIndex: 10,
   boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  transition: "transform 220ms ease, box-shadow 220ms ease",
 };
