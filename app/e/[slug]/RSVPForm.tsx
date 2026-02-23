@@ -64,7 +64,7 @@ export default function RSVPForm({ slug }: { slug: string }) {
         className="e-input"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="π.χ. Μαρία Παπαδοπούλου"
+        placeholder="Γιώργος Παπαδόπουλος"
       />
 
       <label style={{ display: "block", marginTop: 12 }}>Θα παρευρεθεί;</label>

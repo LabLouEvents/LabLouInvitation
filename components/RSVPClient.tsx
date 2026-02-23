@@ -188,7 +188,7 @@ export default function RSVPClient({
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="π.χ. Μαρία Σταυριανάκου"
+                placeholder="π.χ. Γιώργος Παπαδόπουλος"
                 style={input}
                 autoComplete="name"
               />

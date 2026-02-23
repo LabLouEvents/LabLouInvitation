@@ -35,9 +35,9 @@ export default function EnvelopeIntro({
   // =========================
   // ΡΥΘΜΙΣΕΙΣ ΘΕΣΗΣ (μόνο αυτά πείραζε)
   // =========================
-  const LOGO_Y = -140; // logo μόνο του
-  const EVENTS_Y = -180; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
-  const CONTENT_Y = -40; // φάκελος + "Έχεις πρόσκληση από" + όνομα + κουμπί (όλα μαζί)
+  const LOGO_Y = -60; // logo μόνο του
+  const EVENTS_Y = -70; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
+  const CONTENT_Y = 20; // φάκελος + "Έχεις πρόσκληση από" + όνομα + κουμπί (όλα μαζί)
   // =========================
 
   const safeFrom = useMemo(
@@ -225,7 +225,7 @@ border: "1px solid rgba(255,255,255,0.75)",
                 key={safeFrom} // σημαντικό: restart όταν αλλάξει όνομα
                 text={safeFrom}
                 active={true}
-                speed={55}
+                speed={180}
               />
             ) : (
               "…"
