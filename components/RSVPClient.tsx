@@ -19,6 +19,10 @@ export default function SectionClient({
   churchMapUrl?: string | null;
 }) {
   const router = useRouter();
+  const prefix =
+  typeof window !== "undefined" && window.location.pathname.startsWith("/e/")
+    ? "/e"
+    : "";
 
   const BG = "/intro/background.jpg"; // ίδιο με intro
   const FADE = 0.75; // 👈 πιο μεγάλο = πιο αχνό (δοκίμασε 0.70–0.82)
@@ -93,7 +97,9 @@ export default function SectionClient({
                 type="button"
                 style={cardBtn}
                 onClick={() =>
-                  router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`)
+                  router.push(
+                    `${prefix}/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`
+                  )
                 }
               >
                 <div style={imgBox}>
