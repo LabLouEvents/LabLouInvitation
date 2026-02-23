@@ -1,239 +1,237 @@
 "use client";
 
-import Image from "next/image";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SectionClient({
-  slug,
-  t,
-  venueName,
-  churchName,
-  venueMapUrl,
-  churchMapUrl,
-}: {
+type Props = {
   slug: string;
   t: string;
-  venueName?: string | null;
-  churchName?: string | null;
-  venueMapUrl?: string | null;
-  churchMapUrl?: string | null;
-}) {
+};
+
+export default function RSVPClient({ slug, t }: Props) {
   const router = useRouter();
 
-  const BG = "/intro/background.jpg"; // ίδιο με intro
-  const FADE = 0.75; // 👈 πιο μεγάλο = πιο αχνό (δοκίμασε 0.70–0.82)
+  const [name, setName] = useState("");
+  const [attending, setAttending] = useState<"yes" | "no">("yes");
+  const [guests, setGuests] = useState(1);
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
 
-  const openMap = (url?: string | null) => {
-    const u = (url || "").trim();
-    if (!u) return;
-    window.open(u, "_blank", "noopener,noreferrer");
-  };
+  // ✅ Αν έχεις άλλο endpoint, άλλαξε αυτό:
+  const POST_URL = "/api/public/rsvp";
+
+  const safeSlug = useMemo(() => encodeURIComponent(slug), [slug]);
+  const safeT = useMemo(() => encodeURIComponent(t || ""), [t]);
+
+  async function submit() {
+    setMsg(null);
+
+    if (!name.trim()) {
+      setMsg("Γράψε ονοματεπώνυμο 🙂");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(POST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          t,
+          name: name.trim(),
+          attending,
+          guests,
+          notes: notes.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || "Submit failed");
+      }
+
+      setMsg("✅ Καταχωρήθηκε! Ευχαριστούμε 💌");
+    } catch (e: any) {
+      setMsg(
+        "❌ Δεν έγινε υποβολή. Αν έχεις άλλο endpoint για RSVP, πες μου ποιο είναι για να το βάλω σωστά."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div style={page(BG)}>
-      {/* ΠΕΠΛΟ για να γίνει πιο αχνό το background */}
-      <div style={veil(FADE)} />
+    <div style={page}>
+      <div style={card}>
+        <div style={title}>RSVP</div>
+        <div style={sub}>
+          Συμπλήρωσε την επιβεβαίωση παρουσίας σου.
+        </div>
 
-      <div style={{ position: "relative", width: "min(1100px, 96vw)" }}>
-        {/* Decorative open envelope on top */}
-        <div style={{ display: "grid", placeItems: "center", marginBottom: 10 }}>
-          <div
-            style={{
-              position: "relative",
-              width: "min(520px, 86vw)",
-              height: "min(260px, 40vw)",
-            }}
-          >
-            <Image
-              src="/envelope/envelope-open.png"
-              alt="Open envelope"
-              fill
-              priority
-              style={{
-                objectFit: "contain",
-                filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.18))",
-              }}
-            />
+        <div style={row}>
+          <label style={label}>Ονοματεπώνυμο</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={input}
+            placeholder="π.χ. Μαρία Σταυριανάκου"
+          />
+        </div>
+
+        <div style={row}>
+          <label style={label}>Θα παρευρεθείς;</label>
+          <div style={seg}>
+            <button
+              type="button"
+              onClick={() => setAttending("yes")}
+              style={attending === "yes" ? segOn : segOff}
+            >
+              Ναι
+            </button>
+            <button
+              type="button"
+              onClick={() => setAttending("no")}
+              style={attending === "no" ? segOn : segOff}
+            >
+              Όχι
+            </button>
           </div>
         </div>
 
-        <div style={wrap}>
-          {/* Left: invite preview (NOT clickable) */}
-          <div style={left}>
-            <div style={leftCard}>
-              <Image
-                src="/section/invite.png"
-                alt="Προσκλητήριο"
-                fill
-                priority
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-          </div>
+        <div style={row}>
+          <label style={label}>Άτομα</label>
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={guests}
+            onChange={(e) => setGuests(Number(e.target.value || 1))}
+            style={input}
+          />
+        </div>
 
-          {/* Right: cards */}
-          <div style={right}>
-            <div style={grid}>
-              {/* Venue */}
-              <button type="button" style={cardBtn} onClick={() => openMap(venueMapUrl)}>
-                <div style={imgBox}>
-                  <Image
-                    src="/section/card-venue.png"
-                    alt="Κέντρο"
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-                <div style={label}>{venueName || "Κέντρο"}</div>
-                {!venueMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
-              </button>
+        <div style={row}>
+          <label style={label}>Σημειώσεις</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            style={textarea}
+            placeholder="Αλλεργίες, σχόλια κλπ."
+          />
+        </div>
 
-              {/* RSVP */}
-              <button
-                type="button"
-                style={cardBtn}
-                onClick={() =>
-                  router.push(
-                    `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`
-                  )
-                }
-              >
-                <div style={imgBox}>
-                  <Image
-                    src="/section/card-rsvp.png"
-                    alt="RSVP"
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-                <div style={label}>RSVP</div>
-              </button>
+        {msg ? <div style={msgStyle}>{msg}</div> : null}
 
-              {/* Church */}
-              <button type="button" style={cardBtn} onClick={() => openMap(churchMapUrl)}>
-                <div style={imgBox}>
-                  <Image
-                    src="/section/card-church.png"
-                    alt="Εκκλησία"
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-                <div style={label}>{churchName || "Εκκλησία"}</div>
-                {!churchMapUrl ? <div style={sub}>Δεν υπάρχει link χάρτη</div> : null}
-              </button>
+        <div style={actions}>
+          <button
+            type="button"
+            onClick={() => router.push(`/vaftisi/section?t=${safeT}`)}
+            style={ghost}
+            disabled={loading}
+          >
+            Πίσω
+          </button>
 
-              {/* Back */}
-              <button type="button" onClick={() => router.back()} style={backBtn}>
-                Πίσω
-              </button>
-            </div>
-          </div>
+          <button type="button" onClick={submit} style={primary} disabled={loading}>
+            {loading ? "Αποστολή..." : "Υποβολή"}
+          </button>
+        </div>
+
+        <div style={tiny}>
+          debug: /e/{safeSlug}/rsvp?t={safeT}
         </div>
       </div>
-
-      {/* Mobile: stack columns */}
-      <style>{`
-        @media (max-width: 900px){
-          ._wrap {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
-function page(bgUrl: string): React.CSSProperties {
-  return {
-    minHeight: "100vh",
-    padding: 20,
-    display: "grid",
-    placeItems: "center",
-    backgroundImage: `url(${bgUrl})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    position: "relative",
-    overflow: "hidden",
-  };
-}
-
-function veil(fade: number): React.CSSProperties {
-  return {
-    position: "absolute",
-    inset: 0,
-    background: `rgba(255,255,255,${fade})`,
-    pointerEvents: "none",
-  };
-}
-
-const wrap: React.CSSProperties = {
+/* styles */
+const page: React.CSSProperties = {
+  minHeight: "100vh",
   display: "grid",
-  gridTemplateColumns: "1.2fr 0.8fr",
-  gap: 18,
-  alignItems: "center",
-};
-// βοηθάει το media query παραπάνω
-// (βάζουμε className με inline τρόπο)
-(wrap as any).className = "_wrap";
-
-const left: React.CSSProperties = { display: "grid", placeItems: "center" };
-
-const leftCard: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  height: "min(620px, 70vh)",
-  borderRadius: 18,
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  overflow: "hidden",
-  boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
+  placeItems: "center",
+  padding: 18,
+  background: "linear-gradient(180deg, #f4f0f2, #efe9ec)",
 };
 
-const right: React.CSSProperties = { display: "grid", placeItems: "center" };
-
-const grid: React.CSSProperties = { width: "100%", display: "grid", gap: 14 };
-
-const cardBtn: React.CSSProperties = {
-  width: "100%",
-  textAlign: "left",
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.08)",
-  padding: 14,
-  cursor: "pointer",
-  color: "white",
-  backdropFilter: "blur(6px)",
+const card: React.CSSProperties = {
+  width: "min(560px, 92vw)",
+  borderRadius: 20,
+  padding: 18,
+  background: "rgba(255,255,255,0.85)",
+  border: "1px solid rgba(0,0,0,0.08)",
+  boxShadow: "0 18px 60px rgba(0,0,0,0.12)",
+  backdropFilter: "blur(8px)",
 };
 
-const imgBox: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  height: 170,
-  borderRadius: 12,
-  background: "rgba(0,0,0,0.16)",
-  overflow: "hidden",
+const title: React.CSSProperties = { fontSize: 26, fontWeight: 900, color: "#2a2226" };
+const sub: React.CSSProperties = { marginTop: 6, opacity: 0.75, color: "#2a2226" };
+
+const row: React.CSSProperties = { marginTop: 14, display: "grid", gap: 8 };
+const label: React.CSSProperties = { fontWeight: 800, color: "#2a2226" };
+
+const input: React.CSSProperties = {
+  padding: "12px 12px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.12)",
+  outline: "none",
+  fontSize: 14,
 };
 
-const label: React.CSSProperties = {
-  marginTop: 10,
+const textarea: React.CSSProperties = {
+  ...input,
+  minHeight: 90,
+  resize: "vertical",
+};
+
+const seg: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 };
+
+const segOn: React.CSSProperties = {
+  padding: "12px 12px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "rgba(110,90,99,0.12)",
   fontWeight: 900,
-  fontSize: 16,
-  textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+  cursor: "pointer",
 };
 
-const sub: React.CSSProperties = { marginTop: 4, fontSize: 12, opacity: 0.75 };
+const segOff: React.CSSProperties = {
+  ...segOn,
+  background: "rgba(255,255,255,0.7)",
+  fontWeight: 800,
+};
 
-const backBtn: React.CSSProperties = {
-  marginTop: 6,
-  width: "100%",
+const actions: React.CSSProperties = { marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 };
+
+const primary: React.CSSProperties = {
   padding: "12px 14px",
   borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.10)",
+  border: "none",
+  background: "#6e5a63",
   color: "white",
   fontWeight: 900,
   cursor: "pointer",
-  backdropFilter: "blur(6px)",
 };
+
+const ghost: React.CSSProperties = {
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "rgba(255,255,255,0.7)",
+  color: "#2a2226",
+  fontWeight: 900,
+  cursor: "pointer",
+};
+
+const msgStyle: React.CSSProperties = {
+  marginTop: 12,
+  padding: 12,
+  borderRadius: 14,
+  background: "rgba(0,0,0,0.04)",
+  border: "1px solid rgba(0,0,0,0.08)",
+  fontWeight: 700,
+};
+
+const tiny: React.CSSProperties = { marginTop: 12, fontSize: 12, opacity: 0.55 };
