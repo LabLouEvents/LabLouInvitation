@@ -139,15 +139,14 @@ export default function RSVPClient({
       <div style={card}>
       {rsvpImageUrl ? (
   <div style={topImgWrap}>
-    <Image
-  src={rsvpImageUrl}
-  alt="RSVP"
-  fill
-  priority
-  quality={100}
-  sizes="(max-width: 768px) 92vw, 560px"
-  style={{ objectFit: "cover" }}
-/>
+    <div style={topImgWrap}>
+  <Image
+    src={rsvpImageUrl}
+    alt="RSVP"
+    fill
+    priority
+    style={{ objectFit: "contain" }}
+  />
   </div>
 ) : null}
       <button
@@ -360,10 +359,11 @@ const veil: React.CSSProperties = {
 const topImgWrap: React.CSSProperties = {
   position: "relative",
   width: "100%",
-  height: 180,
+  height: 220,                 // λίγο πιο ψηλό για να χωράει
   borderRadius: 18,
   overflow: "hidden",
   marginBottom: 14,
+  background: "white",         // ή "rgba(255,255,255,0.9)"
   boxShadow: "0 18px 55px rgba(0,0,0,0.14)",
 };
 const card: React.CSSProperties = {
