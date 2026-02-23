@@ -121,6 +121,19 @@ export default function RSVPClient({ slug }: Props) {
             style={input}
           />
         </div>
+        
+        const textarea: React.CSSProperties = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.95)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+  minHeight: 110,
+  resize: "vertical",
+};
 
         <div style={field}>
           <label style={label}>Κινητό τηλέφωνο</label>
