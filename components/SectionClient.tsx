@@ -14,10 +14,10 @@ type EventFull = {
   church_map_url?: string;
 
   // εικόνες από Supabase (public URLs)
-  invite_image_url?: string;
-  rsvp_image_url?: string;
-  church_card_image_url?: string;
-  venue_card_image_url?: string;
+  invite_image_url?: string;         // προσκλητήριο (αριστερά) - NOT clickable
+  rsvp_image_url?: string;           // μικρή κάρτα RSVP
+  church_card_image_url?: string;    // μικρή κάρτα Εκκλησία
+  venue_card_image_url?: string;     // μεγάλη κάρτα Κέντρο
 };
 
 export default function SectionClient({
@@ -38,16 +38,17 @@ export default function SectionClient({
   const churchTitle = "Εκκλησία";
   const rsvpTitle = "RSVP";
 
-  // ✅ Εικόνες (dynamic από admin/Supabase) + fallback στα local
+  // ✅ Εικόνες από admin/Supabase + fallback στα local
   const inviteImg =
     (event.invite_image_url || "").trim() || "/section/invite.png";
   const churchImg =
     (event.church_card_image_url || "").trim() || "/section/card-church.png";
+  const rsvpImg =
+    (event.rsvp_image_url || "").trim() || "/section/card-rsvp.png";
   const venueImg =
     (event.venue_card_image_url || "").trim() || "/section/card-venue.png";
-  const rsvpImg = (event.rsvp_image_url || "").trim() || "/section/card-rsvp.png";
 
-  // ✅ URLs (από admin ή fallback σε maps search με address)
+  // ✅ URLs (από admin)
   const venueMapUrl =
     (event.venue_map_url || "").trim() ||
     (event.venue_address
@@ -85,17 +86,16 @@ export default function SectionClient({
       <div style={shell} className="shell">
         <div style={scaleWrap} className="scaleWrap">
           <div style={layout} className="layoutGrid">
-            {/* ΑΡΙΣΤΕΡΑ – ΠΡΟΣΚΛΗΤΗΡΙΟ + ΦΑΚΕΛΟΣ */}
+            {/* ΑΡΙΣΤΕΡΑ – ΠΡΟΣΚΛΗΤΗΡΙΟ + ΦΑΚΕΛΟΣ (ΟΧΙ clickable) */}
             <div style={leftCol} className="leftCol">
               <div style={inviteWrapper} className="inviteWrapper">
-                {/* ❌ ΜΗ clickable */}
                 <Image
                   src={inviteImg}
                   alt="Προσκλητήριο"
                   fill
                   priority
-                  quality={95}
-                  sizes="(max-width: 768px) 92vw, 260px"
+                  quality={100}
+                  sizes="260px"
                   style={{ objectFit: "cover" }}
                 />
               </div>
@@ -130,14 +130,14 @@ export default function SectionClient({
                   title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
                 >
                   <div style={imgShadow}>
-                  <Image
-  src={churchImg}              // ή rsvpImg αντίστοιχα
-  alt="Εκκλησία"
-  fill
-  quality={100}
-  sizes="(max-width: 768px) 45vw, 130px"
-  style={{ objectFit: "cover" }}
-/>
+                    <Image
+                      src={churchImg}
+                      alt="Εκκλησία"
+                      fill
+                      quality={100}
+                      sizes="130px"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
                 </button>
                 <div style={miniLabel}>{churchTitle}</div>
@@ -153,14 +153,14 @@ export default function SectionClient({
                   title="RSVP"
                 >
                   <div style={imgShadow}>
-                  <Image
-  src={rsvpImg}
-  alt="RSVP"
-  fill
-  quality={100}
-  sizes="(max-width: 768px) 45vw, 130px"
-  style={{ objectFit: "cover" }}
-/>
+                    <Image
+                      src={rsvpImg}
+                      alt="RSVP"
+                      fill
+                      quality={100}
+                      sizes="130px"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
                 </button>
                 <div style={miniLabel}>{rsvpTitle}</div>
@@ -181,8 +181,8 @@ export default function SectionClient({
                     src={venueImg}
                     alt="Κέντρο"
                     fill
-                    quality={95}
-                    sizes="(max-width: 768px) 82vw, 220px"
+                    quality={100}
+                    sizes="220px"
                     style={{ objectFit: "cover" }}
                   />
                 </div>
@@ -205,8 +205,6 @@ export default function SectionClient({
 
       <style jsx>{`
         /* ------------------ CLICKABLE ANIMATIONS ------------------ */
-
-        /* ΚΑΡΤΕΣ */
         .liftBtn {
           transition: transform 0.22s ease, box-shadow 0.22s ease;
           will-change: transform;
@@ -236,7 +234,7 @@ export default function SectionClient({
           box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24) !important;
         }
 
-        /* ΠΙΣΩ (DESKTOP BASE: επειδή είναι absolute με top:50%) */
+        /* ΠΙΣΩ (DESKTOP BASE: absolute με top:50%) */
         .pressBtn {
           transition: transform 0.18s ease, box-shadow 0.18s ease;
           will-change: transform;
@@ -277,7 +275,6 @@ export default function SectionClient({
 
         /* ------------------ MOBILE LAYOUT ------------------ */
         @media (max-width: 768px) {
-          /* κόβουμε scale + margins */
           .scaleWrap {
             transform: none !important;
             width: 100% !important;
@@ -285,7 +282,6 @@ export default function SectionClient({
             margin-left: 0 !important;
           }
 
-          /* grid -> στήλη */
           .layoutGrid {
             display: flex !important;
             flex-direction: column !important;
@@ -349,8 +345,6 @@ export default function SectionClient({
             left: 14px !important;
             top: 14px !important;
             z-index: 9999 !important;
-
-            /* στο mobile ΔΕΝ θέλουμε -50% βάση */
             transform: translateY(0) !important;
           }
 
