@@ -208,18 +208,19 @@ export default function SectionClient({
     box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24) !important;
   }
 
-  /* ΠΙΣΩ κουμπί (desktop: βασίζεται στο -50% από inline style) */
+  /* ΠΙΣΩ */
   .pressBtn {
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
     will-change: transform;
   }
+  
   .pressBtn:hover {
-    transform: translateY(calc(-50% - 4px));
-    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.18);
+    transform: translateY(-50%) translateY(-6px);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.18);
   }
+  
   .pressBtn:active {
-    transform: translateY(calc(-50% - 2px));
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-50%) translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.14);
   }
 
   /* Touch devices: δεν υπάρχει hover, κρατάμε μόνο active */
@@ -228,27 +229,33 @@ export default function SectionClient({
       transform: none;
       box-shadow: inherit;
     }
-    .pressBtn:hover {
-      transform: none;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    }
-    .pressBtn:active {
-      transform: translateY(calc(-50% - 3px));
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14);
-    }
+    /* ΠΙΣΩ */
+.pressBtn {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+.pressBtn:hover {
+  transform: translateY(-50%) translateY(-6px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.pressBtn:active {
+  transform: translateY(-50%) translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
+}
   }
 
   /* ------------------ MOBILE LAYOUT ------------------ */
   @media (max-width: 768px) {
-    /* κόβουμε scale + margins που σπρώχνουν δεξιά */
+
     .scaleWrap {
       transform: none !important;
       width: 100% !important;
       margin: 0 auto !important;
       margin-left: 0 !important;
     }
-
-    /* grid -> στήλη */
+  
     .layoutGrid {
       display: flex !important;
       flex-direction: column !important;
@@ -256,71 +263,69 @@ export default function SectionClient({
       align-items: center !important;
       margin-left: 0 !important;
     }
-
+  
     .leftCol {
       width: 92vw !important;
       max-width: 360px !important;
       height: auto !important;
     }
-
+  
     .inviteWrapper {
       width: 92vw !important;
       max-width: 360px !important;
       height: 520px !important;
       transform: none !important;
     }
-
+  
     .envelopeWrapper {
       left: 50% !important;
-      top: 0px !important;
-      transform: translateX(-50%) !important;
-      width: 120vw !important;
-      max-width: 520px !important;
+      top: -20px !important;
+      transform: translateX(-50%) scale(0.6) !important;
+      width: 500px !important;
       height: 260px !important;
-      opacity: 0.9 !important;
+      opacity: 0.85 !important;
+      pointer-events: none !important;
     }
-
-    /* 2 μικρές κάρτες δίπλα-δίπλα */
+  
     .midCol {
       flex-direction: row !important;
       gap: 14px !important;
       align-items: flex-start !important;
     }
-
+  
     .cardBlock {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
     }
-
-    /* μεγάλη κάρτα πιο mobile-friendly */
+  
     .rightCol button {
+      transform: none !important;
       width: 82vw !important;
       max-width: 360px !important;
       height: 240px !important;
     }
-
-    /* Πίσω: fixed πάνω αριστερά */
+  
     .backBtnMobile {
       position: fixed !important;
       left: 14px !important;
       top: 14px !important;
       z-index: 9999 !important;
     }
-
-    /* στο mobile ΔΕΝ θέλουμε calc(-50%) */
+  
     .backBtnMobile.pressBtn {
-      transform: translateY(0) !important;
+      transform: none !important;
     }
+  
     .backBtnMobile.pressBtn:hover {
-      transform: translateY(-3px) !important;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14) !important;
+      transform: translateY(-4px) !important;
     }
+  
     .backBtnMobile.pressBtn:active {
-      transform: translateY(-1px) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+      transform: translateY(-2px) !important;
     }
+  
   }
 `}</style>
     </div>
@@ -480,7 +485,8 @@ const backBtn: React.CSSProperties = {
   position: "absolute",
   left: "-180px",
   top: "50%",
-  transform: "translateY(-50%)",   // ✅ ΒΑΛΤΟ ΕΔΩ
+transform: "translateY(-50%)",
+transition: "transform 0.18s ease, box-shadow 0.18s ease",
   padding: "12px 28px",
   borderRadius: 20,
   background: "rgba(255,255,255,0.85)",
