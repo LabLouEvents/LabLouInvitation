@@ -55,11 +55,6 @@ export default function SectionClient({
     router.push(`/e/${encodeURIComponent(slug)}?t=${encodeURIComponent(t)}`);
   };
 
-  // ✅ RSVP -> φόρμα
-  const goRSVP = () => {
-    router.push(`/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`);
-  };
-
   return (
     <div style={page(backgroundUrl)}>
       <div style={fog} />
@@ -82,13 +77,15 @@ export default function SectionClient({
 
               {/* ΦΑΚΕΛΟΣ: ένα επίπεδο πίσω + να φαίνεται ~1/4 */}
               <div style={envelopeWrapper} aria-hidden="true">
-                <Image
-                  src="/envelope/envelope-open.png"
-                  alt="Envelope"
-                  fill
-                  priority
-                  style={{ objectFit: "contain" }}
-                />
+                <div style={envelopeShadow}>
+                  <Image
+                    src="/envelope/envelope-open.png"
+                    alt="Envelope"
+                    fill
+                    priority
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -101,32 +98,38 @@ export default function SectionClient({
                 onClick={() => openMap(churchMapUrl)}
                 title={churchMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
               >
-                <Image
-                  src="/section/card-church.png"
-                  alt="Εκκλησία"
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-church.png"
+                    alt="Εκκλησία"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
               </button>
               <div style={miniLabel}>{churchTitle}</div>
 
               {/* RSVP -> φόρμα */}
               <button
-  type="button"
-  style={smallCard}
-  onClick={() => {
-    const url = `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(t)}`;
-    window.location.assign(url);
-  }}
-  title="RSVP"
->
-  <Image
-    src="/section/card-rsvp.png"
-    alt="RSVP"
-    fill
-    style={{ objectFit: "cover" }}
-  />
-</button>
+                type="button"
+                style={smallCard}
+                onClick={() => {
+                  const url = `/e/${encodeURIComponent(slug)}/rsvp?t=${encodeURIComponent(
+                    t
+                  )}`;
+                  window.location.assign(url);
+                }}
+                title="RSVP"
+              >
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-rsvp.png"
+                    alt="RSVP"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </button>
               <div style={miniLabel}>RSVP</div>
             </div>
 
@@ -138,12 +141,14 @@ export default function SectionClient({
                 onClick={() => openMap(venueMapUrl)}
                 title={venueMapUrl ? "Άνοιγμα χάρτη" : "Δεν υπάρχει link"}
               >
-                <Image
-                  src="/section/card-venue.png"
-                  alt="Κέντρο"
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
+                <div style={imgShadow}>
+                  <Image
+                    src="/section/card-venue.png"
+                    alt="Κέντρο"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
               </button>
               <div style={bigLabel}>{venueTitle}</div>
             </div>
@@ -224,6 +229,9 @@ const inviteWrapper: React.CSSProperties = {
   overflow: "hidden",
   zIndex: 2,
   transform: "translateX(-30px)", // 👈 ΜΟΝΟ αυτό κουνάει το προσκλητήριο
+
+  // ✅ shadow στο προσκλητήριο
+  boxShadow: "0 22px 70px rgba(0,0,0,0.22)",
 };
 
 const envelopeWrapper: React.CSSProperties = {
@@ -234,8 +242,15 @@ const envelopeWrapper: React.CSSProperties = {
   width: "850px",
   height: "460px",
   pointerEvents: "none",
-  zIndex: 1,
+  zIndex: 1, // 👈 πίσω
   opacity: 0.95,
+};
+
+// ✅ σκιά για τον φάκελο (καλύτερα σε wrapper για να μην μπερδεύεται το Image)
+const envelopeShadow: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  filter: "drop-shadow(0 28px 58px rgba(0,0,0,0.28))",
 };
 
 /* ΜΕΣΗ */
@@ -256,7 +271,16 @@ const smallCard: React.CSSProperties = {
   cursor: "pointer",
   padding: 0,
   background: "transparent",
-  boxShadow: "0 14px 40px rgba(0,0,0,0.10)",
+
+  // ✅ base shadow
+  boxShadow: "0 18px 55px rgba(0,0,0,0.16)",
+};
+
+// ✅ wrapper για drop-shadow στις εικόνες καρτών (αποφεύγουμε λάθη σε style μέσα στο Image)
+const imgShadow: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  filter: "drop-shadow(0 18px 40px rgba(0,0,0,0.22))",
 };
 
 const miniLabel: React.CSSProperties = {
@@ -284,7 +308,9 @@ const largeCard: React.CSSProperties = {
   cursor: "pointer",
   padding: 0,
   background: "transparent",
-  boxShadow: "0 18px 60px rgba(0,0,0,0.12)",
+
+  // ✅ πιο “βαριά” σκιά στο μεγάλο
+  boxShadow: "0 26px 80px rgba(0,0,0,0.18)",
 };
 
 const bigLabel: React.CSSProperties = {
