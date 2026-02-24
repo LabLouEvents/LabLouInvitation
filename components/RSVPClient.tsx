@@ -4,10 +4,7 @@ import Image from "next/image";
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Attendance =
-  | "decline"
-  | "ceremony_only"
-  | "ceremony_and_reception";
+type Attendance = "decline" | "ceremony_only" | "ceremony_and_reception";
 
 const attendanceLabel: Record<Attendance, string> = {
   decline: "Δυστυχώς δεν θα μπορέσω",
@@ -19,11 +16,18 @@ function digitsOnly(s: string) {
   return (s || "").replace(/\D+/g, "");
 }
 
+/** Επιτρέπει:
+ * - 69xxxxxxxx
+ * - +3069xxxxxxxx
+ * - 003069xxxxxxxx
+ */
 function normalizeGreekMobile(input: string) {
   const d = digitsOnly(input);
+
   if (d.startsWith("0030")) return `+30 ${d.slice(4)}`;
   if (d.startsWith("30") && d.length >= 12) return `+30 ${d.slice(2)}`;
   if (d.startsWith("69")) return d;
+
   return d;
 }
 
@@ -46,8 +50,7 @@ export default function RSVPClient({
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [attendance, setAttendance] =
-    useState<Attendance>("ceremony_and_reception");
+  const [attendance, setAttendance] = useState<Attendance>("ceremony_and_reception");
   const [adults, setAdults] = useState<number>(1);
   const [kids, setKids] = useState<number>(0);
   const [notes, setNotes] = useState("");
@@ -80,17 +83,20 @@ export default function RSVPClient({
     }
 
     setLoading(true);
-
     try {
       const payload = {
         slug,
         t,
+
+        // νέα πεδία
         name: name.trim(),
         phone: normalizeGreekMobile(phone),
         attendance,
         adults: isAttending ? adults : 0,
         kids: isAttending ? kids : 0,
         notes: isAttending ? notes.trim() : "",
+
+        // συμβατότητα με παλιό route
         attending: isAttending,
         guests: totalGuests,
         allergies: isAttending ? notes.trim() : "",
@@ -105,7 +111,7 @@ export default function RSVPClient({
       const data = await res.json().catch(() => null);
 
       if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || "Κάτι πήγε στραβά.");
+        throw new Error(data?.error || "Κάτι πήγε στραβά. Δοκίμασε ξανά.");
       }
 
       setDone(true);
@@ -121,6 +127,7 @@ export default function RSVPClient({
       <div style={veil} />
 
       <div style={card}>
+        {/* Εικόνα πάνω (ΝΑ ΜΗΝ ΚΟΒΕΤΑΙ) */}
         {rsvpImageUrl ? (
           <div style={topImgWrap}>
             <Image
@@ -129,7 +136,7 @@ export default function RSVPClient({
               fill
               priority
               quality={100}
-              sizes="(max-width:768px) 92vw, 560px"
+              sizes="(max-width: 768px) 92vw, 560px"
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -138,11 +145,7 @@ export default function RSVPClient({
         <button
           type="button"
           onClick={() =>
-            router.push(
-              `/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(
-                t
-              )}`
-            )
+            router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`)
           }
           style={backBtn}
         >
@@ -156,6 +159,28 @@ export default function RSVPClient({
           <div style={successBox}>
             <div style={successTitle}>Ευχαριστούμε! ✅</div>
             <div style={successText}>Η απάντησή σου καταχωρήθηκε.</div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button type="button" style={btnGhost} onClick={() => router.back()}>
+                Πίσω
+              </button>
+              <button
+                type="button"
+                style={btn}
+                onClick={() => {
+                  setDone(false);
+                  setName("");
+                  setPhone("");
+                  setAttendance("ceremony_and_reception");
+                  setAdults(1);
+                  setKids(0);
+                  setNotes("");
+                  setError(null);
+                }}
+              >
+                Νέα απάντηση
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -166,6 +191,7 @@ export default function RSVPClient({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="π.χ. Γιώργος Παπαδόπουλος"
                 style={input}
+                autoComplete="name"
               />
             </div>
 
@@ -173,22 +199,95 @@ export default function RSVPClient({
               <label style={label}>Κινητό τηλέφωνο</label>
               <input
                 value={phone}
-                onChange={(e) =>
-                  setPhone(normalizeGreekMobile(e.target.value))
-                }
-                placeholder="69xxxxxxxx"
+                onChange={(e) => setPhone(normalizeGreekMobile(e.target.value))}
+                placeholder="π.χ. 69xxxxxxxx ή +30 69xxxxxxxx"
                 style={input}
+                inputMode="tel"
+                autoComplete="tel"
+              />
+              <div style={hint}>Τα στοιχεία χρησιμοποιούνται μόνο για την οργάνωση της εκδήλωσης.</div>
+            </div>
+
+            <div style={field}>
+              <label style={label}>Θα παρευρεθείς;</label>
+
+              <div style={radioGroup}>
+                {(["decline", "ceremony_only", "ceremony_and_reception"] as Attendance[]).map(
+                  (key) => (
+                    <label key={key} style={radioRow}>
+                      <input
+                        type="radio"
+                        name="attendance"
+                        checked={attendance === key}
+                        onChange={() => setAttendance(key)}
+                        style={radio}
+                      />
+                      <span style={radioText}>{attendanceLabel[key]}</span>
+                    </label>
+                  )
+                )}
+              </div>
+            </div>
+
+            <div style={twoCols}>
+              <div style={field}>
+                <label style={label}>Ενήλικοι (πόσοι)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={adults}
+                  disabled={!isAttending}
+                  onChange={(e) => setAdults(toInt(e.target.value))}
+                  style={{ ...input, opacity: isAttending ? 1 : 0.55 }}
+                />
+              </div>
+
+              <div style={field}>
+                <label style={label}>Παιδιά (πόσα)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={kids}
+                  disabled={!isAttending}
+                  onChange={(e) => setKids(toInt(e.target.value))}
+                  style={{ ...input, opacity: isAttending ? 1 : 0.55 }}
+                />
+              </div>
+            </div>
+
+            <div style={field}>
+              <label style={label}>Σχόλια / Παρατηρήσεις</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="π.χ. αλλεργίες, ειδικές πληροφορίες, σχόλια"
+                style={textareaStyle}
+                rows={4}
+                disabled={!isAttending}
               />
             </div>
 
-            {error && <div style={errorBox}>{error}</div>}
+            <div style={summaryRow}>
+              <div style={summaryLabel}>Σύνολο ατόμων:</div>
+              <div style={summaryValue}>{totalGuests}</div>
+            </div>
+
+            {error ? <div style={errorBox}>{error}</div> : null}
 
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button type="button" style={btnGhost} onClick={() => router.back()} disabled={loading}>
+                Πίσω
+              </button>
+
               <button
                 type="button"
-                style={btn}
-                disabled={!canSubmit || loading}
+                style={{
+                  ...btn,
+                  opacity: loading || !canSubmit ? 0.6 : 1,
+                  cursor: loading || !canSubmit ? "not-allowed" : "pointer",
+                }}
                 onClick={submit}
+                disabled={loading || !canSubmit}
               >
                 {loading ? "Αποστολή..." : "Αποστολή"}
               </button>
@@ -201,41 +300,44 @@ export default function RSVPClient({
 }
 
 /* ---------------- STYLES ---------------- */
-
 const page: React.CSSProperties = {
   minHeight: "100vh",
-  backgroundImage: `url(/intro/background.jpg)`,
+  backgroundImage: "url(/intro/background.jpg)",
   backgroundSize: "cover",
   backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  position: "relative",
   display: "grid",
   placeItems: "center",
   padding: 20,
-  position: "relative",
 };
 
 const veil: React.CSSProperties = {
   position: "absolute",
   inset: 0,
-  background: "rgba(255,255,255,0.7)",
+  background: "rgba(255,255,255,0.70)",
+  pointerEvents: "none",
 };
 
 const card: React.CSSProperties = {
   position: "relative",
-  width: "min(560px,92vw)",
-  background: "white",
+  width: "min(560px, 92vw)",
   borderRadius: 22,
   padding: 22,
+  background: "rgba(255,255,255,0.92)",
+  border: "1px solid rgba(0,0,0,0.06)",
   boxShadow: "0 24px 70px rgba(0,0,0,0.14)",
 };
 
 const topImgWrap: React.CSSProperties = {
   position: "relative",
   width: "100%",
-  height: 220,
+  height: 180,
   borderRadius: 18,
   overflow: "hidden",
   marginBottom: 14,
-  background: "white",
+  boxShadow: "0 18px 55px rgba(0,0,0,0.14)",
+  background: "rgba(255,255,255,0.85)", // βοηθάει το "contain" να μη δείχνει περίεργο
 };
 
 const backBtn: React.CSSProperties = {
@@ -245,71 +347,172 @@ const backBtn: React.CSSProperties = {
   padding: "8px 16px",
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.1)",
-  background: "rgba(255,255,255,0.9)",
+  background: "rgba(255,255,255,0.85)",
   cursor: "pointer",
   fontWeight: 700,
+  color: "#444",
 };
 
 const title: React.CSSProperties = {
   fontSize: 22,
   fontWeight: 900,
+  color: "#2b2b2b",
 };
 
 const sub: React.CSSProperties = {
   marginTop: 6,
   marginBottom: 18,
-  color: "rgba(0,0,0,0.6)",
+  color: "rgba(0,0,0,0.60)",
+  fontSize: 14,
+  fontWeight: 600,
 };
 
 const field: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 6,
+  gap: 8,
   marginTop: 12,
 };
 
 const label: React.CSSProperties = {
+  color: "rgba(0,0,0,0.75)",
   fontSize: 13,
   fontWeight: 800,
 };
 
 const input: React.CSSProperties = {
+  width: "100%",
   padding: "12px 14px",
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.98)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+};
+
+const textareaStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.15)",
+  background: "rgba(255,255,255,0.98)",
+  color: "#111",
+  fontSize: 15,
+  outline: "none",
+  minHeight: 110,
+  resize: "vertical",
+  opacity: 1,
+};
+
+const hint: React.CSSProperties = {
+  marginTop: 2,
+  fontSize: 12,
+  color: "rgba(0,0,0,0.50)",
+  fontWeight: 600,
+};
+
+const radioGroup: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  marginTop: 4,
+};
+
+const radioRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 10,
+  padding: "10px 12px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(255,255,255,0.7)",
+};
+
+const radio: React.CSSProperties = {
+  marginTop: 2,
+};
+
+const radioText: React.CSSProperties = {
+  color: "#222",
+  fontWeight: 700,
+  lineHeight: 1.25,
+};
+
+const twoCols: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 12,
+  marginTop: 6,
+};
+
+const summaryRow: React.CSSProperties = {
+  marginTop: 14,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "10px 12px",
+  borderRadius: 14,
+  background: "rgba(0,0,0,0.04)",
+  border: "1px solid rgba(0,0,0,0.06)",
+};
+
+const summaryLabel: React.CSSProperties = {
+  fontWeight: 900,
+  color: "rgba(0,0,0,0.65)",
+};
+
+const summaryValue: React.CSSProperties = {
+  fontWeight: 900,
+  color: "#111",
+  fontSize: 16,
 };
 
 const btn: React.CSSProperties = {
   flex: 1,
   padding: "12px 14px",
   borderRadius: 16,
-  border: "none",
-  background: "#6e5a63",
-  color: "white",
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "rgba(110,90,99,0.12)",
+  color: "#6e5a63",
+  fontWeight: 900,
+};
+
+const btnGhost: React.CSSProperties = {
+  padding: "12px 14px",
+  borderRadius: 16,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "rgba(255,255,255,0.75)",
+  color: "#333",
   fontWeight: 900,
   cursor: "pointer",
 };
 
 const errorBox: React.CSSProperties = {
   marginTop: 12,
-  padding: 10,
-  borderRadius: 12,
-  background: "rgba(255,0,0,0.08)",
+  padding: "10px 12px",
+  borderRadius: 14,
+  background: "rgba(255, 0, 0, 0.08)",
+  border: "1px solid rgba(255, 0, 0, 0.20)",
   color: "#8a1f1f",
+  fontWeight: 800,
 };
 
 const successBox: React.CSSProperties = {
-  marginTop: 12,
-  padding: 14,
-  borderRadius: 16,
-  background: "rgba(0,150,90,0.1)",
+  marginTop: 10,
+  padding: "14px 12px",
+  borderRadius: 18,
+  background: "rgba(0, 150, 90, 0.08)",
+  border: "1px solid rgba(0, 150, 90, 0.18)",
 };
 
 const successTitle: React.CSSProperties = {
-  fontWeight: 900,
+  fontWeight: 1000,
   color: "#0b5b3a",
+  fontSize: 16,
 };
 
 const successText: React.CSSProperties = {
   marginTop: 4,
+  color: "rgba(0,0,0,0.65)",
+  fontWeight: 700,
 };
