@@ -336,8 +336,6 @@ const topImgWrap: React.CSSProperties = {
   borderRadius: 18,
   overflow: "hidden",
   marginBottom: 14,
-  boxShadow: "0 18px 55px rgba(0,0,0,0.14)",
-  background: "rgba(255,255,255,0.85)", // βοηθάει το "contain" να μη δείχνει περίεργο
 };
 
 const backBtn: React.CSSProperties = {
@@ -481,7 +479,6 @@ const btnGhost: React.CSSProperties = {
   padding: "12px 14px",
   borderRadius: 16,
   border: "1px solid rgba(0,0,0,0.12)",
-  background: "rgba(255,255,255,0.75)",
   color: "#333",
   fontWeight: 900,
   cursor: "pointer",

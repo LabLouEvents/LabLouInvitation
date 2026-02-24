@@ -281,7 +281,7 @@ export default function SectionClient({
             margin: 0 auto !important;
             margin-left: 0 !important;
           }
-
+        
           .layoutGrid {
             display: flex !important;
             flex-direction: column !important;
@@ -289,56 +289,70 @@ export default function SectionClient({
             align-items: center !important;
             margin-left: 0 !important;
           }
-
+        
           .leftCol {
             width: 92vw !important;
-            max-width: 360px !important;
+            max-width: 290px !important;
             height: auto !important;
+            position: relative !important;
           }
-
+        
           .inviteWrapper {
             width: 92vw !important;
-            max-width: 360px !important;
-            height: 520px !important;
-            transform: none !important;
+            max-width: 280px !important;
+            height: 420px !important;
+          
+            transform: translateY(-90px) !important;  /* ⬅️ ανεβαίνει */
           }
-
-          /* ΦΑΚΕΛΟΣ να φαίνεται στο mobile */
+        
+          /* ΦΑΚΕΛΟΣ (μεγάλος και πιο πάνω) */
           .envelopeWrapper {
             display: block !important;
             left: 50% !important;
-            top: -10px !important;
-            transform: translateX(-50%) scale(0.6) !important;
-            width: 500px !important;
-            height: 260px !important;
-            opacity: 0.85 !important;
+            top: -90px !important;                 /* ⬅️ πιο πάνω */
+            transform: translateX(-50%) scale(1.15) !important; /* ⬅️ μεγαλύτερος */
+            width: 760px !important;
+            height: 420px !important;
+            opacity: 0.95 !important;
             pointer-events: none !important;
+            z-index: 1 !important;
           }
-
+        
           /* 2 μικρές κάρτες δίπλα-δίπλα */
           .midCol {
             flex-direction: row !important;
             gap: 14px !important;
             align-items: flex-start !important;
+          
+            margin-top: -70px !important;   /* ⬅️ ανεβαίνουν */
           }
-
+        
           .cardBlock {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
           }
-
-          /* μεγάλη κάρτα */
+        
+          /* μεγάλη κάρτα Κέντρου */
           .rightCol {
             width: 92vw !important;
-            max-width: 360px !important;
+            max-width: 220px !important;
+          
+            margin-top: 10px !important;   /* ⬅️ κατεβαίνει */
           }
+        
           .rightCol button {
             width: 100% !important;
-            height: 240px !important;
+            height: 300px !important;
           }
-
+        
+          /* Αν θες να μη “χαλάει” το crop */
+          .rightCol :global(img) {
+            object-fit: cover !important;
+            object-position: center !important;
+          }
+        
           /* ΠΙΣΩ: fixed πάνω αριστερά */
           .backBtn {
             position: fixed !important;
@@ -347,15 +361,15 @@ export default function SectionClient({
             z-index: 9999 !important;
             transform: translateY(0) !important;
           }
-
+        
           .backBtn:hover {
             transform: translateY(-4px) !important;
           }
-
+        
           .backBtn:active {
             transform: translateY(-2px) !important;
           }
-
+        
           @media (hover: none) {
             .backBtn:hover {
               transform: translateY(0) !important;
