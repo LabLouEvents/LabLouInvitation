@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       allergies: notes, // αν το θες να γεμίζει και αυτό
     }
 
-    const { error } = await supabase.from("rsvps").insert([payload]);
+    const { error } = await supabase.from("rsvps").upsert([payload], { onConflict: "slug,phone" });
 
     if (error) {
       return NextResponse.json(
