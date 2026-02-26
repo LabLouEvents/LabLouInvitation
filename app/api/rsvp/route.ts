@@ -44,16 +44,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const payload = {
-      slug,
-      name,
-      phone,
-      attending,   // ✅ αυτό είναι το σωστό column
-      adults,
-      kids,
-      notes,
-      allergies: notes, // αν το θες να γεμίζει και αυτό
-    }
+    const phoneNorm = String(phone).replace(/\D/g, "");
+
+const payload = {
+  slug,
+  name,
+  phone: phoneNorm,
+  attending,
+  adults,
+  kids,
+  notes,
+  allergies: notes,
+};
 
     const { error } = await supabase.from("rsvps").upsert([payload], { onConflict: "slug,phone" });
 
