@@ -48,14 +48,12 @@ export async function POST(req: Request) {
       slug,
       name,
       phone,
-      attendance,
-      attending,
+      attending,   // ✅ αυτό είναι το σωστό column
       adults,
       kids,
-      guests,
       notes,
-      allergies: notes, // αν θέλεις να κρατάει και το παλιό column
-    };
+      allergies: notes, // αν το θες να γεμίζει και αυτό
+    }
 
     const { error } = await supabase.from("rsvps").insert([payload]);
 
