@@ -67,10 +67,7 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
         onSubmit={submitRSVP}
         style={{ padding: 0, border: "none", maxWidth: 420 }}
       >
-        <label style={{ display: "block", marginTop: 10 }}>
-          Ονοματεπώνυμο
-        </label>
-  
+        <label style={{ display: "block", marginTop: 10 }}>Ονοματεπώνυμο</label>
         <input
           className="e-input"
           value={name}
@@ -78,16 +75,11 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
           placeholder="Γιώργος Παπαδόπουλος"
         />
   
-        <label style={{ display: "block", marginTop: 12 }}>
-          Θα παρευρεθεί;
-        </label>
-  
+        <label style={{ display: "block", marginTop: 12 }}>Θα παρευρεθεί;</label>
         <select
           className="e-select"
           value={attending}
-          onChange={(e) =>
-            setAttending(e.target.value as "Ναι" | "Όχι")
-          }
+          onChange={(e) => setAttending(e.target.value as "Ναι" | "Όχι")}
         >
           <option value="Ναι">Ναι</option>
           <option value="Όχι">Όχι</option>
@@ -98,7 +90,6 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
             <label style={{ display: "block", marginTop: 12 }}>
               Πόσα άτομα θα είστε;
             </label>
-  
             <input
               className="e-input"
               type="number"
@@ -110,7 +101,6 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
             <label style={{ display: "block", marginTop: 12 }}>
               Διατροφικές αλλεργίες (αν υπάρχουν)
             </label>
-  
             <input
               className="e-input"
               value={allergies}
