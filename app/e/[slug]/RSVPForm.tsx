@@ -3,7 +3,7 @@
 import CalendarButtons from "@/components/CalendarButtons";
 import { useState, type FormEvent } from "react";
 
-export default function RSVPForm({ slug }: { slug: string }) {
+export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
   const [name, setName] = useState("");
   const [attending, setAttending] = useState<"Ναι" | "Όχι">("Ναι");
   const [guests, setGuests] = useState(1);
@@ -23,6 +23,7 @@ export default function RSVPForm({ slug }: { slug: string }) {
     try {
       const payload = {
         slug,
+        t,
         name: name.trim(),
         attending: attending === "Ναι", // boolean
         guests: attending === "Ναι" ? Number(guests) || 1 : 0,
@@ -59,51 +60,74 @@ export default function RSVPForm({ slug }: { slug: string }) {
   }
 
   return (
-    <form onSubmit={submitRSVP} style={{ padding: 0, border: "none", maxWidth: 420 }}>
-      <label style={{ display: "block", marginTop: 10 }}>Ονοματεπώνυμο</label>
-      <input
-        className="e-input"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Γιώργος Παπαδόπουλος"
-      />
-
-      <label style={{ display: "block", marginTop: 12 }}>Θα παρευρεθεί;</label>
-      <select
-        className="e-select"
-        value={attending}
-        onChange={(e) => setAttending(e.target.value as "Ναι" | "Όχι")}
+    <>
+      <CalendarButtons slug={slug} t={t} />
+  
+      <form
+        onSubmit={submitRSVP}
+        style={{ padding: 0, border: "none", maxWidth: 420 }}
       >
-        <option value="Ναι">Ναι</option>
-        <option value="Όχι">Όχι</option>
-      </select>
-
-      {attending === "Ναι" && (
-        <>
-          <label style={{ display: "block", marginTop: 12 }}>Πόσα άτομα θα είστε;</label>
-          <input
-            className="e-input"
-            type="number"
-            min={1}
-            value={guests}
-            onChange={(e) => setGuests(Number(e.target.value))}
-          />
-
-          <label style={{ display: "block", marginTop: 12 }}>
-            Διατροφικές αλλεργίες (αν υπάρχουν)
-          </label>
-          <input
-            className="e-input"
-            value={allergies}
-            onChange={(e) => setAllergies(e.target.value)}
-            placeholder="π.χ. ξηροί καρποί"
-          />
-        </>
-      )}
-
-      <button type="submit" className="e-btn" style={{ marginTop: 12 }} disabled={loading}>
-        {loading ? "Αποστολή..." : "Αποστολή RSVP"}
-      </button>
-    </form>
+        <label style={{ display: "block", marginTop: 10 }}>
+          Ονοματεπώνυμο
+        </label>
+  
+        <input
+          className="e-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Γιώργος Παπαδόπουλος"
+        />
+  
+        <label style={{ display: "block", marginTop: 12 }}>
+          Θα παρευρεθεί;
+        </label>
+  
+        <select
+          className="e-select"
+          value={attending}
+          onChange={(e) =>
+            setAttending(e.target.value as "Ναι" | "Όχι")
+          }
+        >
+          <option value="Ναι">Ναι</option>
+          <option value="Όχι">Όχι</option>
+        </select>
+  
+        {attending === "Ναι" && (
+          <>
+            <label style={{ display: "block", marginTop: 12 }}>
+              Πόσα άτομα θα είστε;
+            </label>
+  
+            <input
+              className="e-input"
+              type="number"
+              min={1}
+              value={guests}
+              onChange={(e) => setGuests(Number(e.target.value))}
+            />
+  
+            <label style={{ display: "block", marginTop: 12 }}>
+              Διατροφικές αλλεργίες (αν υπάρχουν)
+            </label>
+  
+            <input
+              className="e-input"
+              value={allergies}
+              onChange={(e) => setAllergies(e.target.value)}
+              placeholder="π.χ. ξηροί καρποί"
+            />
+          </>
+        )}
+  
+        <button
+          type="submit"
+          className="e-btn"
+          style={{ marginTop: 12 }}
+          disabled={loading}
+        >
+          {loading ? "Αποστολή..." : "Αποστολή RSVP"}
+        </button>
+      </form>
+    </>
   );
-}

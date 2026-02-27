@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 
 export async function GET(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: { slug: string } }git status
 ) {
   const { slug } = params;
 
