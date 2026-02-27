@@ -10,7 +10,7 @@ export default async function EventPage({
   const slug = params.slug;
   const t = searchParams?.t || "";
 
-  // 1) Αν δεν υπάρχει token
+  // Αν δεν υπάρχει token
   if (!t) {
     return (
       <div style={{ padding: 40, fontFamily: "system-ui" }}>
@@ -20,15 +20,13 @@ export default async function EventPage({
     );
   }
 
-  // 2) Fetch event
+  // Fetch event
   const base =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
     "https://lablouinvitations.gr";
 
   const res = await fetch(
-    `${base}/api/public/get-event?slug=${encodeURIComponent(
-      slug
-    )}&t=${encodeURIComponent(t)}`,
+    `${base}/api/public/get-event?slug=${encodeURIComponent(slug)}&t=${encodeURIComponent(t)}`,
     { cache: "no-store" }
   );
 
@@ -44,7 +42,6 @@ export default async function EventPage({
 
   const event = data.event;
 
-  // 3) Το όνομα που δείχνεις στο EnvelopeIntro
   const inviter = (
     event.inviter_names ||
     event.subtitle ||
@@ -52,25 +49,6 @@ export default async function EventPage({
     ""
   ).trim();
 
-  // 4) Κουμπί style
-  const btnStyle: React.CSSProperties = {
-    padding: "10px 16px",
-    borderRadius: 12,
-    background: "#6e5a63",
-    color: "#fff",
-    textDecoration: "none",
-    fontWeight: 700,
-    fontSize: 14,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
- 
-
-  const event = data.event;
-  const inviter = (event.inviter_names || "").trim();
-  
   return (
     <EnvelopeIntro
       slug={slug}
@@ -79,3 +57,4 @@ export default async function EventPage({
       backgroundUrl="/intro/background.jpg"
     />
   );
+}

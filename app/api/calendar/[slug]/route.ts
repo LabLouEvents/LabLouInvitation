@@ -28,7 +28,7 @@ BEGIN:VEVENT
 DTSTART:${start}
 DTEND:${end}
 SUMMARY:${event.title}
-DESCRIPTION:Παρακαλούμε απαντήστε έως 5 Ιουνίου\\nhttps://lablouinvitations.gr/${slug}
+DESCRIPTION:...\\nhttps://lablouinvitations.gr/e/${slug}
 LOCATION:${event.venue_name || ""}
 BEGIN:VALARM
 TRIGGER:-P1D
