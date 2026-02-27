@@ -3,8 +3,15 @@
 import CalendarButtons from "@/components/CalendarButtons";
 import { useState, type FormEvent } from "react";
 
-export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
+export default function RSVPForm({
+  slug,
+  t,
+}: {
+  slug: string;
+  t: string;
+}) {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [attending, setAttending] = useState<"Ναι" | "Όχι">("Ναι");
   const [guests, setGuests] = useState(1);
   const [allergies, setAllergies] = useState("");
@@ -18,14 +25,19 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
       return;
     }
 
+    if (!phone.trim()) {
+      alert("Γράψε κινητό 🙂");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const payload = {
         slug,
-        t,
         name: name.trim(),
-        attending: attending === "Ναι", // boolean
+        phone: phone.trim(),
+        attending: attending === "Ναι",
         guests: attending === "Ναι" ? Number(guests) || 1 : 0,
         allergies: attending === "Ναι" ? allergies.trim() : "",
       };
@@ -48,7 +60,10 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
 
       alert("Ευχαριστούμε! Καταχωρήθηκε 💛");
 
+      // Αν θέλεις ΝΑ ΜΗΝ καθαρίζει το τηλέφωνο/όνομα, σβήσε τις 2 γραμμές:
       setName("");
+      setPhone("");
+
       setAttending("Ναι");
       setGuests(1);
       setAllergies("");
@@ -62,7 +77,7 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
   return (
     <>
       <CalendarButtons slug={slug} t={t} />
-  
+
       <form
         onSubmit={submitRSVP}
         style={{ padding: 0, border: "none", maxWidth: 420 }}
@@ -74,7 +89,15 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Γιώργος Παπαδόπουλος"
         />
-  
+
+        <label style={{ display: "block", marginTop: 12 }}>Κινητό</label>
+        <input
+          className="e-input"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="69xxxxxxxx"
+        />
+
         <label style={{ display: "block", marginTop: 12 }}>Θα παρευρεθεί;</label>
         <select
           className="e-select"
@@ -84,7 +107,7 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
           <option value="Ναι">Ναι</option>
           <option value="Όχι">Όχι</option>
         </select>
-  
+
         {attending === "Ναι" && (
           <>
             <label style={{ display: "block", marginTop: 12 }}>
@@ -97,7 +120,7 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
               value={guests}
               onChange={(e) => setGuests(Number(e.target.value))}
             />
-  
+
             <label style={{ display: "block", marginTop: 12 }}>
               Διατροφικές αλλεργίες (αν υπάρχουν)
             </label>
@@ -109,7 +132,7 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
             />
           </>
         )}
-  
+
         <button
           type="submit"
           className="e-btn"
@@ -121,3 +144,4 @@ export default function RSVPForm({ slug, t }: { slug: string; t: string }) {
       </form>
     </>
   );
+}
