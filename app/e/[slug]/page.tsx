@@ -68,12 +68,14 @@ export default async function EventPage({
 
  
 
-      <EnvelopeIntro
-        slug={slug}
-        t={t}
-        fromName={inviter}
-        backgroundUrl="/intro/background.jpg"
-      />
-    </div>
+  const event = data.event;
+  const inviter = (event.inviter_names || "").trim();
+  
+  return (
+    <EnvelopeIntro
+      slug={slug}
+      t={t}
+      fromName={inviter}
+      backgroundUrl="/intro/background.jpg"
+    />
   );
-}
