@@ -66,26 +66,7 @@ export default async function EventPage({
     justifyContent: "center",
   };
 
-  // 5) Google Calendar link (προσωρινά βάζω σταθερές ημερομηνίες για να δουλεύει)
-  // Μόλις μου πεις ποια πεδία έχεις (start/end), το κάνουμε 100% δυναμικό.
-  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-    `&text=${encodeURIComponent(event.title || "Event")}` +
-    `&dates=20260912T170000Z/20260912T200000Z` +
-    `&details=${encodeURIComponent(`Πρόσκληση: ${base}/${slug}`)}` +
-    `&location=${encodeURIComponent(event.venue_name || "")}`;
-
-  // 6) Return
-  return (
-    <div style={{ padding: 20 }}>
-      <div style={{ marginTop: 10, marginBottom: 16, display: "flex", gap: 12 }}>
-        <a href={googleUrl} target="_blank" rel="noreferrer" style={btnStyle}>
-          Google Calendar
-        </a>
-
-        <a href={`/api/calendar/${slug}?t=${encodeURIComponent(t)}`} style={btnStyle}>
-          Apple / Outlook
-        </a>
-      </div>
+ 
 
       <EnvelopeIntro
         slug={slug}

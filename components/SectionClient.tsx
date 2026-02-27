@@ -1,5 +1,6 @@
 "use client";
 
+import CalendarButtons from "@/components/CalendarButtons";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -80,8 +81,10 @@ export default function SectionClient({
   };
 
   return (
-    <div style={page(backgroundUrl)} className="page">
-      <div style={fog} />
+    return (
+      <div style={page(backgroundUrl)} className="page">
+        <CalendarButtons slug={slug} t={t} />
+        <div style={fog} />
 
       <div style={shell} className="shell">
         <div style={scaleWrap} className="scaleWrap">

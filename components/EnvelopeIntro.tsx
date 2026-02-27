@@ -1,5 +1,6 @@
 "use client";
 
+import CalendarButtons from "@/components/CalendarButtons";
 import Image from "next/image";
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -178,9 +179,51 @@ border: "1px solid rgba(255,255,255,0.75)",
     WebkitBackdropFilter: "blur(6px)",
   };
 
+  const calendarBtn: React.CSSProperties = {
+    background: "rgba(0,0,0,0.45)",
+    backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
+    color: "white",
+    padding: "8px 14px",
+    borderRadius: 999,
+    fontSize: 13,
+    textDecoration: "none",
+    fontWeight: 600,
+    border: "1px solid rgba(255,255,255,0.18)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+  };
+
+  const calendarWrap: React.CSSProperties = {
+    position: "absolute",
+    top: 18,
+    right: 18,
+    display: "flex",
+    gap: 10,
+    zIndex: 999,
+  };
+
   return (
     <div style={pageStyle}>
       <div style={glass} />
+      <CalendarButtons slug={slug} t={t} />
+      <div style={calendarWrap}>
+        <a
+          href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+            "Πρόσκληση"
+          )}&details=${encodeURIComponent(
+            `https://lablouinvitations.gr/e/${slug}?t=${t}`
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+          style={calendarBtn}
+        >
+          Google
+        </a>
+
+        <a href={`/api/calendar/${slug}?t=${encodeURIComponent(t)}`} style={calendarBtn}>
+          Apple
+        </a>
+      </div>
 
       <div style={shell}>
         {/* LOGO (μόνο του) */}

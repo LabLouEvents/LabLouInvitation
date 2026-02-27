@@ -1,5 +1,6 @@
 "use client";
 
+import CalendarButtons from "@/components/CalendarButtons";
 import { useState, type FormEvent } from "react";
 
 export default function RSVPForm({ slug }: { slug: string }) {
