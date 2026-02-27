@@ -81,7 +81,6 @@ export default function SectionClient({
   };
 
   return (
-    return (
       <div style={page(backgroundUrl)} className="page">
         <CalendarButtons slug={slug} t={t} />
         <div style={fog} />
