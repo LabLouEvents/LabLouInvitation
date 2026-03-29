@@ -6,7 +6,7 @@ export default function HomePage() {
       <header style={topbar}>
         <div style={brandWrap}>
           <Image
-            src="/brand/logo.png"
+            src="/brand/logo-dark.png"
             alt="Lab Lou"
             width={110}
             height={110}
