@@ -60,20 +60,9 @@ export default function HomePage() {
             <div style={phoneMock}>
               <div style={phoneScreen}>
                 <div style={inviteContentWrap}>
-                  <div style={inviteBrandWrap}>
-                    <Image
-                      src="/brand/logo-white.png"
-                      alt="Lab Lou"
-                      width={120}
-                      height={120}
-                      style={{
-                        width: 120,
-                        height: "auto",
-                        filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))",
-                      }}
-                    />
-                    <div style={inviteTop}>Lab Lou Events</div>
-                  </div>
+                <div style={inviteBrandWrap}>
+  <div style={inviteTopWhite}>Lab Lou Events</div>
+</div>
 
                   <Image
                     src="/invite-preview/envelope.png"
@@ -410,9 +399,8 @@ const inviteContentWrap: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  transform: "translateY(-55px)",
+  transform: "translateY(-20px)",
 };
-
 const section: React.CSSProperties = {
   maxWidth: 1240,
   margin: "0 auto",
@@ -606,10 +594,15 @@ const inviteBrandWrap: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: 4,
-  marginBottom: 8,
+  marginBottom: 14,
 };
-
+const inviteTopWhite: React.CSSProperties = {
+  fontSize: 24,
+  fontWeight: 800,
+  color: "rgba(255,255,255,0.95)",
+  letterSpacing: "0.08em",
+  textShadow: "0 2px 8px rgba(0,0,0,0.18)",
+};
 const inviteTop: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 800,
