@@ -59,23 +59,19 @@ export default function HomePage() {
 
             <div style={phoneMock}>
               <div style={phoneScreen}>
-                <div style={inviteContentWrap}>
-                <div style={inviteBrandWrap}>
-  <div style={inviteTopWhite}>Lab Lou Events</div>
+              <div style={inviteContentWrap}>
+  <Image
+    src="/invite-preview/envelope.png"
+    alt="Envelope"
+    width={170}
+    height={170}
+    style={{ marginBottom: 14 }}
+  />
+
+  <div style={inviteTitle}>Έχεις πρόσκληση</div>
+
+  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
 </div>
-
-                  <Image
-                    src="/invite-preview/envelope.png"
-                    alt="Envelope"
-                    width={160}
-                    height={160}
-                    style={{ marginBottom: 8 }}
-                  />
-
-                  <div style={inviteTitle}>Έχεις πρόσκληση</div>
-
-                  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
-                </div>
               </div>
             </div>
           </div>
@@ -394,12 +390,12 @@ const phoneScreen: React.CSSProperties = {
   justifyContent: "flex-start",
 };
 
-const inviteContentWrap: React.CSSProperties = {
-  width: "100%",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  transform: "translateY(-20px)",
+const inviteTitle: React.CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  marginTop: 0,
+  color: "#2f241d",
+  textShadow: "0 1px 2px rgba(255,255,255,0.35)",
 };
 const section: React.CSSProperties = {
   maxWidth: 1240,
@@ -616,12 +612,10 @@ const inviteTitle: React.CSSProperties = {
   marginTop: 0,
 };
 
-const inviteBtn: React.CSSProperties = {
-  marginTop: 12,
-  display: "inline-block",
-  padding: "12px 20px",
-  borderRadius: 999,
-  background: "rgba(255,255,255,0.7)",
-  border: "1px solid rgba(47,36,29,0.1)",
-  fontWeight: 700,
+const inviteTitle: React.CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  marginTop: 0,
+  color: "#2f241d",
+  textShadow: "0 1px 2px rgba(255,255,255,0.35)",
 };
