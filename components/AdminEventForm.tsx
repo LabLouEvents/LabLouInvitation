@@ -17,11 +17,9 @@ type EventRow = {
   time_text?: string | null;
 
   church_name?: string | null;
-  church_address?: string | null;
   church_map_url?: string | null;
 
   venue_name?: string | null;
-  venue_address?: string | null;
   venue_map_url?: string | null;
 
   invite_image_url?: string | null;
@@ -139,12 +137,6 @@ export default function AdminEventForm({
       />
 
       <Input
-        label="Διεύθυνση εκκλησίας"
-        value={form.church_address || ""}
-        onChange={(v) => update("church_address", v)}
-      />
-
-      <Input
         label="Link εκκλησίας"
         value={form.church_map_url || ""}
         onChange={(v) => update("church_map_url", v)}
@@ -156,11 +148,6 @@ export default function AdminEventForm({
         onChange={(v) => update("venue_name", v)}
       />
 
-      <Input
-        label="Διεύθυνση κέντρου"
-        value={form.venue_address || ""}
-        onChange={(v) => update("venue_address", v)}
-      />
 
       <Input
         label="Link κέντρου"
