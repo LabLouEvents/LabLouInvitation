@@ -71,14 +71,12 @@ export default function HomePage() {
   <div style={inviteTop}>Lab Lou Events</div>
 </div>
 
-  <Image
+<Image
   src="/invite-preview/envelope.png"
   alt="Envelope"
-  width={170}
-  height={170}
-  style={{
-    marginBottom: 20,
-  }}
+  width={160}
+  height={160}
+  style={{ marginBottom: 8 }}
 />
 
   <div style={inviteTitle}>Έχεις πρόσκληση</div>
@@ -394,14 +392,12 @@ const phoneScreen: React.CSSProperties = {
   backgroundPosition: "center",
   borderRadius: 22,
   minHeight: 520,
-  padding: 20,
+  padding: "26px 20px 20px",
   textAlign: "center",
-
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "flex-start",
-paddingTop: 40,
 };
 
 const section: React.CSSProperties = {
@@ -603,11 +599,11 @@ const inviteTop: React.CSSProperties = {
 const inviteTitle: React.CSSProperties = {
   fontSize: 22,
   fontWeight: 800,
-  marginTop: 10,
+  marginTop: 0,
 };
 
 const inviteBtn: React.CSSProperties = {
-  marginTop: 18,
+  marginTop: 12,
   display: "inline-block",
   padding: "12px 20px",
   borderRadius: 999,
@@ -619,6 +615,6 @@ const inviteBrandWrap: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: 6,
-  marginBottom: 16,
+  gap: 4,
+  marginBottom: 8,
 };
