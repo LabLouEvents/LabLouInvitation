@@ -10,28 +10,27 @@ const supabase = createClient(
 );
 
 type EventRow = {
-  slug: string;
-  title?: string;
-  subtitle?: string;
-  date_text?: string;
-  time_text?: string;
-
-  church_name?: string;
-  church_address?: string;
-  church_map_url?: string;
-
-  venue_name?: string;
-  venue_address?: string;
-  venue_map_url?: string;
-
-  invite_image_url?: string;
-  church_card_image_url?: string;
-  venue_card_image_url?: string;
-  rsvp_image_url?: string;
-
-  share_token?: string;
-};
-
+    slug: string;
+    title?: string | null;
+    subtitle?: string | null;
+    date_text?: string | null;
+    time_text?: string | null;
+  
+    church_name?: string | null;
+    church_address?: string | null;
+    church_map_url?: string | null;
+  
+    venue_name?: string | null;
+    venue_address?: string | null;
+    venue_map_url?: string | null;
+  
+    invite_image_url?: string | null;
+    church_card_image_url?: string | null;
+    venue_card_image_url?: string | null;
+    rsvp_image_url?: string | null;
+  
+    share_token?: string | null;
+  };
 function generateToken() {
   const words = ["love", "event", "gold", "rose", "luna", "dream"];
   const randomWord = words[Math.floor(Math.random() * words.length)];
