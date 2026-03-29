@@ -6,7 +6,7 @@ export default function HomePage() {
       <header style={topbar}>
         <div style={brandWrap}>
           <Image
-            src="/brand/logo-dark.png"
+            src="/brand/logo.png"
             alt="Lab Lou"
             width={110}
             height={110}
@@ -59,13 +59,17 @@ export default function HomePage() {
 
             <div style={phoneMock}>
             <div style={phoneScreen}>
-            <Image
-  src="/brand/logo.png"
-  alt="Lab Lou"
-  width={70}
-  height={70}
-  style={{ marginBottom: 10 }}
-/>
+            <div style={inviteBrandWrap}>
+  <Image
+    src="/brand/logo-dark.png"
+    alt="Lab Lou"
+    width={54}
+    height={54}
+    style={{ width: 54, height: "auto" }}
+  />
+
+  <div style={inviteTop}>Lab Lou Events</div>
+</div>
 
   <Image
   src="/invite-preview/envelope.png"
