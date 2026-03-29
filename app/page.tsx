@@ -10,7 +10,7 @@ export default function HomePage() {
             alt="Lab Lou"
             width={110}
             height={110}
-            style={{ width: 100, height: "auto" }}
+            style={{ width: 120, height: "auto" }}
             priority
           />
           <div style={brandTextWrap}>
@@ -64,11 +64,10 @@ export default function HomePage() {
   <Image
   src="/invite-preview/envelope.png"
   alt="Envelope"
-  width={160}
-  height={160}
+  width={170}
+  height={170}
   style={{
-    marginTop: 90,
-    marginBottom: 10,
+    marginBottom: 20,
   }}
 />
 
@@ -387,6 +386,11 @@ const phoneScreen: React.CSSProperties = {
   minHeight: 520,
   padding: 20,
   textAlign: "center",
+
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 const section: React.CSSProperties = {
@@ -588,7 +592,7 @@ const inviteTop: React.CSSProperties = {
 const inviteTitle: React.CSSProperties = {
   fontSize: 22,
   fontWeight: 800,
-  marginTop: 20,
+  marginTop: 10,
 };
 
 const inviteBtn: React.CSSProperties = {
