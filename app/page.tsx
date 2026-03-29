@@ -58,12 +58,15 @@ export default function HomePage() {
             <div style={heroCardLabel}>Preview Experience</div>
 
             <div style={phoneMock}>
-              <div style={phoneScreen}>
-                <div style={mockTop}>Lab Lou Events</div>
-                <div style={mockEnvelope}>💌</div>
-                <div style={mockTitle}>Έχεις πρόσκληση</div>
-                <div style={mockText}>Άνοιγμα προσκλητηρίου</div>
-              </div>
+            <div style={phoneScreen}>
+  <div style={inviteTop}>Lab Lou Events</div>
+
+  <div style={inviteEnvelope}>✉</div>
+
+  <div style={inviteTitle}>Έχεις πρόσκληση</div>
+
+  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
+</div>
             </div>
           </div>
         </div>
@@ -368,39 +371,11 @@ const phoneMock: React.CSSProperties = {
 };
 
 const phoneScreen: React.CSSProperties = {
-  background: "linear-gradient(180deg, #efe5da 0%, #f7f2ec 100%)",
+  background: "linear-gradient(180deg, #f3e8dc 0%, #f8f3ee 100%)",
   borderRadius: 22,
   minHeight: 520,
   padding: 20,
   textAlign: "center",
-};
-
-const mockTop: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 800,
-  color: "#6d5a4d",
-  marginTop: 10,
-};
-
-const mockEnvelope: React.CSSProperties = {
-  fontSize: 68,
-  marginTop: 64,
-};
-
-const mockTitle: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 800,
-  marginTop: 18,
-};
-
-const mockText: React.CSSProperties = {
-  marginTop: 16,
-  display: "inline-block",
-  padding: "12px 18px",
-  borderRadius: 999,
-  background: "rgba(255,255,255,0.75)",
-  border: "1px solid rgba(47,36,29,0.10)",
-  fontWeight: 700,
 };
 
 const section: React.CSSProperties = {
@@ -590,4 +565,31 @@ const contactButtons: React.CSSProperties = {
   gap: 12,
   justifyContent: "center",
   flexWrap: "wrap",
+};
+const inviteTop: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 800,
+  color: "#6d5a4d",
+  marginTop: 10,
+};
+
+const inviteEnvelope: React.CSSProperties = {
+  fontSize: 90,
+  marginTop: 60,
+};
+
+const inviteTitle: React.CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  marginTop: 20,
+};
+
+const inviteBtn: React.CSSProperties = {
+  marginTop: 18,
+  display: "inline-block",
+  padding: "12px 20px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.7)",
+  border: "1px solid rgba(47,36,29,0.1)",
+  fontWeight: 700,
 };
