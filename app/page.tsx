@@ -400,7 +400,8 @@ const phoneScreen: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "flex-start",
+paddingTop: 40,
 };
 
 const section: React.CSSProperties = {
@@ -619,5 +620,5 @@ const inviteBrandWrap: React.CSSProperties = {
   flexDirection: "column",
   alignItems: "center",
   gap: 6,
-  marginBottom: 18,
+  marginBottom: 16,
 };
