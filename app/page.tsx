@@ -61,7 +61,13 @@ export default function HomePage() {
             <div style={phoneScreen}>
   <div style={inviteTop}>Lab Lou Events</div>
 
-  <div style={inviteEnvelope}>✉</div>
+  <Image
+  src="/invite-preview/envelope.png"
+  alt="Envelope"
+  width={140}
+  height={140}
+  style={{ marginTop: 60 }}
+/>
 
   <div style={inviteTitle}>Έχεις πρόσκληση</div>
 
@@ -371,7 +377,9 @@ const phoneMock: React.CSSProperties = {
 };
 
 const phoneScreen: React.CSSProperties = {
-  background: "linear-gradient(180deg, #f3e8dc 0%, #f8f3ee 100%)",
+  backgroundImage: "url('/invite-preview/bg.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
   borderRadius: 22,
   minHeight: 520,
   padding: 20,
@@ -573,10 +581,6 @@ const inviteTop: React.CSSProperties = {
   marginTop: 10,
 };
 
-const inviteEnvelope: React.CSSProperties = {
-  fontSize: 90,
-  marginTop: 60,
-};
 
 const inviteTitle: React.CSSProperties = {
   fontSize: 22,
