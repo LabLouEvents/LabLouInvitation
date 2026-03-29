@@ -59,19 +59,19 @@ export default function HomePage() {
 
             <div style={phoneMock}>
               <div style={phoneScreen}>
-              <div style={inviteContentWrap}>
-  <Image
-    src="/invite-preview/envelope.png"
-    alt="Envelope"
-    width={170}
-    height={170}
-    style={{ marginBottom: 14 }}
-  />
+                <div style={inviteContentWrap}>
+                  <Image
+                    src="/invite-preview/envelope.png"
+                    alt="Envelope"
+                    width={170}
+                    height={170}
+                    style={{ marginBottom: 14 }}
+                  />
 
-  <div style={inviteTitle}>Έχεις πρόσκληση</div>
+                  <div style={inviteTitle}>Έχεις πρόσκληση</div>
 
-  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
-</div>
+                  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
+                </div>
               </div>
             </div>
           </div>
@@ -390,13 +390,16 @@ const phoneScreen: React.CSSProperties = {
   justifyContent: "flex-start",
 };
 
-const inviteTitle: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 800,
-  marginTop: 0,
-  color: "#2f241d",
-  textShadow: "0 1px 2px rgba(255,255,255,0.35)",
+const inviteContentWrap: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100%",
+  transform: "translateY(-8px)",
 };
+
 const section: React.CSSProperties = {
   maxWidth: 1240,
   margin: "0 auto",
@@ -586,36 +589,21 @@ const contactButtons: React.CSSProperties = {
   flexWrap: "wrap",
 };
 
-const inviteBrandWrap: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  marginBottom: 14,
-};
-const inviteTopWhite: React.CSSProperties = {
-  fontSize: 24,
-  fontWeight: 800,
-  color: "rgba(255,255,255,0.95)",
-  letterSpacing: "0.08em",
-  textShadow: "0 2px 8px rgba(0,0,0,0.18)",
-};
-const inviteTop: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 800,
-  color: "#6d5a4d",
-  marginTop: 0,
-};
-
-const inviteTitle: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 800,
-  marginTop: 0,
-};
-
 const inviteTitle: React.CSSProperties = {
   fontSize: 22,
   fontWeight: 800,
   marginTop: 0,
   color: "#2f241d",
   textShadow: "0 1px 2px rgba(255,255,255,0.35)",
+};
+
+const inviteBtn: React.CSSProperties = {
+  marginTop: 12,
+  display: "inline-block",
+  padding: "12px 20px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.78)",
+  border: "1px solid rgba(47,36,29,0.12)",
+  fontWeight: 700,
+  color: "#2f241d",
 };
