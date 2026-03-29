@@ -1,6 +1,6 @@
-import Link from "next/link";
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import AdminEventForm from "@/components/AdminEventForm";
@@ -103,6 +103,12 @@ export default function AdminEventsPage() {
   return (
     <div style={page}>
       <div style={container}>
+        <div style={{ marginBottom: 20 }}>
+          <Link href="/admin" style={backBtn}>
+            ← Πίσω στο RSVP Admin
+          </Link>
+        </div>
+
         <div style={header}>
           <div>
             <h1 style={title}>Events Admin</h1>
@@ -173,6 +179,16 @@ const page: React.CSSProperties = {
 const container: React.CSSProperties = {
   maxWidth: 1320,
   margin: "0 auto",
+};
+
+const backBtn: React.CSSProperties = {
+  display: "inline-block",
+  padding: "10px 16px",
+  borderRadius: 12,
+  background: "#e6d3c3",
+  color: "#3a2d24",
+  textDecoration: "none",
+  fontWeight: 700,
 };
 
 const header: React.CSSProperties = {
@@ -269,14 +285,4 @@ const eventBtnSlug: React.CSSProperties = {
 const emptyEvents: React.CSSProperties = {
   color: "rgba(0,0,0,0.55)",
   padding: "8px 4px",
-};
-const backBtn: React.CSSProperties = {
-  display: "inline-block",
-  marginBottom: 20,
-  padding: "8px 14px",
-  borderRadius: 12,
-  background: "rgba(255,255,255,0.2)",
-  color: "white",
-  textDecoration: "none",
-  fontWeight: 600,
 };
