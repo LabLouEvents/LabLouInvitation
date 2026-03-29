@@ -10,7 +10,7 @@ export default function HomePage() {
             alt="Lab Lou"
             width={110}
             height={110}
-            style={{ width: 82, height: "auto" }}
+            style={{ width: 100, height: "auto" }}
             priority
           />
           <div style={brandTextWrap}>
@@ -64,9 +64,12 @@ export default function HomePage() {
   <Image
   src="/invite-preview/envelope.png"
   alt="Envelope"
-  width={140}
-  height={140}
-  style={{ marginTop: 60 }}
+  width={160}
+  height={160}
+  style={{
+    marginTop: 90,
+    marginBottom: 10,
+  }}
 />
 
   <div style={inviteTitle}>Έχεις πρόσκληση</div>
@@ -578,7 +581,7 @@ const inviteTop: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 800,
   color: "#6d5a4d",
-  marginTop: 10,
+  marginTop: 20,
 };
 
 
