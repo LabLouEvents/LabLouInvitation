@@ -37,8 +37,8 @@ export default function ImageUpload({
   }
 
   return (
-    <div style={{ marginTop: 10 }}>
-      <div style={{ fontSize: 12, marginBottom: 4 }}>{label}</div>
+    <div style={{ marginTop: 14 }}>
+      <div style={{ fontSize: 13, marginBottom: 6 }}>{label}</div>
       <input type="file" accept="image/*" onChange={handleFile} />
     </div>
   );

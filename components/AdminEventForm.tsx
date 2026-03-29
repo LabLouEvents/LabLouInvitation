@@ -1,5 +1,6 @@
 "use client";
 
+import ImageUpload from "@/components/ImageUpload";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -239,6 +240,16 @@ export default function AdminEventForm({
           value={form.extra_note || ""}
           onChange={(v) => update("extra_note", v)}
         />
+        {/* IMAGE UPLOADS */}
+<ImageUpload
+  label="Upload εικόνα προσκλητηρίου"
+  onUpload={(url) => update("invite_image_url", url)}
+/>
+
+<ImageUpload
+  label="Upload εικόνα RSVP"
+  onUpload={(url) => update("rsvp_image_url", url)}
+/>
       </div>
 
       <div style={{ marginTop: 20 }}>
