@@ -59,7 +59,13 @@ export default function HomePage() {
 
             <div style={phoneMock}>
             <div style={phoneScreen}>
-  <div style={inviteTop}>Lab Lou Events</div>
+            <Image
+  src="/brand/logo.png"
+  alt="Lab Lou"
+  width={70}
+  height={70}
+  style={{ marginBottom: 10 }}
+/>
 
   <Image
   src="/invite-preview/envelope.png"
