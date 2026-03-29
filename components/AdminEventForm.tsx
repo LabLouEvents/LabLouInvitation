@@ -113,25 +113,33 @@ export default function AdminEventForm({
       <h2>Event Editor</h2>
 
       <div style={grid}>
-        <Input label="Slug" value={form.slug || ""} onChange={(v) => update("slug", v)} />
-        <Input label="Title" value={form.title || ""} onChange={(v) => update("title", v)} />
-        <Input label="Subtitle" value={form.subtitle || ""} onChange={(v) => update("subtitle", v)} />
+  {/* BASIC */}
+  <Input label="Slug (link π.χ. maria)" value={form.slug || ""} onChange={(v) => update("slug", v)} />
+  <Input label="Τίτλος (π.χ. Θανάσης & Μυρτώ)" value={form.title || ""} onChange={(v) => update("title", v)} />
+  <Input label="Υπότιτλος" value={form.subtitle || ""} onChange={(v) => update("subtitle", v)} />
 
-        <Input label="Ημερομηνία" value={form.date_text || ""} onChange={(v) => update("date_text", v)} />
-        <Input label="Ώρα" value={form.time_text || ""} onChange={(v) => update("time_text", v)} />
+  {/* DATE */}
+  <Input label="Ημερομηνία (π.χ. Κυριακή 12 Ιουλίου 2026)" value={form.date_text || ""} onChange={(v) => update("date_text", v)} />
+  <Input label="Ώρα (π.χ. 18:30)" value={form.time_text || ""} onChange={(v) => update("time_text", v)} />
 
-        <Input label="Εκκλησία" value={form.church_name || ""} onChange={(v) => update("church_name", v)} />
-        <Input label="Διεύθυνση εκκλησίας" value={form.church_address || ""} onChange={(v) => update("church_address", v)} />
-        <Input label="Map εκκλησίας" value={form.church_map_url || ""} onChange={(v) => update("church_map_url", v)} />
+  {/* CHURCH */}
+  <Input label="Εκκλησία - Όνομα" value={form.church_name || ""} onChange={(v) => update("church_name", v)} />
+  <Input label="Εκκλησία - Διεύθυνση" value={form.church_address || ""} onChange={(v) => update("church_address", v)} />
+  <Input label="Εκκλησία - Google Maps link" value={form.church_map_url || ""} onChange={(v) => update("church_map_url", v)} />
 
-        <Input label="Κέντρο" value={form.venue_name || ""} onChange={(v) => update("venue_name", v)} />
-        <Input label="Διεύθυνση κέντρου" value={form.venue_address || ""} onChange={(v) => update("venue_address", v)} />
-        <Input label="Map κέντρου" value={form.venue_map_url || ""} onChange={(v) => update("venue_map_url", v)} />
+  {/* VENUE */}
+  <Input label="Κέντρο - Όνομα" value={form.venue_name || ""} onChange={(v) => update("venue_name", v)} />
+  <Input label="Κέντρο - Διεύθυνση" value={form.venue_address || ""} onChange={(v) => update("venue_address", v)} />
+  <Input label="Κέντρο - Google Maps link" value={form.venue_map_url || ""} onChange={(v) => update("venue_map_url", v)} />
 
-        <Input label="Invite image URL" value={form.invite_image_url || ""} onChange={(v) => update("invite_image_url", v)} />
-        <Input label="RSVP image URL" value={form.rsvp_image_url || ""} onChange={(v) => update("rsvp_image_url", v)} />
-      </div>
+  {/* IMAGES */}
+  <Input label="Εικόνα προσκλητηρίου (URL)" value={form.invite_image_url || ""} onChange={(v) => update("invite_image_url", v)} />
+  <Input label="Εικόνα RSVP (URL)" value={form.rsvp_image_url || ""} onChange={(v) => update("rsvp_image_url", v)} />
 
+  {/* EXTRA */}
+  <Input label="Deadline RSVP (π.χ. 01/07/2026)" value={form.rsvp_deadline || ""} onChange={(v) => update("rsvp_deadline", v)} />
+  <Input label="Σημείωση (π.χ. Μετά την τελετή θα ακολουθήσει δεξίωση)" value={form.extra_note || ""} onChange={(v) => update("extra_note", v)} />
+</div>
       <div style={{ marginTop: 20 }}>
         <Input
           label="Share token"
