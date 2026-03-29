@@ -63,47 +63,57 @@ export default function LoginPage() {
   );
 }
 
-/* styles */
-const page = {
+const page: React.CSSProperties = {
   minHeight: "100vh",
   display: "grid",
   placeItems: "center",
   background: "#f6f4f2",
 };
 
-const card = {
+const card: React.CSSProperties = {
   padding: 30,
   background: "white",
   borderRadius: 16,
   width: 320,
+  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
 };
 
-const title = { marginTop: 0 };
+const title: React.CSSProperties = {
+  marginTop: 0,
+  color: "#2f241d",
+};
 
-const input = {
+const input: React.CSSProperties = {
   width: "100%",
   marginBottom: 10,
-  padding: 12,
+  padding: "12px 14px",
   borderRadius: 10,
-  border: "1px solid #ccc",
+  border: "1px solid #d8cfc6",
+  fontSize: 14,
+  color: "#111",
 };
 
-const btn = {
+const btn: React.CSSProperties = {
   width: "100%",
   padding: 12,
   borderRadius: 10,
-  background: "black",
+  background: "#2f241d",
   color: "white",
   cursor: "pointer",
+  border: "none",
+  fontWeight: 600,
 };
 
-const forgotBox = {
+const forgotBox: React.CSSProperties = {
   marginTop: 14,
   textAlign: "center",
   fontSize: 13,
+  color: "#6b5b4f",
 };
 
-const forgotLink = {
+const forgotLink: React.CSSProperties = {
+  marginTop: 4,
   cursor: "pointer",
   textDecoration: "underline",
+  fontWeight: 600,
 };
