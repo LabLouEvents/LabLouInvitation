@@ -1,3 +1,4 @@
+import Link from "next/link";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -268,4 +269,14 @@ const eventBtnSlug: React.CSSProperties = {
 const emptyEvents: React.CSSProperties = {
   color: "rgba(0,0,0,0.55)",
   padding: "8px 4px",
+};
+const backBtn: React.CSSProperties = {
+  display: "inline-block",
+  marginBottom: 20,
+  padding: "8px 14px",
+  borderRadius: 12,
+  background: "rgba(255,255,255,0.2)",
+  color: "white",
+  textDecoration: "none",
+  fontWeight: 600,
 };
