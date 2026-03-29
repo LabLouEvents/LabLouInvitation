@@ -59,25 +59,25 @@ export default function HomePage() {
 
             <div style={phoneMock}>
             <div style={phoneScreen}>
-            <div style={inviteBrandWrap}>
+            <div style={inviteContentWrap}>
+  <div style={inviteBrandWrap}>
+    <Image
+      src="/brand/logo-white.png"
+      alt="Lab Lou"
+      width={120}
+      height={120}
+      style={{ width: 120, height: "auto" }}
+    />
+    <div style={inviteTop}>Lab Lou Events</div>
+  </div>
+
   <Image
-    src="/brand/logo.png"
-    alt="Lab Lou"
-    width={120}
-    height={120}
-    style={{ width: 120, height: "auto" }}
+    src="/invite-preview/envelope.png"
+    alt="Envelope"
+    width={160}
+    height={160}
+    style={{ marginBottom: 8 }}
   />
-
-  <div style={inviteTop}>Lab Lou Events</div>
-</div>
-
-<Image
-  src="/invite-preview/envelope.png"
-  alt="Envelope"
-  width={160}
-  height={160}
-  style={{ marginBottom: 8 }}
-/>
 
   <div style={inviteTitle}>Έχεις πρόσκληση</div>
 
@@ -224,7 +224,13 @@ export default function HomePage() {
     </main>
   );
 }
-
+const inviteContentWrap: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  transform: "translateY(-35px)",
+};
 const page: React.CSSProperties = {
   background:
     "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 38%, #f8f5f1 100%)",
