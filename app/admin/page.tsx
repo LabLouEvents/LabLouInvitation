@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -13,15 +14,27 @@ type EventRow = {
   title: string | null;
 };
 
+type RSVPRow = {
+  id?: string;
+  slug: string;
+  name: string;
+  phone?: string | null;
+  attending?: boolean | null;
+  adults?: number | null;
+  kids?: number | null;
+  guests?: number | null;
+  notes?: string | null;
+  allergies?: string | null;
+  created_at?: string | null;
+};
+
 export default function AdminPage() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<RSVPRow[]>([]);
   const [eventsList, setEventsList] = useState<EventRow[]>([]);
   const [selectedSlug, setSelectedSlug] = useState("all");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  /* ================= LOAD EVENTS (dropdown) ================= */
 
   async function loadEventsList() {
     setError("");
@@ -39,8 +52,6 @@ export default function AdminPage() {
     setEventsList((data as EventRow[]) || []);
   }
 
-  /* ================= LOAD RSVPs ================= */
-
   async function loadRSVPs() {
     setLoading(true);
     setError("");
@@ -56,36 +67,24 @@ export default function AdminPage() {
 
     const { data, error } = await q;
 
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      setRows([]);
+    } else {
+      setRows((data as RSVPRow[]) || []);
+    }
 
-    setRows(data || []);
     setLoading(false);
   }
-
-  /* ================= EFFECTS ================= */
 
   useEffect(() => {
     loadEventsList();
     loadRSVPs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     loadRSVPs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlug]);
-
-  /* ================= HELPERS ================= */
-
-  const exportHref =
-    selectedSlug === "all"
-      ? "/api/admin/export"
-      : `/api/admin/export?slug=${encodeURIComponent(selectedSlug)}`;
-
-  const editEventsHref =
-    selectedSlug === "all"
-      ? "/admin/events"
-      : `/admin/events?slug=${encodeURIComponent(selectedSlug)}`;
 
   const selectedEventTitle = useMemo(() => {
     if (selectedSlug === "all") return "Όλα τα events";
@@ -93,162 +92,230 @@ export default function AdminPage() {
     return ev?.title ? `${ev.title} (${ev.slug})` : selectedSlug;
   }, [eventsList, selectedSlug]);
 
-  /* ================= UI ================= */
-
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      {/* HEADER (Logout υπάρχει στο Layout) */}
-      <h1 style={{ marginBottom: 20 }}>RSVP Admin</h1>
+    <div style={page}>
+      <div style={container}>
+        <div style={headerRow}>
+          <div>
+            <h1 style={title}>RSVP Admin</h1>
+            <p style={subtitle}>Διαχείριση απαντήσεων και γρήγορη πρόσβαση στα events σου.</p>
+          </div>
 
-      {/* CONTROLS */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          flexWrap: "wrap",
-          marginBottom: 14,
-          alignItems: "center",
-        }}
-      >
-        {/* Dropdown events */}
-        <select
-          className="e-select"
-          value={selectedSlug}
-          onChange={(e) => setSelectedSlug(e.target.value)}
-          style={{ width: 360 }}
-        >
-          <option value="all">Όλα τα events</option>
-
-          {eventsList.map((ev) => (
-            <option key={ev.slug} value={ev.slug}>
-              {ev.title ? `${ev.title} (${ev.slug})` : ev.slug}
-            </option>
-          ))}
-        </select>
-
-        {/* Refresh */}
-        <button
-          onClick={loadRSVPs}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 10,
-            border: "1px solid #ddd",
-            cursor: "pointer",
-          }}
-        >
-          Ανανέωση
-        </button>
-
-        {/* ✅ NEW: Button to Events editor */}
-        <a
-          href={editEventsHref}
-          className="e-btn"
-          style={{
-            width: "auto",
-            padding: "10px 16px",
-            textDecoration: "none",
-          }}
-          title="Άνοιγμα επεξεργασίας events"
-        >
-          Edit Events
-        </a>
-
-        {/* Export CSV */}
-        <a
-          href={exportHref}
-          className="e-btn"
-          style={{
-            width: "auto",
-            padding: "10px 16px",
-            textDecoration: "none",
-          }}
-        >
-          Export RSVPs (CSV)
-        </a>
-      </div>
-
-      <div style={{ marginBottom: 10, opacity: 0.8 }}>
-        Προβολή: <b>{selectedEventTitle}</b>
-      </div>
-
-      {loading && <div>Φορτώνει…</div>}
-
-      {error && (
-        <div style={{ color: "crimson", marginBottom: 10 }}>
-          Σφάλμα: {error}
+          <div style={headerActions}>
+            <Link href="/admin/events" style={primaryLinkBtn}>
+              Events Editor
+            </Link>
+          </div>
         </div>
-      )}
 
-      {/* TABLE */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              {[
-                "Ημερομηνία",
-                "Event",
-                "Όνομα",
-                "Θα παρευρεθεί",
-                "Άτομα",
-                "Αλλεργίες",
-              ].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    textAlign: "left",
-                    padding: 10,
-                    borderBottom: "1px solid #ddd",
-                    whiteSpace: "nowrap",
-                    fontSize: 14,
-                  }}
-                >
-                  {h}
-                </th>
+        <div style={card}>
+          <div style={controlsRow}>
+            <select
+              value={selectedSlug}
+              onChange={(e) => setSelectedSlug(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="all">Όλα τα events</option>
+              {eventsList.map((ev) => (
+                <option key={ev.slug} value={ev.slug}>
+                  {ev.title ? `${ev.title} (${ev.slug})` : ev.slug}
+                </option>
               ))}
-            </tr>
-          </thead>
+            </select>
 
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.id ?? `${r.slug}_${r.created_at}_${r.name}`}>
-                <td style={{ padding: 10, borderBottom: "1px solid #eee", whiteSpace: "nowrap" }}>
-                  {r.created_at
-                    ? new Date(r.created_at).toLocaleDateString("el-GR")
-                    : ""}
-                </td>
+            <button onClick={loadRSVPs} style={secondaryBtn}>
+              Ανανέωση
+            </button>
+          </div>
 
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.slug}
-                </td>
+          <div style={infoLine}>
+            Προβολή: <b>{selectedEventTitle}</b>
+          </div>
 
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.name}
-                </td>
+          {loading && <div style={statusText}>Φορτώνει RSVP…</div>}
 
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.attending ? "Ναι" : "Όχι"}
-                </td>
+          {error ? <div style={errorText}>Σφάλμα: {error}</div> : null}
 
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.attending ? r.guests : 0}
-                </td>
+          <div style={{ overflowX: "auto" }}>
+            <table style={table}>
+              <thead>
+                <tr>
+                  {[
+                    "Ημερομηνία",
+                    "Event",
+                    "Όνομα",
+                    "Τηλέφωνο",
+                    "Παρουσία",
+                    "Ενήλικοι",
+                    "Παιδιά",
+                    "Σύνολο",
+                    "Σχόλια",
+                  ].map((h) => (
+                    <th key={h} style={th}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
 
-                <td style={{ padding: 10, borderBottom: "1px solid #eee" }}>
-                  {r.attending ? (r.allergies || "") : ""}
-                </td>
-              </tr>
-            ))}
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id ?? `${r.slug}_${r.created_at}_${r.name}`}>
+                    <td style={td}>
+                      {r.created_at
+                        ? new Date(r.created_at).toLocaleDateString("el-GR")
+                        : ""}
+                    </td>
+                    <td style={td}>{r.slug}</td>
+                    <td style={td}>{r.name}</td>
+                    <td style={td}>{r.phone || ""}</td>
+                    <td style={td}>{r.attending ? "Ναι" : "Όχι"}</td>
+                    <td style={td}>{r.attending ? (r.adults ?? "") : ""}</td>
+                    <td style={td}>{r.attending ? (r.kids ?? "") : ""}</td>
+                    <td style={td}>{r.attending ? (r.guests ?? "") : 0}</td>
+                    <td style={td}>{r.notes || r.allergies || ""}</td>
+                  </tr>
+                ))}
 
-            {!loading && rows.length === 0 && (
-              <tr>
-                <td colSpan={6} style={{ padding: 12, opacity: 0.7 }}>
-                  Δεν υπάρχουν RSVP ακόμα.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                {!loading && rows.length === 0 && (
+                  <tr>
+                    <td colSpan={9} style={emptyTd}>
+                      Δεν υπάρχουν RSVP ακόμα.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+const page: React.CSSProperties = {
+  minHeight: "100vh",
+  background: "#f7f3ee",
+  padding: 24,
+};
+
+const container: React.CSSProperties = {
+  maxWidth: 1280,
+  margin: "0 auto",
+};
+
+const headerRow: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 16,
+  flexWrap: "wrap",
+  marginBottom: 20,
+};
+
+const headerActions: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const title: React.CSSProperties = {
+  margin: 0,
+  fontSize: 34,
+  lineHeight: 1.05,
+  color: "#2b2623",
+};
+
+const subtitle: React.CSSProperties = {
+  marginTop: 8,
+  marginBottom: 0,
+  color: "rgba(0,0,0,0.6)",
+  fontWeight: 600,
+};
+
+const card: React.CSSProperties = {
+  background: "rgba(255,255,255,0.92)",
+  borderRadius: 24,
+  padding: 18,
+  border: "1px solid rgba(0,0,0,0.05)",
+  boxShadow: "0 18px 48px rgba(0,0,0,0.07)",
+};
+
+const controlsRow: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  flexWrap: "wrap",
+  alignItems: "center",
+  marginBottom: 12,
+};
+
+const selectStyle: React.CSSProperties = {
+  minWidth: 320,
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "white",
+  fontSize: 14,
+};
+
+const primaryLinkBtn: React.CSSProperties = {
+  textDecoration: "none",
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.06)",
+  background: "#dcc7b1",
+  color: "#3a2d24",
+  fontWeight: 800,
+};
+
+const secondaryBtn: React.CSSProperties = {
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "white",
+  color: "#3a2d24",
+  fontWeight: 800,
+  cursor: "pointer",
+};
+
+const infoLine: React.CSSProperties = {
+  marginBottom: 14,
+  color: "rgba(0,0,0,0.7)",
+};
+
+const statusText: React.CSSProperties = {
+  marginBottom: 10,
+};
+
+const errorText: React.CSSProperties = {
+  marginBottom: 12,
+  color: "crimson",
+  fontWeight: 700,
+};
+
+const table: React.CSSProperties = {
+  width: "100%",
+  borderCollapse: "collapse",
+};
+
+const th: React.CSSProperties = {
+  textAlign: "left",
+  padding: 12,
+  borderBottom: "1px solid #e8dfd6",
+  whiteSpace: "nowrap",
+  fontSize: 14,
+  color: "#57483f",
+};
+
+const td: React.CSSProperties = {
+  padding: 12,
+  borderBottom: "1px solid #f0e8df",
+  verticalAlign: "top",
+  fontSize: 14,
+};
+
+const emptyTd: React.CSSProperties = {
+  padding: 18,
+  textAlign: "center",
+  color: "rgba(0,0,0,0.55)",
+};
