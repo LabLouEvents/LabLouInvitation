@@ -6,7 +6,7 @@ export default function HomePage() {
       <header style={topbar}>
         <div style={brandWrap}>
           <Image
-            src="/brand/logo.png"
+            src="/brand/logo-dark.png"
             alt="Lab Lou"
             width={110}
             height={110}
@@ -61,7 +61,7 @@ export default function HomePage() {
             <div style={phoneScreen}>
             <div style={inviteBrandWrap}>
   <Image
-    src="/brand/logo-dark.png"
+    src="/brand/logo.png"
     alt="Lab Lou"
     width={54}
     height={54}
@@ -613,4 +613,11 @@ const inviteBtn: React.CSSProperties = {
   background: "rgba(255,255,255,0.7)",
   border: "1px solid rgba(47,36,29,0.1)",
   fontWeight: 700,
+};
+const inviteBrandWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 6,
+  marginBottom: 18,
 };
