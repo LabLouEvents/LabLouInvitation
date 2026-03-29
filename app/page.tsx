@@ -3,7 +3,6 @@ import Image from "next/image";
 export default function HomePage() {
   return (
     <main style={page}>
-      {/* TOP BAR */}
       <header style={topbar}>
         <div style={brandWrap}>
           <Image
@@ -27,7 +26,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* HERO */}
       <section style={heroSection}>
         <div style={heroGlow} />
         <div style={heroContent}>
@@ -71,7 +69,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
       <section style={section}>
         <div style={sectionIntro}>Τι περιλαμβάνει</div>
         <h2 style={sectionTitle}>Όλα όσα χρειάζεται ένα σύγχρονο προσκλητήριο</h2>
@@ -112,7 +109,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DEMO */}
       <section id="demo" style={demoSection}>
         <div style={demoLeft}>
           <div style={sectionIntro}>Demo</div>
@@ -123,7 +119,10 @@ export default function HomePage() {
           </p>
 
           <div style={heroButtons}>
-            <a href="/e/12.09.2026?t=8138b5407b4866936ecc4803677ec6a6" style={primaryBtn}>
+            <a
+              href="/e/12.09.2026?t=8138b5407b4866936ecc4803677ec6a6"
+              style={primaryBtn}
+            >
               Άνοιξε το demo
             </a>
 
@@ -145,7 +144,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* WHY */}
       <section style={section}>
         <div style={sectionIntro}>Γιατί να το επιλέξεις</div>
         <h2 style={sectionTitle}>Γιατί ξεχωρίζει</h2>
@@ -174,7 +172,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section id="interest" style={interestSection}>
         <div style={interestCard}>
           <div style={sectionIntro}>Εκδήλωση ενδιαφέροντος</div>
@@ -184,19 +181,24 @@ export default function HomePage() {
             premium παρουσίαση.
           </p>
 
-          <div style={heroButtons}>
-            <a href="mailto:hello@lablou.gr?subject=Ενδιαφέρομαι για online προσκλητήριο" style={primaryBtn}>
-              Επικοινωνία
-            </a>
+          <div style={contactWrap}>
+            <div style={contactTitle}>Επίλεξε τρόπο επικοινωνίας</div>
 
-            <a
-              href="https://wa.me/30XXXXXXXXXX?text=Ενδιαφέρομαι για online προσκλητήριο"
-              style={secondaryBtn}
-              target="_blank"
-              rel="noreferrer"
-            >
-              WhatsApp
-            </a>
+            <div style={contactButtons}>
+              <a
+                href="mailto:info@lablou.gr?subject=Ενδιαφέρομαι για online προσκλητήριο"
+                style={primaryBtn}
+              >
+                📧 Email
+              </a>
+
+              <a
+                href="viber://chat?number=%2B306943910973"
+                style={secondaryBtn}
+              >
+                💜 Viber
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -366,8 +368,7 @@ const phoneMock: React.CSSProperties = {
 };
 
 const phoneScreen: React.CSSProperties = {
-  background:
-    "linear-gradient(180deg, #efe5da 0%, #f7f2ec 100%)",
+  background: "linear-gradient(180deg, #efe5da 0%, #f7f2ec 100%)",
   borderRadius: 22,
   minHeight: 520,
   padding: 20,
@@ -567,4 +568,26 @@ const interestText: React.CSSProperties = {
   color: "rgba(47,36,29,0.72)",
   fontSize: 17,
   lineHeight: 1.65,
+};
+
+const contactWrap: React.CSSProperties = {
+  marginTop: 20,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 10,
+};
+
+const contactTitle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 700,
+  color: "#8d7363",
+  letterSpacing: "0.05em",
+};
+
+const contactButtons: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  justifyContent: "center",
+  flexWrap: "wrap",
 };
