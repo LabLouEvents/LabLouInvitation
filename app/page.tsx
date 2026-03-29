@@ -10,7 +10,7 @@ export default function HomePage() {
             alt="Lab Lou"
             width={110}
             height={110}
-            style={{ width: 120, height: "auto" }}
+            style={{ width: 160, height: "auto" }}
             priority
           />
           <div style={brandTextWrap}>
