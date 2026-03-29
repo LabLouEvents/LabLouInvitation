@@ -35,14 +35,13 @@ type EventRow = {
   meta?: any;
 };
 
-function generateToken(length = 32) {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-  let out = "";
-  for (let i = 0; i < length; i++) {
-    out += chars[Math.floor(Math.random() * chars.length)];
+function generateToken() {
+    const words = ["love", "event", "gold", "rose", "luna", "dream"];
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+    const number = Math.floor(1000 + Math.random() * 9000);
+  
+    return `${randomWord}${number}`;
   }
-  return out;
-}
 
 export default function AdminEventForm({
   event,
