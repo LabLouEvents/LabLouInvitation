@@ -10,27 +10,28 @@ const supabase = createClient(
 );
 
 type EventRow = {
-    slug: string;
-    title?: string | null;
-    subtitle?: string | null;
-    date_text?: string | null;
-    time_text?: string | null;
-  
-    church_name?: string | null;
-    church_address?: string | null;
-    church_map_url?: string | null;
-  
-    venue_name?: string | null;
-    venue_address?: string | null;
-    venue_map_url?: string | null;
-  
-    invite_image_url?: string | null;
-    church_card_image_url?: string | null;
-    venue_card_image_url?: string | null;
-    rsvp_image_url?: string | null;
-  
-    share_token?: string | null;
-  };
+  slug: string;
+  title?: string | null;
+  subtitle?: string | null;
+  date_text?: string | null;
+  time_text?: string | null;
+
+  church_name?: string | null;
+  church_address?: string | null;
+  church_map_url?: string | null;
+
+  venue_name?: string | null;
+  venue_address?: string | null;
+  venue_map_url?: string | null;
+
+  invite_image_url?: string | null;
+  church_card_image_url?: string | null;
+  venue_card_image_url?: string | null;
+  rsvp_image_url?: string | null;
+
+  share_token?: string | null;
+};
+
 function generateToken() {
   const words = ["love", "event", "gold", "rose", "luna", "dream"];
   const randomWord = words[Math.floor(Math.random() * words.length)];
@@ -60,7 +61,7 @@ export default function AdminEventForm({
     if (event) setForm(event);
   }, [event]);
 
-  function update(key: keyof EventRow, value: any) {
+  function update(key: keyof EventRow, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -83,134 +84,284 @@ export default function AdminEventForm({
       setMsg("❌ " + error.message);
     } else {
       setMsg("✅ Αποθηκεύτηκε!");
+      setForm((prev) => ({
+        ...prev,
+        share_token: payload.share_token,
+      }));
       onSaved?.();
     }
   }
 
+  async function copyLink() {
+    if (!publicLink) return;
+    await navigator.clipboard.writeText(publicLink);
+    setMsg("📋 Αντιγράφηκε το link!");
+  }
+
   return (
     <div style={card}>
-      <h2>Event Editor</h2>
+      <h2 style={heading}>Event Editor</h2>
 
-      {/* BASIC */}
-      <Input label="Slug (π.χ. maria-nikos)" value={form.slug} onChange={(v) => update("slug", v)} />
-      <Input label="Τίτλος" value={form.title || ""} onChange={(v) => update("title", v)} />
-      <Input label="Υπότιτλος" value={form.subtitle || ""} onChange={(v) => update("subtitle", v)} />
+      <Input
+        label="Slug"
+        value={form.slug || ""}
+        onChange={(v) => update("slug", v)}
+      />
 
-      {/* DATE */}
-      <Input label="Ημερομηνία" value={form.date_text || ""} onChange={(v) => update("date_text", v)} />
-      <Input label="Ώρα" value={form.time_text || ""} onChange={(v) => update("time_text", v)} />
+      <Input
+        label="Τίτλος"
+        value={form.title || ""}
+        onChange={(v) => update("title", v)}
+      />
 
-      {/* CHURCH */}
-      <Input label="Εκκλησία" value={form.church_name || ""} onChange={(v) => update("church_name", v)} />
-      <Input label="Διεύθυνση εκκλησίας" value={form.church_address || ""} onChange={(v) => update("church_address", v)} />
-      <Input label="Link εκκλησίας" value={form.church_map_url || ""} onChange={(v) => update("church_map_url", v)} />
+      <Input
+        label="Υπότιτλος"
+        value={form.subtitle || ""}
+        onChange={(v) => update("subtitle", v)}
+      />
 
-      {/* VENUE */}
-      <Input label="Κέντρο" value={form.venue_name || ""} onChange={(v) => update("venue_name", v)} />
-      <Input label="Διεύθυνση κέντρου" value={form.venue_address || ""} onChange={(v) => update("venue_address", v)} />
-      <Input label="Link κέντρου" value={form.venue_map_url || ""} onChange={(v) => update("venue_map_url", v)} />
+      <Input
+        label="Ημερομηνία"
+        value={form.date_text || ""}
+        onChange={(v) => update("date_text", v)}
+      />
 
-      {/* IMAGES */}
-      <h3 style={{ marginTop: 20 }}>Εικόνες</h3>
+      <Input
+        label="Ώρα"
+        value={form.time_text || ""}
+        onChange={(v) => update("time_text", v)}
+      />
 
-      <ImageUpload label="Προσκλητήριο" onUpload={(url) => update("invite_image_url", url)} />
-      <ImageUpload label="Εκκλησία" onUpload={(url) => update("church_card_image_url", url)} />
-      <ImageUpload label="Κέντρο" onUpload={(url) => update("venue_card_image_url", url)} />
-      <ImageUpload label="RSVP" onUpload={(url) => update("rsvp_image_url", url)} />
+      <Input
+        label="Εκκλησία"
+        value={form.church_name || ""}
+        onChange={(v) => update("church_name", v)}
+      />
 
-      {/* PREVIEW */}
-      <div style={previewGrid}>
-        {form.invite_image_url && <Preview title="Προσκλητήριο" src={form.invite_image_url} />}
-        {form.church_card_image_url && <Preview title="Εκκλησία" src={form.church_card_image_url} />}
-        {form.venue_card_image_url && <Preview title="Κέντρο" src={form.venue_card_image_url} />}
-        {form.rsvp_image_url && <Preview title="RSVP" src={form.rsvp_image_url} />}
+      <Input
+        label="Διεύθυνση εκκλησίας"
+        value={form.church_address || ""}
+        onChange={(v) => update("church_address", v)}
+      />
+
+      <Input
+        label="Link εκκλησίας"
+        value={form.church_map_url || ""}
+        onChange={(v) => update("church_map_url", v)}
+      />
+
+      <Input
+        label="Κέντρο"
+        value={form.venue_name || ""}
+        onChange={(v) => update("venue_name", v)}
+      />
+
+      <Input
+        label="Διεύθυνση κέντρου"
+        value={form.venue_address || ""}
+        onChange={(v) => update("venue_address", v)}
+      />
+
+      <Input
+        label="Link κέντρου"
+        value={form.venue_map_url || ""}
+        onChange={(v) => update("venue_map_url", v)}
+      />
+
+      <h3 style={sectionTitle}>Εικόνες</h3>
+
+      <ImageUpload
+        label="1. Προσκλητήριο"
+        onUpload={(url) => update("invite_image_url", url)}
+      />
+      {form.invite_image_url ? (
+        <PreviewImage title="Preview προσκλητηρίου" src={form.invite_image_url} />
+      ) : null}
+
+      <ImageUpload
+        label="2. Εκκλησία"
+        onUpload={(url) => update("church_card_image_url", url)}
+      />
+      {form.church_card_image_url ? (
+        <PreviewImage title="Preview εκκλησίας" src={form.church_card_image_url} />
+      ) : null}
+
+      <ImageUpload
+        label="3. Κέντρο"
+        onUpload={(url) => update("venue_card_image_url", url)}
+      />
+      {form.venue_card_image_url ? (
+        <PreviewImage title="Preview κέντρου" src={form.venue_card_image_url} />
+      ) : null}
+
+      <ImageUpload
+        label="4. RSVP"
+        onUpload={(url) => update("rsvp_image_url", url)}
+      />
+      {form.rsvp_image_url ? (
+        <PreviewImage title="Preview RSVP" src={form.rsvp_image_url} />
+      ) : null}
+
+      <Input
+        label="Token"
+        value={form.share_token || ""}
+        onChange={(v) => update("share_token", v)}
+      />
+
+      <div style={btnRow}>
+        <button
+          type="button"
+          style={btn}
+          onClick={() => update("share_token", generateToken())}
+        >
+          Generate Token
+        </button>
+
+        <button type="button" style={btn} onClick={save}>
+          Save
+        </button>
+
+        <button type="button" style={btn} onClick={copyLink}>
+          Copy link
+        </button>
       </div>
 
-      {/* TOKEN */}
-      <Input label="Token" value={form.share_token || ""} onChange={(v) => update("share_token", v)} />
+      <div style={linkBox}>{publicLink || "Συμπλήρωσε slug και token"}</div>
 
-      <button style={btn} onClick={() => update("share_token", generateToken())}>
-        Generate Token
-      </button>
-
-      <div style={linkBox}>{publicLink}</div>
-
-      <button style={btn} onClick={save}>Save</button>
-
-      {msg && <div>{msg}</div>}
+      {msg ? <div style={message}>{msg}</div> : null}
     </div>
   );
 }
 
 function Input({
-    label,
-    value,
-    onChange,
-  }: {
-    label: string;
-    value: string;
-    onChange: (v: string) => void;
-  }) {
-    return (
-      <div style={{ marginTop: 10 }}>
-        <div
-          style={{
-            fontSize: 13,
-            marginBottom: 6,
-            color: "#4b4038",
-            fontWeight: 700,
-          }}
-        >
-          {label}
-        </div>
-  
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "12px 14px",
-            borderRadius: 10,
-            border: "1px solid #d8cfc6",
-            background: "#ffffff",
-            color: "#111111",
-            caretColor: "#111111",
-            fontSize: 14,
-          }}
-        />
-      </div>
-    );
-  }
-
-function Preview({ title, src }: any) {
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
-    <div>
-      <div>{title}</div>
-      <img src={src} style={{ width: 150, borderRadius: 10 }} />
+    <div style={{ marginTop: 10 }}>
+      <div
+        style={{
+          fontSize: 13,
+          marginBottom: 6,
+          color: "#4b4038",
+          fontWeight: 700,
+        }}
+      >
+        {label}
+      </div>
+
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "12px 14px",
+          borderRadius: 10,
+          border: "1px solid #d8cfc6",
+          background: "#ffffff",
+          color: "#111111",
+          caretColor: "#111111",
+          fontSize: 14,
+        }}
+      />
     </div>
   );
 }
 
-const previewGrid = {
-  display: "flex",
-  gap: 10,
-  marginTop: 10,
-};
+function PreviewImage({
+  title,
+  src,
+}: {
+  title: string;
+  src: string;
+}) {
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        marginBottom: 14,
+        padding: 10,
+        border: "1px solid #e2d8cf",
+        borderRadius: 12,
+        background: "#faf7f3",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#4b4038",
+          marginBottom: 8,
+        }}
+      >
+        {title}
+      </div>
 
-const card = {
+      <img
+        src={src}
+        alt={title}
+        style={{
+          width: "100%",
+          maxWidth: 220,
+          height: "auto",
+          borderRadius: 10,
+          display: "block",
+          border: "1px solid #ddd",
+        }}
+      />
+    </div>
+  );
+}
+
+const card: React.CSSProperties = {
   background: "white",
   padding: 20,
   borderRadius: 16,
 };
 
-const btn = {
-  marginTop: 10,
-  padding: 10,
-  borderRadius: 10,
-  background: "#e6d3c3",
-  border: "none",
+const heading: React.CSSProperties = {
+  marginTop: 0,
+  color: "#2f241d",
 };
 
-const linkBox = {
+const sectionTitle: React.CSSProperties = {
+  marginTop: 20,
+  color: "#2f241d",
+};
+
+const btnRow: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginTop: 12,
+};
+
+const btn: React.CSSProperties = {
+  padding: "10px 14px",
+  borderRadius: 10,
+  border: "none",
+  background: "#e6d3c3",
+  cursor: "pointer",
+  color: "#2f241d",
+  fontWeight: 600,
+};
+
+const linkBox: React.CSSProperties = {
+  marginTop: 12,
+  padding: 12,
+  background: "#f3f3f3",
+  borderRadius: 10,
+  color: "#111",
+  wordBreak: "break-all",
+};
+
+const message: React.CSSProperties = {
   marginTop: 10,
+  color: "#2f241d",
+  fontWeight: 600,
 };
