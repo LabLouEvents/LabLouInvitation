@@ -63,9 +63,9 @@ export default function HomePage() {
   <Image
     src="/brand/logo.png"
     alt="Lab Lou"
-    width={100}
-    height={100}
-    style={{ width: 100, height: "auto" }}
+    width={120}
+    height={120}
+    style={{ width: 120, height: "auto" }}
   />
 
   <div style={inviteTop}>Lab Lou Events</div>
