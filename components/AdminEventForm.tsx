@@ -153,15 +153,29 @@ function Input({
   }) {
     return (
       <div style={{ marginTop: 10 }}>
-        <div>{label}</div>
+        <div
+          style={{
+            fontSize: 13,
+            marginBottom: 6,
+            color: "#4b4038",
+            fontWeight: 700,
+          }}
+        >
+          {label}
+        </div>
+  
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           style={{
             width: "100%",
-            padding: 10,
+            padding: "12px 14px",
             borderRadius: 10,
-            border: "1px solid #ccc",
+            border: "1px solid #d8cfc6",
+            background: "#ffffff",
+            color: "#111111",
+            caretColor: "#111111",
+            fontSize: 14,
           }}
         />
       </div>
