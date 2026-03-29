@@ -142,23 +142,31 @@ export default function AdminEventForm({
   );
 }
 
-function Input({ label, value, onChange }: any) {
-  return (
-    <div style={{ marginTop: 10 }}>
-      <div>{label}</div>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          width: "100%",
-          padding: 10,
-          borderRadius: 10,
-          border: "1px solid #ccc",
-        }}
-      />
-    </div>
-  );
-}
+function Input({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: string;
+    onChange: (v: string) => void;
+  }) {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <div>{label}</div>
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            borderRadius: 10,
+            border: "1px solid #ccc",
+          }}
+        />
+      </div>
+    );
+  }
 
 function Preview({ title, src }: any) {
   return (
