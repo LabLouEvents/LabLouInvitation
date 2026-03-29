@@ -10,7 +10,7 @@ export default function HomePage() {
             alt="Lab Lou"
             width={110}
             height={110}
-            style={{ width: 160, height: "auto" }}
+            style={{ width: 100, height: "auto" }}
             priority
           />
           <div style={brandTextWrap}>
@@ -58,31 +58,36 @@ export default function HomePage() {
             <div style={heroCardLabel}>Preview Experience</div>
 
             <div style={phoneMock}>
-            <div style={phoneScreen}>
-            <div style={inviteContentWrap}>
-  <div style={inviteBrandWrap}>
-    <Image
-      src="/brand/logo-white.png"
-      alt="Lab Lou"
-      width={120}
-      height={120}
-      style={{ width: 120, height: "auto" }}
-    />
-    <div style={inviteTop}>Lab Lou Events</div>
-  </div>
+              <div style={phoneScreen}>
+                <div style={inviteContentWrap}>
+                  <div style={inviteBrandWrap}>
+                    <Image
+                      src="/brand/logo-white.png"
+                      alt="Lab Lou"
+                      width={120}
+                      height={120}
+                      style={{
+                        width: 120,
+                        height: "auto",
+                        filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.15))",
+                      }}
+                    />
+                    <div style={inviteTop}>Lab Lou Events</div>
+                  </div>
 
-  <Image
-    src="/invite-preview/envelope.png"
-    alt="Envelope"
-    width={160}
-    height={160}
-    style={{ marginBottom: 8 }}
-  />
+                  <Image
+                    src="/invite-preview/envelope.png"
+                    alt="Envelope"
+                    width={160}
+                    height={160}
+                    style={{ marginBottom: 8 }}
+                  />
 
-  <div style={inviteTitle}>Έχεις πρόσκληση</div>
+                  <div style={inviteTitle}>Έχεις πρόσκληση</div>
 
-  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
-</div>
+                  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -224,13 +229,7 @@ export default function HomePage() {
     </main>
   );
 }
-const inviteContentWrap: React.CSSProperties = {
-  width: "100%",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  transform: "translateY(-35px)",
-};
+
 const page: React.CSSProperties = {
   background:
     "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 38%, #f8f5f1 100%)",
@@ -404,6 +403,14 @@ const phoneScreen: React.CSSProperties = {
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "flex-start",
+};
+
+const inviteContentWrap: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  transform: "translateY(-55px)",
 };
 
 const section: React.CSSProperties = {
@@ -594,13 +601,21 @@ const contactButtons: React.CSSProperties = {
   justifyContent: "center",
   flexWrap: "wrap",
 };
+
+const inviteBrandWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 4,
+  marginBottom: 8,
+};
+
 const inviteTop: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 800,
   color: "#6d5a4d",
-  marginTop: 20,
+  marginTop: 0,
 };
-
 
 const inviteTitle: React.CSSProperties = {
   fontSize: 22,
@@ -616,11 +631,4 @@ const inviteBtn: React.CSSProperties = {
   background: "rgba(255,255,255,0.7)",
   border: "1px solid rgba(47,36,29,0.1)",
   fontWeight: 700,
-};
-const inviteBrandWrap: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 4,
-  marginBottom: 8,
 };
