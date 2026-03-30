@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 
@@ -53,6 +52,7 @@ function buildCSV(rows: any[]) {
     "Ημερομηνία",
     "Όνομα",
     "Τηλέφωνο",
+    "Status",
     "Απάντηση",
     "Ενήλικοι",
     "Παιδιά",
@@ -64,6 +64,7 @@ function buildCSV(rows: any[]) {
     r.created_at ? new Date(r.created_at).toLocaleDateString("el-GR") : "",
     r.name || "",
     r.phone || "",
+    r.attending ? "Επιβεβαιωμένο" : "Δεν έρχεται",
     formatAttendance(r),
     r.attending ? Number(r.adults || 0) : 0,
     r.attending ? Number(r.kids || 0) : 0,
@@ -75,6 +76,34 @@ function buildCSV(rows: any[]) {
     headers.map(csvEscape).join(","),
     ...csvRows.map((row) => row.map(csvEscape).join(",")),
   ].join("\n");
+}
+
+function badgeForAttendance(r: any) {
+  if (r.attendance === "decline" || r.attending === false) {
+    return {
+      label: "Δεν έρχεται",
+      style: statusNo,
+    };
+  }
+
+  if (r.attendance === "ceremony_only") {
+    return {
+      label: "Μόνο τελετή",
+      style: statusCeremony,
+    };
+  }
+
+  if (r.attendance === "reception_only") {
+    return {
+      label: "Μόνο δεξίωση",
+      style: statusReception,
+    };
+  }
+
+  return {
+    label: "Τελετή & δεξίωση",
+    style: statusBoth,
+  };
 }
 
 export default async function ResultsPage({ params, searchParams }: PageProps) {
@@ -118,12 +147,29 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
   const yesRows = safeRows.filter((r) => r.attending === true);
   const noRows = safeRows.filter((r) => r.attending === false);
 
-  const totalGuests = yesRows.reduce((sum, r) => {
-    return sum + getTotalGuests(r);
-  }, 0);
+  const ceremonyOnly = safeRows.filter((r) => r.attendance === "ceremony_only").length;
+  const receptionOnly = safeRows.filter((r) => r.attendance === "reception_only").length;
+  const bothCount = safeRows.filter(
+    (r) => r.attendance === "ceremony_and_reception" || (r.attending === true && !r.attendance)
+  ).length;
+
+  const totalGuests = yesRows.reduce((sum, r) => sum + getTotalGuests(r), 0);
+
+  const totalKids = yesRows.reduce((sum, r) => sum + Number(r.kids || 0), 0);
 
   const csv = buildCSV(safeRows);
   const csvHref = `data:text/csv;charset=utf-8,\uFEFF${encodeURIComponent(csv)}`;
+
+  const resultsUrl = `https://lablouinvitations.gr/results/${encodeURIComponent(
+    slug
+  )}?t=${encodeURIComponent(token)}`;
+
+  const shareText = `Καλησπέρα! Σου στέλνω το προσωπικό σου link για να παρακολουθείς live τις απαντήσεις RSVP:\n${resultsUrl}`;
+
+  const viberHref = `viber://forward?text=${encodeURIComponent(shareText)}`;
+  const mailHref = `mailto:?subject=${encodeURIComponent(
+    `RSVP Results - ${event.title || slug}`
+  )}&body=${encodeURIComponent(shareText)}`;
 
   return (
     <main style={page}>
@@ -135,13 +181,43 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
             <p style={sub}>Παρακολούθηση απαντήσεων RSVP</p>
           </div>
 
-          <a
-            href={csvHref}
-            download={`rsvp-${slug}.csv`}
-            style={exportBtn}
-          >
-            Export Excel
-          </a>
+          <div style={topActions}>
+            <a
+              href={csvHref}
+              download={`rsvp-${slug}.csv`}
+              style={actionBtnPrimary}
+            >
+              Export Excel
+            </a>
+          </div>
+        </div>
+
+        <div style={shareCard}>
+          <div style={shareTitle}>Share flow για πελάτη</div>
+
+          <div style={shareButtons}>
+            <a href={resultsUrl} style={actionBtnSecondary} target="_blank" rel="noreferrer">
+              Άνοιγμα Results Link
+            </a>
+
+            <a
+              href={`data:text/plain;charset=utf-8,${encodeURIComponent(resultsUrl)}`}
+              download={`results-link-${slug}.txt`}
+              style={actionBtnSecondary}
+            >
+              Save Link
+            </a>
+
+            <a href={viberHref} style={actionBtnSecondary}>
+              Viber
+            </a>
+
+            <a href={mailHref} style={actionBtnSecondary}>
+              Email
+            </a>
+          </div>
+
+          <div style={linkPreview}>{resultsUrl}</div>
         </div>
 
         <div style={statsGrid}>
@@ -164,6 +240,26 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
             <div style={statNum}>{totalGuests}</div>
             <div style={statLabel}>Σύνολο ατόμων</div>
           </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{ceremonyOnly}</div>
+            <div style={statLabel}>Μόνο τελετή</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{receptionOnly}</div>
+            <div style={statLabel}>Μόνο δεξίωση</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{bothCount}</div>
+            <div style={statLabel}>Τελετή & δεξίωση</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{totalKids}</div>
+            <div style={statLabel}>Σύνολο παιδιών</div>
+          </div>
         </div>
 
         <div style={tableWrap}>
@@ -172,6 +268,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
               <tr>
                 <th style={th}>Όνομα</th>
                 <th style={th}>Κινητό</th>
+                <th style={th}>Status</th>
                 <th style={th}>Απάντηση</th>
                 <th style={th}>Ενήλικες</th>
                 <th style={th}>Παιδιά</th>
@@ -185,11 +282,15 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
                 const adults = Number(r.adults || 0);
                 const kids = Number(r.kids || 0);
                 const total = getTotalGuests(r);
+                const badge = badgeForAttendance(r);
 
                 return (
                   <tr key={r.id || i}>
                     <td style={td}>{r.name || "—"}</td>
                     <td style={td}>{r.phone || "—"}</td>
+                    <td style={td}>
+                      <span style={{ ...badgeBase, ...badge.style }}>{badge.label}</span>
+                    </td>
                     <td style={td}>{formatAttendance(r)}</td>
                     <td style={td}>{r.attending ? adults || "—" : "—"}</td>
                     <td style={td}>{r.attending ? kids || "—" : "—"}</td>
@@ -201,7 +302,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
 
               {safeRows.length === 0 && (
                 <tr>
-                  <td style={emptyTd} colSpan={7}>
+                  <td style={emptyTd} colSpan={8}>
                     Δεν υπάρχουν RSVP ακόμα.
                   </td>
                 </tr>
@@ -225,7 +326,7 @@ const page: React.CSSProperties = {
 };
 
 const card: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
   background: "rgba(255,255,255,0.92)",
   borderRadius: 24,
@@ -243,7 +344,13 @@ const topBar: React.CSSProperties = {
   marginBottom: 8,
 };
 
-const exportBtn: React.CSSProperties = {
+const topActions: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const actionBtnPrimary: React.CSSProperties = {
   textDecoration: "none",
   padding: "12px 16px",
   borderRadius: 14,
@@ -252,6 +359,49 @@ const exportBtn: React.CSSProperties = {
   color: "#3a2d24",
   fontWeight: 800,
   whiteSpace: "nowrap",
+};
+
+const actionBtnSecondary: React.CSSProperties = {
+  textDecoration: "none",
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "white",
+  color: "#3a2d24",
+  fontWeight: 800,
+  whiteSpace: "nowrap",
+};
+
+const shareCard: React.CSSProperties = {
+  marginTop: 16,
+  marginBottom: 20,
+  padding: 16,
+  borderRadius: 18,
+  background: "rgba(247,242,236,0.9)",
+  border: "1px solid rgba(47,36,29,0.08)",
+};
+
+const shareTitle: React.CSSProperties = {
+  fontWeight: 900,
+  color: "#2f241d",
+  marginBottom: 12,
+};
+
+const shareButtons: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginBottom: 12,
+};
+
+const linkPreview: React.CSSProperties = {
+  padding: 12,
+  background: "white",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.06)",
+  color: "#2f241d",
+  wordBreak: "break-all",
+  fontSize: 13,
 };
 
 const eyebrow: React.CSSProperties = {
@@ -277,7 +427,7 @@ const sub: React.CSSProperties = {
 
 const statsGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
   gap: 14,
   marginBottom: 24,
 };
@@ -339,4 +489,38 @@ const note: React.CSSProperties = {
   fontSize: 13,
   color: "rgba(47,36,29,0.65)",
   fontWeight: 600,
+};
+
+const badgeBase: React.CSSProperties = {
+  display: "inline-block",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: 800,
+  whiteSpace: "nowrap",
+  border: "1px solid transparent",
+};
+
+const statusNo: React.CSSProperties = {
+  background: "rgba(220, 53, 69, 0.10)",
+  color: "#a61e2d",
+  borderColor: "rgba(220, 53, 69, 0.18)",
+};
+
+const statusCeremony: React.CSSProperties = {
+  background: "rgba(214, 153, 0, 0.12)",
+  color: "#8a5b00",
+  borderColor: "rgba(214, 153, 0, 0.18)",
+};
+
+const statusReception: React.CSSProperties = {
+  background: "rgba(111, 66, 193, 0.12)",
+  color: "#6f42c1",
+  borderColor: "rgba(111, 66, 193, 0.18)",
+};
+
+const statusBoth: React.CSSProperties = {
+  background: "rgba(25, 135, 84, 0.12)",
+  color: "#146c43",
+  borderColor: "rgba(25, 135, 84, 0.18)",
 };
