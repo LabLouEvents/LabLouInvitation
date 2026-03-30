@@ -8,20 +8,26 @@ export default function HomePage() {
           <Image
             src="/brand/logo-dark.png"
             alt="Lab Lou"
-            width={140}
-            height={140}
-            style={headerLogo}
+            width={110}
+            height={110}
+            style={{ width: 100, height: "auto" }}
             priority
           />
-
           <div style={brandTextWrap}>
             <div style={brandTitle}>Lab Lou Events</div>
             <div style={brandSub}>Online invitations with elegance</div>
           </div>
         </div>
+
+        <div style={topbarActions}>
+          <a href="/admin/login" style={ghostBtn}>
+            Admin Login
+          </a>
+        </div>
       </header>
 
       <section style={heroSection}>
+        <div style={heroGlow} />
         <div style={heroContent}>
           <div style={eyebrow}>Digital invitations for wedding & baptism</div>
 
@@ -53,13 +59,34 @@ export default function HomePage() {
 
             <div style={phoneMock}>
               <div style={phoneScreen}>
-                <Image
-                  src="/invite-preview/clean-preview.jpg"
-                  alt="Invitation preview"
-                  width={320}
-                  height={640}
-                  style={previewImage}
-                />
+                <div style={inviteContentWrap}>
+                  <div style={inviteBrandWrap}>
+                    <Image
+                      src="/brand/logo-white.png"
+                      alt="Lab Lou"
+                      width={70}
+                      height={70}
+                      style={{
+                        width: 70,
+                        height: "auto",
+                        filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.18))",
+                      }}
+                    />
+                    <div style={inviteTopWhite}>Lab Lou Events</div>
+                  </div>
+
+                  <Image
+                    src="/invite-preview/envelope.png"
+                    alt="Envelope"
+                    width={158}
+                    height={158}
+                    style={{ marginBottom: 14 }}
+                  />
+
+                  <div style={inviteTitle}>Έχεις πρόσκληση</div>
+
+                  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
+                </div>
               </div>
             </div>
           </div>
@@ -106,45 +133,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={section}>
-        <div style={sectionIntro}>Πώς λειτουργεί</div>
-        <h2 style={sectionTitle}>Μια απλή διαδικασία για εσένα και τους καλεσμένους σου</h2>
-
-        <div style={stepsGrid}>
-          <div style={stepBox}>
-            <div style={stepNumber}>1</div>
-            <div style={stepTitle}>Στέλνεις το link</div>
-            <div style={stepText}>
-              Στέλνεις την ψηφιακή πρόσκληση εύκολα μέσω Viber, SMS ή social
-              message στους καλεσμένους σου.
-            </div>
-          </div>
-
-          <div style={stepBox}>
-            <div style={stepNumber}>2</div>
-            <div style={stepTitle}>Οι καλεσμένοι απαντούν</div>
-            <div style={stepText}>
-              Δηλώνουν συμμετοχή εύκολα από το κινητό τους, με RSVP, αριθμό
-              ατόμων και χρήσιμες πληροφορίες.
-            </div>
-          </div>
-
-          <div style={stepBox}>
-            <div style={stepNumber}>3</div>
-            <div style={stepTitle}>Βλέπεις τα αποτελέσματα</div>
-            <div style={stepText}>
-              Έχεις όλες τις απαντήσεις συγκεντρωμένες, παρακολουθείς live το
-              event και οργανώνεις πιο εύκολα την ημέρα σου.
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section id="demo" style={demoSection}>
         <div style={demoLeft}>
           <div style={sectionIntro}>Demo</div>
           <h2 style={sectionTitle}>Δες πώς παρουσιάζεται ένα online προσκλητήριο</h2>
-
           <p style={demoText}>
             Από το άνοιγμα του φακέλου μέχρι το RSVP, η εμπειρία είναι φτιαγμένη
             ώστε να είναι όμορφη, καθαρή και εύκολη για κάθε καλεσμένο.
@@ -166,13 +158,12 @@ export default function HomePage() {
 
         <div style={demoRight}>
           <div style={demoPreviewCard}>
-            <Image
-              src="/invite-preview/clean-preview.jpg"
-              alt="Demo preview"
-              width={340}
-              height={640}
-              style={demoImage}
-            />
+            <div style={demoPreviewTop}>Live Demo</div>
+            <div style={demoPreviewBody}>
+              <div style={demoPreviewEnvelope}>✉️</div>
+              <div style={demoPreviewTitle}>Θανάσης & Μυρτώ</div>
+              <div style={demoPreviewSub}>Elegant online invitation</div>
+            </div>
           </div>
         </div>
       </section>
@@ -209,57 +200,30 @@ export default function HomePage() {
         <div style={interestCard}>
           <div style={sectionIntro}>Εκδήλωση ενδιαφέροντος</div>
           <h2 style={interestTitle}>Θέλεις το δικό σου online προσκλητήριο;</h2>
-
           <p style={interestText}>
             Ιδανικό για γάμο, βάφτιση και events με αισθητική, λειτουργικότητα και
             premium παρουσίαση.
           </p>
 
-          <form
-  action="https://formsubmit.co/info@lablou.gr"
-  method="POST"
-  style={interestForm}
->
-  <input type="hidden" name="_subject" value="Νέο ενδιαφέρον για online προσκλητήριο" />
-  <input type="hidden" name="_captcha" value="false" />
-  <input type="hidden" name="_template" value="table" />
+          <div style={contactWrap}>
+            <div style={contactTitle}>Επίλεξε τρόπο επικοινωνίας</div>
 
-  <div style={contactTitle}>Στείλε μας το ενδιαφέρον σου</div>
+            <div style={contactButtons}>
+              <a
+                href="mailto:info@lablou.gr?subject=Ενδιαφέρομαι για online προσκλητήριο"
+                style={primaryBtn}
+              >
+                📧 Email
+              </a>
 
-  <input
-    type="text"
-    name="name"
-    placeholder="Ονοματεπώνυμο"
-    required
-    style={formInput}
-  />
-
-  <input
-    type="tel"
-    name="phone"
-    placeholder="Τηλέφωνο"
-    required
-    style={formInput}
-  />
-
-  <input
-    type="email"
-    name="email"
-    placeholder="Email"
-    style={formInput}
-  />
-
-  <textarea
-    name="message"
-    placeholder="Γράψε μας λίγες πληροφορίες για το event σου"
-    rows={4}
-    style={formTextarea}
-  />
-
-  <button type="submit" style={primaryBtn}>
-    Αποστολή ενδιαφέροντος
-  </button>
-</form>
+              <a
+                href="viber://chat?number=%2B306943910973"
+                style={secondaryBtn}
+              >
+                💜 Viber
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -268,27 +232,26 @@ export default function HomePage() {
 
 const page: React.CSSProperties = {
   background:
-    "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 40%, #f8f5f1 100%)",
+    "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 38%, #f8f5f1 100%)",
   color: "#2f241d",
   minHeight: "100vh",
 };
 
 const topbar: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
-  padding: "20px 20px 10px",
+  padding: "18px 20px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 16,
+  flexWrap: "wrap",
 };
 
 const brandWrap: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 12,
-  flexWrap: "wrap",
-};
-
-const headerLogo: React.CSSProperties = {
-  width: 110,
-  height: "auto",
 };
 
 const brandTextWrap: React.CSSProperties = {
@@ -307,18 +270,33 @@ const brandSub: React.CSSProperties = {
   color: "rgba(47,36,29,0.65)",
 };
 
+const topbarActions: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+};
+
 const heroSection: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
-  padding: "30px 20px 60px",
+  padding: "40px 20px 60px",
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: 36,
+  gridTemplateColumns: "1.1fr 0.9fr",
+  gap: 28,
   alignItems: "center",
+  position: "relative",
+};
+
+const heroGlow: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  background:
+    "radial-gradient(circle at 30% 20%, rgba(222,199,177,0.45), transparent 35%)",
+  pointerEvents: "none",
 };
 
 const heroContent: React.CSSProperties = {
-  minWidth: 0,
+  position: "relative",
+  zIndex: 1,
 };
 
 const eyebrow: React.CSSProperties = {
@@ -334,14 +312,14 @@ const eyebrow: React.CSSProperties = {
 };
 
 const heroTitle: React.CSSProperties = {
-  fontSize: "clamp(34px, 6vw, 56px)",
-  lineHeight: 1.04,
+  fontSize: 56,
+  lineHeight: 1.02,
   margin: "0 0 16px 0",
-  maxWidth: 680,
+  maxWidth: 640,
 };
 
 const heroText: React.CSSProperties = {
-  fontSize: "clamp(16px, 2vw, 18px)",
+  fontSize: 18,
   lineHeight: 1.65,
   color: "rgba(47,36,29,0.72)",
   maxWidth: 620,
@@ -367,15 +345,26 @@ const primaryBtn: React.CSSProperties = {
 const secondaryBtn: React.CSSProperties = {
   padding: "14px 22px",
   borderRadius: 14,
-  background: "rgba(255,255,255,0.82)",
+  background: "rgba(255,255,255,0.72)",
   color: "#2f241d",
   textDecoration: "none",
   fontWeight: 700,
   border: "1px solid rgba(47,36,29,0.10)",
 };
 
+const ghostBtn: React.CSSProperties = {
+  padding: "12px 16px",
+  borderRadius: 12,
+  background: "rgba(255,255,255,0.6)",
+  color: "#2f241d",
+  textDecoration: "none",
+  fontWeight: 700,
+  border: "1px solid rgba(47,36,29,0.08)",
+};
+
 const heroCard: React.CSSProperties = {
-  minWidth: 0,
+  position: "relative",
+  zIndex: 1,
 };
 
 const heroCardInner: React.CSSProperties = {
@@ -394,30 +383,56 @@ const heroCardLabel: React.CSSProperties = {
 };
 
 const phoneMock: React.CSSProperties = {
-  maxWidth: 300,
+  maxWidth: 330,
   margin: "0 auto",
-  padding: 10,
+  padding: 12,
   borderRadius: 30,
-  background: "#1d1917",
+  background: "#201915",
   boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
 };
 
 const phoneScreen: React.CSSProperties = {
-  height: 520,
+  backgroundImage: "url('/invite-preview/bg.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
   borderRadius: 22,
-  overflow: "hidden",
-  background: "#f3ebe2",
+  minHeight: 520,
+  padding: "26px 20px 20px",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "flex-start",
 };
 
-const previewImage: React.CSSProperties = {
+const inviteContentWrap: React.CSSProperties = {
   width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  objectPosition: "center top",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  minHeight: "100%",
+  transform: "translateY(-18px)",
+};
+
+const inviteBrandWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 4,
+  marginBottom: 10,
+};
+
+const inviteTopWhite: React.CSSProperties = {
+  fontSize: 18,
+  fontWeight: 800,
+  color: "rgba(255,255,255,0.96)",
+  letterSpacing: "0.04em",
+  textShadow: "0 2px 8px rgba(0,0,0,0.18)",
 };
 
 const section: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
   padding: "70px 20px",
 };
@@ -432,7 +447,7 @@ const sectionIntro: React.CSSProperties = {
 };
 
 const sectionTitle: React.CSSProperties = {
-  fontSize: "clamp(28px, 4vw, 36px)",
+  fontSize: 36,
   lineHeight: 1.1,
   margin: "0 0 24px 0",
   maxWidth: 760,
@@ -440,7 +455,7 @@ const sectionTitle: React.CSSProperties = {
 
 const featureGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(4, 1fr)",
   gap: 16,
 };
 
@@ -469,53 +484,17 @@ const featureText: React.CSSProperties = {
   fontSize: 15,
 };
 
-const stepsGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: 20,
-};
-
-const stepBox: React.CSSProperties = {
-  background: "rgba(255,255,255,0.82)",
-  padding: 22,
-  borderRadius: 22,
-  border: "1px solid rgba(47,36,29,0.08)",
-  boxShadow: "0 16px 38px rgba(47,36,29,0.06)",
-};
-
-const stepNumber: React.CSSProperties = {
-  fontSize: 24,
-  fontWeight: 900,
-  color: "#b89b5e",
-  marginBottom: 10,
-};
-
-const stepTitle: React.CSSProperties = {
-  fontWeight: 800,
-  fontSize: 18,
-  marginBottom: 8,
-  color: "#2f241d",
-};
-
-const stepText: React.CSSProperties = {
-  fontSize: 15,
-  lineHeight: 1.6,
-  color: "rgba(47,36,29,0.72)",
-};
-
 const demoSection: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
   padding: "20px 20px 70px",
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: 28,
+  gridTemplateColumns: "1fr 1fr",
+  gap: 22,
   alignItems: "center",
 };
 
-const demoLeft: React.CSSProperties = {
-  minWidth: 0,
-};
+const demoLeft: React.CSSProperties = {};
 
 const demoText: React.CSSProperties = {
   fontSize: 17,
@@ -531,7 +510,7 @@ const demoRight: React.CSSProperties = {
 
 const demoPreviewCard: React.CSSProperties = {
   width: "100%",
-  maxWidth: 340,
+  maxWidth: 480,
   background: "rgba(255,255,255,0.82)",
   borderRadius: 28,
   border: "1px solid rgba(47,36,29,0.08)",
@@ -539,15 +518,36 @@ const demoPreviewCard: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const demoImage: React.CSSProperties = {
-  width: "100%",
-  height: "auto",
-  display: "block",
+const demoPreviewTop: React.CSSProperties = {
+  padding: "14px 18px",
+  borderBottom: "1px solid rgba(47,36,29,0.08)",
+  fontWeight: 800,
+  color: "#6b5b4f",
+};
+
+const demoPreviewBody: React.CSSProperties = {
+  padding: 34,
+  textAlign: "center",
+};
+
+const demoPreviewEnvelope: React.CSSProperties = {
+  fontSize: 72,
+};
+
+const demoPreviewTitle: React.CSSProperties = {
+  marginTop: 14,
+  fontSize: 28,
+  fontWeight: 800,
+};
+
+const demoPreviewSub: React.CSSProperties = {
+  marginTop: 8,
+  color: "rgba(47,36,29,0.64)",
 };
 
 const whyGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(3, 1fr)",
   gap: 16,
 };
 
@@ -570,7 +570,7 @@ const whyText: React.CSSProperties = {
 };
 
 const interestSection: React.CSSProperties = {
-  maxWidth: 1200,
+  maxWidth: 1240,
   margin: "0 auto",
   padding: "20px 20px 90px",
 };
@@ -586,7 +586,7 @@ const interestCard: React.CSSProperties = {
 };
 
 const interestTitle: React.CSSProperties = {
-  fontSize: "clamp(28px, 4vw, 38px)",
+  fontSize: 38,
   margin: "0 0 12px 0",
 };
 
@@ -613,80 +613,28 @@ const contactTitle: React.CSSProperties = {
   letterSpacing: "0.05em",
 };
 
-<form
-  action="https://formsubmit.co/info@lablou.gr"
-  method="POST"
-  style={interestForm}
->
-  <input type="hidden" name="_subject" value="Νέο ενδιαφέρον για online προσκλητήριο" />
-  <input type="hidden" name="_captcha" value="false" />
-  <input type="hidden" name="_template" value="table" />
-
-  <div style={contactTitle}>Στείλε μας το ενδιαφέρον σου</div>
-
-  <input
-    type="text"
-    name="name"
-    placeholder="Ονοματεπώνυμο"
-    required
-    style={formInput}
-  />
-
-  <input
-    type="tel"
-    name="phone"
-    placeholder="Τηλέφωνο"
-    required
-    style={formInput}
-  />
-
-  <input
-    type="email"
-    name="email"
-    placeholder="Email"
-    style={formInput}
-  />
-
-  <textarea
-    name="message"
-    placeholder="Γράψε μας λίγες πληροφορίες για το event σου"
-    rows={4}
-    style={formTextarea}
-  />
-
-  <button type="submit" style={primaryBtn}>
-    Αποστολή ενδιαφέροντος
-  </button>
-</form>
-
-const interestForm: React.CSSProperties = {
-  maxWidth: 520,
-  margin: "20px auto 0",
+const contactButtons: React.CSSProperties = {
   display: "flex",
-  flexDirection: "column",
   gap: 12,
+  justifyContent: "center",
+  flexWrap: "wrap",
 };
 
-const formInput: React.CSSProperties = {
-  width: "100%",
-  padding: "14px 16px",
-  borderRadius: 14,
-  border: "1px solid rgba(47,36,29,0.12)",
-  background: "rgba(255,255,255,0.92)",
+const inviteTitle: React.CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  marginTop: 0,
   color: "#2f241d",
-  fontSize: 15,
-  outline: "none",
+  textShadow: "0 1px 2px rgba(255,255,255,0.35)",
 };
 
-const formTextarea: React.CSSProperties = {
-  width: "100%",
-  padding: "14px 16px",
-  borderRadius: 14,
+const inviteBtn: React.CSSProperties = {
+  marginTop: 12,
+  display: "inline-block",
+  padding: "12px 20px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.78)",
   border: "1px solid rgba(47,36,29,0.12)",
-  background: "rgba(255,255,255,0.92)",
+  fontWeight: 700,
   color: "#2f241d",
-  fontSize: 15,
-  outline: "none",
-  resize: "vertical",
-  minHeight: 120,
 };
