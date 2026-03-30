@@ -5,21 +5,32 @@ import React from "react";
 export default function CalendarButtons({
   slug,
   t,
+  mode = "floating",
 }: {
   slug: string;
   t: string;
+  mode?: "floating" | "inline";
 }) {
-  const wrap: React.CSSProperties = {
-    position: "absolute",
-    top: 14,
-    right: 14,
-    display: "flex",
-    gap: 8,
-    zIndex: 999,
-    flexWrap: "wrap",
-    justifyContent: "flex-end",
-    maxWidth: "calc(100% - 28px)",
-  };
+  const wrap: React.CSSProperties =
+    mode === "floating"
+      ? {
+          position: "absolute",
+          top: 14,
+          right: 14,
+          display: "flex",
+          gap: 8,
+          zIndex: 999,
+          flexWrap: "wrap",
+          justifyContent: "flex-end",
+          maxWidth: "calc(100% - 28px)",
+        }
+      : {
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          justifyContent: "center",
+          marginBottom: 16,
+        };
 
   const btn: React.CSSProperties = {
     background: "rgba(0,0,0,0.45)",
