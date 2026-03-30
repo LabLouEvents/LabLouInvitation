@@ -106,6 +106,40 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionIntro}>Πώς λειτουργεί</div>
+        <h2 style={sectionTitle}>Μια απλή διαδικασία για εσένα και τους καλεσμένους σου</h2>
+
+        <div style={stepsGrid}>
+          <div style={stepBox}>
+            <div style={stepNumber}>1</div>
+            <div style={stepTitle}>Στέλνεις το link</div>
+            <div style={stepText}>
+              Στέλνεις την ψηφιακή πρόσκληση εύκολα μέσω Viber, SMS ή social
+              message στους καλεσμένους σου.
+            </div>
+          </div>
+
+          <div style={stepBox}>
+            <div style={stepNumber}>2</div>
+            <div style={stepTitle}>Οι καλεσμένοι απαντούν</div>
+            <div style={stepText}>
+              Δηλώνουν συμμετοχή εύκολα από το κινητό τους, με RSVP, αριθμό
+              ατόμων και χρήσιμες πληροφορίες.
+            </div>
+          </div>
+
+          <div style={stepBox}>
+            <div style={stepNumber}>3</div>
+            <div style={stepTitle}>Βλέπεις τα αποτελέσματα</div>
+            <div style={stepText}>
+              Έχεις όλες τις απαντήσεις συγκεντρωμένες, παρακολουθείς live το
+              event και οργανώνεις πιο εύκολα την ημέρα σου.
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="demo" style={demoSection}>
         <div style={demoLeft}>
           <div style={sectionIntro}>Demo</div>
@@ -407,6 +441,40 @@ const featureText: React.CSSProperties = {
   color: "rgba(47,36,29,0.70)",
   lineHeight: 1.55,
   fontSize: 15,
+};
+
+const stepsGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gap: 20,
+};
+
+const stepBox: React.CSSProperties = {
+  background: "rgba(255,255,255,0.82)",
+  padding: 22,
+  borderRadius: 22,
+  border: "1px solid rgba(47,36,29,0.08)",
+  boxShadow: "0 16px 38px rgba(47,36,29,0.06)",
+};
+
+const stepNumber: React.CSSProperties = {
+  fontSize: 24,
+  fontWeight: 900,
+  color: "#b89b5e",
+  marginBottom: 10,
+};
+
+const stepTitle: React.CSSProperties = {
+  fontWeight: 800,
+  fontSize: 18,
+  marginBottom: 8,
+  color: "#2f241d",
+};
+
+const stepText: React.CSSProperties = {
+  fontSize: 15,
+  lineHeight: 1.6,
+  color: "rgba(47,36,29,0.72)",
 };
 
 const demoSection: React.CSSProperties = {
