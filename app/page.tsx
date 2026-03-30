@@ -215,25 +215,51 @@ export default function HomePage() {
             premium παρουσίαση.
           </p>
 
-          <div style={contactWrap}>
-            <div style={contactTitle}>Επίλεξε τρόπο επικοινωνίας</div>
+          <form
+  action="https://formsubmit.co/info@lablou.gr"
+  method="POST"
+  style={interestForm}
+>
+  <input type="hidden" name="_subject" value="Νέο ενδιαφέρον για online προσκλητήριο" />
+  <input type="hidden" name="_captcha" value="false" />
+  <input type="hidden" name="_template" value="table" />
 
-            <div style={contactButtons}>
-              <a
-                href="mailto:info@lablou.gr?subject=Ενδιαφέρομαι για online προσκλητήριο"
-                style={primaryBtn}
-              >
-                📧 Email
-              </a>
+  <div style={contactTitle}>Στείλε μας το ενδιαφέρον σου</div>
 
-              <a
-                href="viber://chat?number=%2B306943910973"
-                style={secondaryBtn}
-              >
-                💜 Viber
-              </a>
-            </div>
-          </div>
+  <input
+    type="text"
+    name="name"
+    placeholder="Ονοματεπώνυμο"
+    required
+    style={formInput}
+  />
+
+  <input
+    type="tel"
+    name="phone"
+    placeholder="Τηλέφωνο"
+    required
+    style={formInput}
+  />
+
+  <input
+    type="email"
+    name="email"
+    placeholder="Email"
+    style={formInput}
+  />
+
+  <textarea
+    name="message"
+    placeholder="Γράψε μας λίγες πληροφορίες για το event σου"
+    rows={4}
+    style={formTextarea}
+  />
+
+  <button type="submit" style={primaryBtn}>
+    Αποστολή ενδιαφέροντος
+  </button>
+</form>
         </div>
       </section>
     </main>
@@ -587,9 +613,48 @@ const contactTitle: React.CSSProperties = {
   letterSpacing: "0.05em",
 };
 
-const contactButtons: React.CSSProperties = {
-  display: "flex",
-  gap: 12,
-  justifyContent: "center",
-  flexWrap: "wrap",
-};
+<form
+  action="https://formsubmit.co/info@lablou.gr"
+  method="POST"
+  style={interestForm}
+>
+  <input type="hidden" name="_subject" value="Νέο ενδιαφέρον για online προσκλητήριο" />
+  <input type="hidden" name="_captcha" value="false" />
+  <input type="hidden" name="_template" value="table" />
+
+  <div style={contactTitle}>Στείλε μας το ενδιαφέρον σου</div>
+
+  <input
+    type="text"
+    name="name"
+    placeholder="Ονοματεπώνυμο"
+    required
+    style={formInput}
+  />
+
+  <input
+    type="tel"
+    name="phone"
+    placeholder="Τηλέφωνο"
+    required
+    style={formInput}
+  />
+
+  <input
+    type="email"
+    name="email"
+    placeholder="Email"
+    style={formInput}
+  />
+
+  <textarea
+    name="message"
+    placeholder="Γράψε μας λίγες πληροφορίες για το event σου"
+    rows={4}
+    style={formTextarea}
+  />
+
+  <button type="submit" style={primaryBtn}>
+    Αποστολή ενδιαφέροντος
+  </button>
+</form>
