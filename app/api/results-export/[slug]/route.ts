@@ -48,6 +48,36 @@ function getTotalGuests(r: any) {
   return guests;
 }
 
+function styleHeaderRow(row: ExcelJS.Row) {
+  row.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  row.alignment = { vertical: "middle", horizontal: "center" };
+  row.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "B89B5E" },
+  };
+  row.height = 22;
+}
+
+function styleAllBorders(sheet: ExcelJS.Worksheet) {
+  sheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFE7DED4" } },
+        left: { style: "thin", color: { argb: "FFE7DED4" } },
+        bottom: { style: "thin", color: { argb: "FFE7DED4" } },
+        right: { style: "thin", color: { argb: "FFE7DED4" } },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: rowNumber === 1 ? "center" : "left",
+        wrapText: true,
+      };
+    });
+  });
+}
+
 export async function GET(
   req: Request,
   { params }: { params: { slug: string } }
@@ -82,7 +112,37 @@ export async function GET(
 
   const safeRows = rows || [];
 
+  const totalResponses = safeRows.length;
+  const yesRows = safeRows.filter((r: any) => r.attending === true);
+  const noRows = safeRows.filter((r: any) => r.attending === false);
+
+  const ceremonyOnly = safeRows.filter(
+    (r: any) => r.attendance === "ceremony_only"
+  ).length;
+
+  const receptionOnly = safeRows.filter(
+    (r: any) => r.attendance === "reception_only"
+  ).length;
+
+  const bothCount = safeRows.filter(
+    (r: any) =>
+      r.attendance === "ceremony_and_reception" ||
+      (r.attending === true && !r.attendance)
+  ).length;
+
+  const totalGuests = yesRows.reduce(
+    (sum: number, r: any) => sum + getTotalGuests(r),
+    0
+  );
+
+  const totalKids = yesRows.reduce(
+    (sum: number, r: any) => sum + Number(r.kids || 0),
+    0
+  );
+
   const workbook = new ExcelJS.Workbook();
+
+  // Sheet 1: RSVP
   const sheet = workbook.addWorksheet("RSVP");
 
   sheet.columns = [
@@ -111,36 +171,9 @@ export async function GET(
     });
   });
 
-  // Header style
-  const headerRow = sheet.getRow(1);
-  headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
-  headerRow.alignment = { vertical: "middle", horizontal: "center" };
-  headerRow.fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: "B89B5E" },
-  };
-  headerRow.height = 22;
+  styleHeaderRow(sheet.getRow(1));
+  styleAllBorders(sheet);
 
-  // Borders + alignment
-  sheet.eachRow((row, rowNumber) => {
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: "thin", color: { argb: "FFE7DED4" } },
-        left: { style: "thin", color: { argb: "FFE7DED4" } },
-        bottom: { style: "thin", color: { argb: "FFE7DED4" } },
-        right: { style: "thin", color: { argb: "FFE7DED4" } },
-      };
-
-      cell.alignment = {
-        vertical: "middle",
-        horizontal: rowNumber === 1 ? "center" : "left",
-        wrapText: true,
-      };
-    });
-  });
-
-  // Status colors
   for (let i = 2; i <= sheet.rowCount; i++) {
     const cell = sheet.getCell(`D${i}`);
     const value = String(cell.value || "");
@@ -176,14 +209,47 @@ export async function GET(
     }
   }
 
-  // Freeze first row
   sheet.views = [{ state: "frozen", ySplit: 1 }];
-
-  // Autofilter
   sheet.autoFilter = {
     from: "A1",
     to: "I1",
   };
+
+  // Sheet 2: Summary
+  const summary = workbook.addWorksheet("Summary");
+
+  summary.columns = [
+    { header: "Πεδίο", key: "label", width: 28 },
+    { header: "Τιμή", key: "value", width: 18 },
+  ];
+
+  summary.addRows([
+    { label: "Event", value: event.title || slug },
+    { label: "Slug", value: slug },
+    { label: "Συνολικές απαντήσεις", value: totalResponses },
+    { label: "Θα παρευρεθούν", value: yesRows.length },
+    { label: "Δεν θα παρευρεθούν", value: noRows.length },
+    { label: "Σύνολο ατόμων", value: totalGuests },
+    { label: "Μόνο τελετή", value: ceremonyOnly },
+    { label: "Μόνο δεξίωση", value: receptionOnly },
+    { label: "Τελετή & δεξίωση", value: bothCount },
+    { label: "Σύνολο παιδιών", value: totalKids },
+  ]);
+
+  styleHeaderRow(summary.getRow(1));
+  styleAllBorders(summary);
+
+  summary.getColumn(2).alignment = {
+    vertical: "middle",
+    horizontal: "center",
+  };
+
+  for (let i = 2; i <= summary.rowCount; i++) {
+    const labelCell = summary.getCell(`A${i}`);
+    labelCell.font = { bold: true, color: { argb: "4A3B31" } };
+  }
+
+  summary.views = [{ state: "frozen", ySplit: 1 }];
 
   const buffer = await workbook.xlsx.writeBuffer();
 
