@@ -48,6 +48,17 @@ function getTotalGuests(r: any) {
   return guests;
 }
 
+function attendsReception(r: any) {
+  return (
+    r.attending === true &&
+    (
+      r.attendance === "reception_only" ||
+      r.attendance === "ceremony_and_reception" ||
+      (!r.attendance && r.attending === true)
+    )
+  );
+}
+
 function styleHeaderRow(row: ExcelJS.Row) {
   row.font = { bold: true, color: { argb: "FFFFFFFF" } };
   row.alignment = { vertical: "middle", horizontal: "center" };
@@ -56,6 +67,7 @@ function styleHeaderRow(row: ExcelJS.Row) {
     pattern: "solid",
     fgColor: { argb: "B89B5E" },
   };
+  row.height = 22;
 }
 
 function styleAllBorders(sheet: ExcelJS.Worksheet) {
@@ -75,6 +87,11 @@ function styleAllBorders(sheet: ExcelJS.Worksheet) {
       };
     });
   });
+}
+
+function autoFilter(sheet: ExcelJS.Worksheet, toCol: string) {
+  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  sheet.autoFilter = { from: "A1", to: `${toCol}1` };
 }
 
 export async function GET(
@@ -110,16 +127,23 @@ export async function GET(
   }
 
   const safeRows = rows || [];
-
   const yesRows = safeRows.filter((r: any) => r.attending === true);
+  const receptionRows = safeRows.filter((r: any) => attendsReception(r));
+
+  const totalResponses = safeRows.length;
+  const totalGuests = yesRows.reduce(
+    (sum: number, r: any) => sum + getTotalGuests(r),
+    0
+  );
+  const totalKids = yesRows.reduce(
+    (sum: number, r: any) => sum + Number(r.kids || 0),
+    0
+  );
 
   const workbook = new ExcelJS.Workbook();
 
-  // =====================
   // SHEET 1: RSVP
-  // =====================
   const sheet = workbook.addWorksheet("RSVP");
-
   sheet.columns = [
     { header: "Ημερομηνία", key: "date", width: 14 },
     { header: "Όνομα", key: "name", width: 24 },
@@ -148,13 +172,30 @@ export async function GET(
 
   styleHeaderRow(sheet.getRow(1));
   styleAllBorders(sheet);
-  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  autoFilter(sheet, "I");
 
-  // =====================
+  // color status cells
+  for (let i = 2; i <= sheet.rowCount; i++) {
+    const cell = sheet.getCell(`D${i}`);
+    const value = String(cell.value || "");
+
+    if (value === "Επιβεβαιωμένο") {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "E7F6EC" } };
+      cell.font = { bold: true, color: { argb: "146C43" } };
+    } else if (value === "Δεν έρχεται") {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FDEBEC" } };
+      cell.font = { bold: true, color: { argb: "A61E2D" } };
+    } else if (value === "Μόνο τελετή") {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF4DE" } };
+      cell.font = { bold: true, color: { argb: "8A5B00" } };
+    } else if (value === "Μόνο δεξίωση") {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "F1E9FF" } };
+      cell.font = { bold: true, color: { argb: "6F42C1" } };
+    }
+  }
+
   // SHEET 2: SUMMARY
-  // =====================
   const summary = workbook.addWorksheet("Summary");
-
   summary.columns = [
     { header: "Πεδίο", key: "label", width: 28 },
     { header: "Τιμή", key: "value", width: 18 },
@@ -162,23 +203,25 @@ export async function GET(
 
   summary.addRows([
     { label: "Event", value: event.title || slug },
-    { label: "Συνολικές απαντήσεις", value: safeRows.length },
+    { label: "Slug", value: slug },
+    { label: "Συνολικές απαντήσεις", value: totalResponses },
     { label: "Θα παρευρεθούν", value: yesRows.length },
     { label: "Δεν θα παρευρεθούν", value: safeRows.length - yesRows.length },
-    {
-      label: "Σύνολο ατόμων",
-      value: yesRows.reduce((s: number, r: any) => s + getTotalGuests(r), 0),
-    },
+    { label: "Σύνολο ατόμων", value: totalGuests },
+    { label: "Σύνολο παιδιών", value: totalKids },
+    { label: "Άτομα στη δεξίωση", value: receptionRows.reduce((s: number, r: any) => s + getTotalGuests(r), 0) },
   ]);
 
   styleHeaderRow(summary.getRow(1));
   styleAllBorders(summary);
+  summary.views = [{ state: "frozen", ySplit: 1 }];
+  summary.getColumn(2).alignment = {
+    vertical: "middle",
+    horizontal: "center",
+  };
 
-  // =====================
   // SHEET 3: ATTENDING ONLY
-  // =====================
   const attendingSheet = workbook.addWorksheet("Attending");
-
   attendingSheet.columns = [
     { header: "Όνομα", key: "name", width: 24 },
     { header: "Τηλέφωνο", key: "phone", width: 18 },
@@ -203,7 +246,109 @@ export async function GET(
 
   styleHeaderRow(attendingSheet.getRow(1));
   styleAllBorders(attendingSheet);
-  attendingSheet.views = [{ state: "frozen", ySplit: 1 }];
+  autoFilter(attendingSheet, "G");
+
+  // SHEET 4: RECEPTION ONLY
+  const receptionSheet = workbook.addWorksheet("Reception");
+  receptionSheet.columns = [
+    { header: "Όνομα", key: "name", width: 24 },
+    { header: "Τηλέφωνο", key: "phone", width: 18 },
+    { header: "Απάντηση", key: "attendance", width: 22 },
+    { header: "Ενήλικοι", key: "adults", width: 10 },
+    { header: "Παιδιά", key: "kids", width: 10 },
+    { header: "Σύνολο", key: "total", width: 10 },
+    { header: "Σχόλια", key: "notes", width: 34 },
+  ];
+
+  receptionRows.forEach((r: any) => {
+    receptionSheet.addRow({
+      name: r.name || "",
+      phone: r.phone || "",
+      attendance: formatAttendance(r),
+      adults: Number(r.adults || 0),
+      kids: Number(r.kids || 0),
+      total: getTotalGuests(r),
+      notes: r.notes || r.allergies || "",
+    });
+  });
+
+  styleHeaderRow(receptionSheet.getRow(1));
+  styleAllBorders(receptionSheet);
+  autoFilter(receptionSheet, "G");
+
+  // SHEET 5: GROUPED
+  const groupedSheet = workbook.addWorksheet("Grouped");
+
+  groupedSheet.columns = [
+    { header: "Group Key", key: "groupKey", width: 24 },
+    { header: "Ονόματα", key: "names", width: 36 },
+    { header: "Τηλέφωνο", key: "phone", width: 18 },
+    { header: "Κρατήσεις", key: "reservations", width: 12 },
+    { header: "Ενήλικοι", key: "adults", width: 10 },
+    { header: "Παιδιά", key: "kids", width: 10 },
+    { header: "Σύνολο", key: "total", width: 10 },
+    { header: "Σχόλια", key: "notes", width: 40 },
+  ];
+
+  const groupedMap = new Map<
+    string,
+    {
+      groupKey: string;
+      names: string[];
+      phone: string;
+      reservations: number;
+      adults: number;
+      kids: number;
+      total: number;
+      notes: string[];
+    }
+  >();
+
+  yesRows.forEach((r: any) => {
+    const phone = String(r.phone || "").trim();
+    const name = String(r.name || "").trim();
+    const key = phone || name || "Χωρίς στοιχείο";
+
+    if (!groupedMap.has(key)) {
+      groupedMap.set(key, {
+        groupKey: key,
+        names: [],
+        phone,
+        reservations: 0,
+        adults: 0,
+        kids: 0,
+        total: 0,
+        notes: [],
+      });
+    }
+
+    const entry = groupedMap.get(key)!;
+    entry.names.push(name || "—");
+    entry.reservations += 1;
+    entry.adults += Number(r.adults || 0);
+    entry.kids += Number(r.kids || 0);
+    entry.total += getTotalGuests(r);
+
+    const note = String(r.notes || r.allergies || "").trim();
+    if (note) entry.notes.push(note);
+  });
+
+  Array.from(groupedMap.values()).forEach((g) => {
+    groupedSheet.addRow({
+      groupKey: g.groupKey,
+      names: g.names.join(", "),
+      phone: g.phone || "—",
+      reservations: g.reservations,
+      adults: g.adults,
+      kids: g.kids,
+      total: g.total,
+      notes: g.notes.join(" | "),
+    });
+  });
+
+  styleHeaderRow(groupedSheet.getRow(1));
+  styleAllBorders(groupedSheet);
+  autoFilter(groupedSheet, "H");
 
   const buffer = await workbook.xlsx.writeBuffer();
 
