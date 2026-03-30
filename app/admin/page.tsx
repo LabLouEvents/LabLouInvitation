@@ -21,6 +21,7 @@ type RSVPRow = {
   name: string;
   phone?: string | null;
   attending?: boolean | null;
+  attendance?: string | null;
   adults?: number | null;
   kids?: number | null;
   guests?: number | null;
@@ -28,6 +29,48 @@ type RSVPRow = {
   allergies?: string | null;
   created_at?: string | null;
 };
+
+function formatAttendance(r: RSVPRow) {
+  if (r.attendance === "decline" || r.attending === false) {
+    return "Δεν θα έρθει";
+  }
+  if (r.attendance === "ceremony_only") {
+    return "Μόνο στην τελετή";
+  }
+  if (r.attendance === "reception_only") {
+    return "Μόνο στην δεξίωση";
+  }
+  if (r.attendance === "ceremony_and_reception") {
+    return "Τελετή & δεξίωση";
+  }
+  if (r.attending === true) {
+    return "Θα παρευρεθεί";
+  }
+  return "—";
+}
+
+function formatStatus(r: RSVPRow) {
+  if (r.attending === false || r.attendance === "decline") {
+    return "Δεν έρχεται";
+  }
+  return "Επιβεβαιωμένο";
+}
+
+function getTotalGuests(r: RSVPRow) {
+  const adults = Number(r.adults || 0);
+  const kids = Number(r.kids || 0);
+  const detailed = adults + kids;
+  if (detailed > 0) return detailed;
+  return Number(r.guests || 0);
+}
+
+function csvEscape(value: unknown) {
+  const s = String(value ?? "");
+  if (s.includes('"') || s.includes(",") || s.includes("\n")) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
 
 export default function AdminPage() {
   const [rows, setRows] = useState<RSVPRow[]>([]);
@@ -125,6 +168,60 @@ export default function AdminPage() {
     }
   }
 
+  function exportCSV() {
+    if (!rows.length) {
+      alert("Δεν υπάρχουν RSVP για export.");
+      return;
+    }
+
+    const headers = [
+      "Ημερομηνία",
+      "Event",
+      "Όνομα",
+      "Τηλέφωνο",
+      "Status",
+      "Απάντηση",
+      "Ενήλικες",
+      "Παιδιά",
+      "Σύνολο",
+      "Σχόλια",
+    ];
+
+    const csvRows = rows.map((r) => [
+      r.created_at ? new Date(r.created_at).toLocaleDateString("el-GR") : "",
+      r.slug,
+      r.name || "",
+      r.phone || "",
+      formatStatus(r),
+      formatAttendance(r),
+      r.attending ? Number(r.adults || 0) : 0,
+      r.attending ? Number(r.kids || 0) : 0,
+      r.attending ? getTotalGuests(r) : 0,
+      r.notes || r.allergies || "",
+    ]);
+
+    const csv = [
+      headers.map(csvEscape).join(","),
+      ...csvRows.map((row) => row.map(csvEscape).join(",")),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fileName =
+      selectedSlug === "all"
+        ? "rsvp-all-events.csv"
+        : `rsvp-${selectedSlug}.csv`;
+
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div style={page}>
       <div style={container}>
@@ -160,6 +257,10 @@ export default function AdminPage() {
 
             <button onClick={loadRSVPs} style={secondaryBtn}>
               Ανανέωση
+            </button>
+
+            <button onClick={exportCSV} style={secondaryBtn}>
+              Export Excel
             </button>
           </div>
 
@@ -218,7 +319,8 @@ export default function AdminPage() {
                     "Event",
                     "Όνομα",
                     "Τηλέφωνο",
-                    "Παρουσία",
+                    "Status",
+                    "Απάντηση",
                     "Ενήλικοι",
                     "Παιδιά",
                     "Σύνολο",
@@ -242,17 +344,29 @@ export default function AdminPage() {
                     <td style={td}>{r.slug}</td>
                     <td style={td}>{r.name}</td>
                     <td style={td}>{r.phone || ""}</td>
-                    <td style={td}>{r.attending ? "Ναι" : "Όχι"}</td>
-                    <td style={td}>{r.attending ? (r.adults ?? "") : ""}</td>
-                    <td style={td}>{r.attending ? (r.kids ?? "") : ""}</td>
-                    <td style={td}>{r.attending ? (r.guests ?? "") : 0}</td>
+                    <td style={td}>
+                      <span
+                        style={{
+                          ...statusBadge,
+                          ...(formatStatus(r) === "Επιβεβαιωμένο"
+                            ? statusYes
+                            : statusNo),
+                        }}
+                      >
+                        {formatStatus(r)}
+                      </span>
+                    </td>
+                    <td style={td}>{formatAttendance(r)}</td>
+                    <td style={td}>{r.attending ? Number(r.adults || 0) : 0}</td>
+                    <td style={td}>{r.attending ? Number(r.kids || 0) : 0}</td>
+                    <td style={td}>{r.attending ? getTotalGuests(r) : 0}</td>
                     <td style={td}>{r.notes || r.allergies || ""}</td>
                   </tr>
                 ))}
 
                 {!loading && rows.length === 0 && (
                   <tr>
-                    <td colSpan={9} style={emptyTd}>
+                    <td colSpan={10} style={emptyTd}>
                       Δεν υπάρχουν RSVP ακόμα.
                     </td>
                   </tr>
@@ -393,18 +507,16 @@ const linkPreviewWrap: React.CSSProperties = {
 
 const linkLabel: React.CSSProperties = {
   fontSize: 13,
-  fontWeight: 800,
-  color: "#6b5a50",
-  marginBottom: 4,
+  fontWeight: 700,
+  color: "#4b4038",
+  marginBottom: 6,
 };
 
 const linkPreview: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 12,
-  background: "white",
-  border: "1px solid rgba(0,0,0,0.06)",
-  color: "#3a2d24",
-  fontSize: 13,
+  padding: 12,
+  background: "#f3f3f3",
+  borderRadius: 10,
+  color: "#111",
   wordBreak: "break-all",
 };
 
@@ -449,4 +561,26 @@ const emptyTd: React.CSSProperties = {
   padding: 18,
   textAlign: "center",
   color: "rgba(0,0,0,0.55)",
+};
+
+const statusBadge: React.CSSProperties = {
+  display: "inline-block",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: 800,
+  border: "1px solid transparent",
+  whiteSpace: "nowrap",
+};
+
+const statusYes: React.CSSProperties = {
+  background: "rgba(27, 153, 89, 0.12)",
+  color: "#146c43",
+  borderColor: "rgba(27, 153, 89, 0.20)",
+};
+
+const statusNo: React.CSSProperties = {
+  background: "rgba(220, 53, 69, 0.10)",
+  color: "#a61e2d",
+  borderColor: "rgba(220, 53, 69, 0.18)",
 };
