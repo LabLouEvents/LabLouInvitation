@@ -160,17 +160,6 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
   const csv = buildCSV(safeRows);
   const csvHref = `data:text/csv;charset=utf-8,\uFEFF${encodeURIComponent(csv)}`;
 
-  const resultsUrl = `https://lablouinvitations.gr/results/${encodeURIComponent(
-    slug
-  )}?t=${encodeURIComponent(token)}`;
-
-  const shareText = `Καλησπέρα! Σου στέλνω το προσωπικό σου link για να παρακολουθείς live τις απαντήσεις RSVP:\n${resultsUrl}`;
-
-  const viberHref = `viber://forward?text=${encodeURIComponent(shareText)}`;
-  const mailHref = `mailto:?subject=${encodeURIComponent(
-    `RSVP Results - ${event.title || slug}`
-  )}&body=${encodeURIComponent(shareText)}`;
-
   return (
     <main style={page}>
       <div style={card}>
@@ -190,34 +179,6 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
               Export Excel
             </a>
           </div>
-        </div>
-
-        <div style={shareCard}>
-          <div style={shareTitle}>Share flow για πελάτη</div>
-
-          <div style={shareButtons}>
-            <a href={resultsUrl} style={actionBtnSecondary} target="_blank" rel="noreferrer">
-              Άνοιγμα Results Link
-            </a>
-
-            <a
-              href={`data:text/plain;charset=utf-8,${encodeURIComponent(resultsUrl)}`}
-              download={`results-link-${slug}.txt`}
-              style={actionBtnSecondary}
-            >
-              Save Link
-            </a>
-
-            <a href={viberHref} style={actionBtnSecondary}>
-              Viber
-            </a>
-
-            <a href={mailHref} style={actionBtnSecondary}>
-              Email
-            </a>
-          </div>
-
-          <div style={linkPreview}>{resultsUrl}</div>
         </div>
 
         <div style={statsGrid}>
@@ -370,38 +331,6 @@ const actionBtnSecondary: React.CSSProperties = {
   color: "#3a2d24",
   fontWeight: 800,
   whiteSpace: "nowrap",
-};
-
-const shareCard: React.CSSProperties = {
-  marginTop: 16,
-  marginBottom: 20,
-  padding: 16,
-  borderRadius: 18,
-  background: "rgba(247,242,236,0.9)",
-  border: "1px solid rgba(47,36,29,0.08)",
-};
-
-const shareTitle: React.CSSProperties = {
-  fontWeight: 900,
-  color: "#2f241d",
-  marginBottom: 12,
-};
-
-const shareButtons: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  marginBottom: 12,
-};
-
-const linkPreview: React.CSSProperties = {
-  padding: 12,
-  background: "white",
-  borderRadius: 12,
-  border: "1px solid rgba(0,0,0,0.06)",
-  color: "#2f241d",
-  wordBreak: "break-all",
-  fontSize: 13,
 };
 
 const eyebrow: React.CSSProperties = {
