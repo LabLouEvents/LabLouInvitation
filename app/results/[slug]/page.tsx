@@ -108,18 +108,26 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
   const yesRows = safeRows.filter((r) => r.attending === true);
   const noRows = safeRows.filter((r) => r.attending === false);
 
-  const ceremonyOnly = safeRows.filter((r) => r.attendance === "ceremony_only").length;
-  const receptionOnly = safeRows.filter((r) => r.attendance === "reception_only").length;
+  const ceremonyOnly = safeRows.filter(
+    (r) => r.attendance === "ceremony_only"
+  ).length;
+
+  const receptionOnly = safeRows.filter(
+    (r) => r.attendance === "reception_only"
+  ).length;
+
   const bothCount = safeRows.filter(
-    (r) => r.attendance === "ceremony_and_reception" || (r.attending === true && !r.attendance)
+    (r) =>
+      r.attendance === "ceremony_and_reception" ||
+      (r.attending === true && !r.attendance)
   ).length;
 
   const totalGuests = yesRows.reduce((sum, r) => sum + getTotalGuests(r), 0);
   const totalKids = yesRows.reduce((sum, r) => sum + Number(r.kids || 0), 0);
 
-  const exportHref = `/api/results-export/${encodeURIComponent(slug)}?t=${encodeURIComponent(
-    token
-  )}`;
+  const exportHref = `/api/results-export/${encodeURIComponent(
+    slug
+  )}?t=${encodeURIComponent(token)}`;
 
   return (
     <main style={page}>
@@ -207,7 +215,9 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
                     <td style={td}>{r.name || "—"}</td>
                     <td style={td}>{r.phone || "—"}</td>
                     <td style={td}>
-                      <span style={{ ...badgeBase, ...badge.style }}>{badge.label}</span>
+                      <span style={{ ...badgeBase, ...badge.style }}>
+                        {badge.label}
+                      </span>
                     </td>
                     <td style={td}>{formatAttendance(r)}</td>
                     <td style={td}>{r.attending ? adults || "—" : "—"}</td>
@@ -230,7 +240,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
         </div>
 
         <div style={note}>
-          Το αρχείο κατεβαίνει πλέον σε πραγματική μορφή Excel (.xlsx).
+          Το αρχείο κατεβαίνει σε πραγματική μορφή Excel (.xlsx).
         </div>
       </div>
     </main>
