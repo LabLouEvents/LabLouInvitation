@@ -16,6 +16,8 @@ export default function CalendarButtons({
     display: "flex",
     gap: 10,
     zIndex: 999,
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
   };
 
   const btn: React.CSSProperties = {
@@ -30,6 +32,7 @@ export default function CalendarButtons({
     fontWeight: 600,
     border: "1px solid rgba(255,255,255,0.18)",
     boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+    whiteSpace: "nowrap",
   };
 
   const detailsUrl = `https://lablouinvitations.gr/e/${encodeURIComponent(
@@ -41,15 +44,16 @@ export default function CalendarButtons({
     `&text=${encodeURIComponent("Πρόσκληση")}` +
     `&details=${encodeURIComponent(detailsUrl)}`;
 
-  const appleUrl = `/api/calendar/${encodeURIComponent(slug)}?t=${encodeURIComponent(
-    t
-  )}`;
+  const appleUrl = `/api/calendar/${encodeURIComponent(
+    slug
+  )}?t=${encodeURIComponent(t)}`;
 
   return (
     <div style={wrap}>
       <a href={googleUrl} target="_blank" rel="noreferrer" style={btn}>
         Google Calendar
       </a>
+
       <a href={appleUrl} style={btn}>
         Apple Calendar
       </a>
