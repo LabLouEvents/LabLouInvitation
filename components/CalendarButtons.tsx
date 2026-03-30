@@ -11,13 +11,14 @@ export default function CalendarButtons({
 }) {
   const wrap: React.CSSProperties = {
     position: "absolute",
-    top: 18,
-    right: 18,
+    top: 14,
+    right: 14,
     display: "flex",
-    gap: 10,
+    gap: 8,
     zIndex: 999,
     flexWrap: "wrap",
     justifyContent: "flex-end",
+    maxWidth: "calc(100% - 28px)",
   };
 
   const btn: React.CSSProperties = {
@@ -25,9 +26,10 @@ export default function CalendarButtons({
     backdropFilter: "blur(6px)",
     WebkitBackdropFilter: "blur(6px)",
     color: "white",
-    padding: "8px 14px",
+    padding: "8px 12px",
     borderRadius: 999,
-    fontSize: 13,
+    fontSize: 12,
+    lineHeight: 1.2,
     textDecoration: "none",
     fontWeight: 600,
     border: "1px solid rgba(255,255,255,0.18)",
