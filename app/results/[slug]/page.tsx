@@ -73,8 +73,8 @@ function buildCSV(rows: any[]) {
   ]);
 
   return [
-    headers.map(csvEscape).join(","),
-    ...csvRows.map((row) => row.map(csvEscape).join(",")),
+    headers.map(csvEscape).join(";"),
+    ...csvRows.map((row) => row.map(csvEscape).join(";")),
   ].join("\n");
 }
 
