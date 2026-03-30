@@ -60,10 +60,8 @@ export default function RSVPForm({
 
       alert("Ευχαριστούμε! Καταχωρήθηκε 💛");
 
-      // Αν θέλεις ΝΑ ΜΗΝ καθαρίζει το τηλέφωνο/όνομα, σβήσε τις 2 γραμμές:
       setName("");
       setPhone("");
-
       setAttending("Ναι");
       setGuests(1);
       setAllergies("");
@@ -75,7 +73,7 @@ export default function RSVPForm({
   }
 
   return (
-    <>
+    <div style={{ position: "relative", paddingTop: 56 }}>
       <CalendarButtons slug={slug} t={t} />
 
       <form
@@ -142,6 +140,6 @@ export default function RSVPForm({
           {loading ? "Αποστολή..." : "Αποστολή RSVP"}
         </button>
       </form>
-    </>
+    </div>
   );
 }
