@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 export default function CalendarButtons({
@@ -46,10 +48,10 @@ export default function CalendarButtons({
   return (
     <div style={wrap}>
       <a href={googleUrl} target="_blank" rel="noreferrer" style={btn}>
-        Google
+        Google Calendar
       </a>
       <a href={appleUrl} style={btn}>
-        Apple
+        Apple Calendar
       </a>
     </div>
   );
