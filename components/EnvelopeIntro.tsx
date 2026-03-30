@@ -34,11 +34,11 @@ export default function EnvelopeIntro({
   const router = useRouter();
 
   // =========================
-  // ΡΥΘΜΙΣΕΙΣ ΘΕΣΗΣ (μόνο αυτά πείραζε)
+  // ΡΥΘΜΙΣΕΙΣ ΘΕΣΗΣ
   // =========================
-  const LOGO_Y = -60; // logo μόνο του
-  const EVENTS_Y = -70; // "Lab Lou Events" ΜΟΝΟ του (ξεχωριστά)
-  const CONTENT_Y = 20; // φάκελος + "Έχεις πρόσκληση από" + όνομα + κουμπί (όλα μαζί)
+  const LOGO_Y = -60;
+  const EVENTS_Y = -70;
+  const CONTENT_Y = 20;
   // =========================
 
   const safeFrom = useMemo(
@@ -47,8 +47,6 @@ export default function EnvelopeIntro({
   );
 
   const openInvite = () => {
-    // ΠΗΓΑΙΝΕΙ ΣΤΗΝ ΑΛΛΗ ΣΕΛΙΔΑ
-    // Αν η σελίδα σου είναι αλλού, άλλαξε μόνο το "/section" (δες σημείωση στο τέλος)
     const url = `/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`;
     router.push(url);
   };
@@ -81,7 +79,7 @@ export default function EnvelopeIntro({
     position: "relative",
   };
 
-  // ---------- LOGO GROUP (μόνο logo) ----------
+  // ---------- LOGO GROUP ----------
   const logoGroup: React.CSSProperties = {
     marginTop: LOGO_Y,
     position: "relative",
@@ -117,7 +115,7 @@ export default function EnvelopeIntro({
     filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.22))",
   };
 
-  // ---------- EVENTS TITLE (μόνο Lab Lou Events) ----------
+  // ---------- EVENTS TITLE ----------
   const eventsStyle: React.CSSProperties = {
     marginTop: EVENTS_Y,
     fontSize: "clamp(22px, 4vw, 40px)",
@@ -131,7 +129,7 @@ export default function EnvelopeIntro({
     zIndex: 5,
   };
 
-  // ---------- CONTENT GROUP (φάκελος + κείμενα + κουμπί μαζί) ----------
+  // ---------- CONTENT GROUP ----------
   const contentGroup: React.CSSProperties = {
     marginTop: CONTENT_Y,
     position: "relative",
@@ -160,7 +158,7 @@ export default function EnvelopeIntro({
     color: "rgba(255,255,255,0.95)",
     textShadow: "0 6px 18px rgba(0,0,0,0.4)",
     letterSpacing: "0.05em",
-    minHeight: 28, // για να μη “πηδάει” το layout όσο γράφει
+    minHeight: 28,
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -168,8 +166,8 @@ export default function EnvelopeIntro({
     padding: "14px 22px",
     borderRadius: 999,
     color: "rgba(20,20,20,0.95)",
-background: "rgba(255,255,255,0.55)",
-border: "1px solid rgba(255,255,255,0.75)",
+    background: "rgba(255,255,255,0.55)",
+    border: "1px solid rgba(255,255,255,0.75)",
     fontSize: 16,
     fontWeight: 600,
     letterSpacing: "0.02em",
@@ -179,54 +177,13 @@ border: "1px solid rgba(255,255,255,0.75)",
     WebkitBackdropFilter: "blur(6px)",
   };
 
-  const calendarBtn: React.CSSProperties = {
-    background: "rgba(0,0,0,0.45)",
-    backdropFilter: "blur(6px)",
-    WebkitBackdropFilter: "blur(6px)",
-    color: "white",
-    padding: "8px 14px",
-    borderRadius: 999,
-    fontSize: 13,
-    textDecoration: "none",
-    fontWeight: 600,
-    border: "1px solid rgba(255,255,255,0.18)",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-  };
-
-  const calendarWrap: React.CSSProperties = {
-    position: "absolute",
-    top: 18,
-    right: 18,
-    display: "flex",
-    gap: 10,
-    zIndex: 999,
-  };
-
   return (
     <div style={pageStyle}>
       <div style={glass} />
-      <CalendarButtons slug={slug} t={t} />
-      <div style={calendarWrap}>
-        <a
-          href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-            "Πρόσκληση"
-          )}&details=${encodeURIComponent(
-            `https://lablouinvitations.gr/e/${slug}?t=${t}`
-          )}`}
-          target="_blank"
-          rel="noreferrer"
-          style={calendarBtn}
-        >
-          Google
-        </a>
 
-        <a href={`/api/calendar/${slug}?t=${encodeURIComponent(t)}`} style={calendarBtn}>
-          Apple
-        </a>
-      </div>
+      <CalendarButtons slug={slug} t={t} />
 
       <div style={shell}>
-        {/* LOGO (μόνο του) */}
         <div style={logoGroup}>
           <div style={logoWrap}>
             <div style={halo} aria-hidden="true" />
@@ -241,12 +198,10 @@ border: "1px solid rgba(255,255,255,0.75)",
           </div>
         </div>
 
-        {/* Lab Lou Events (ξεχωριστό από logo) */}
         <div className={brandFont.className} style={eventsStyle}>
           Lab Lou Events
         </div>
 
-        {/* CONTENT GROUP (όλα μαζί) */}
         <div style={contentGroup}>
           <div style={envelopeBox}>
             <Image
@@ -265,7 +220,7 @@ border: "1px solid rgba(255,255,255,0.75)",
           <div className={brandFont.className} style={fromLine}>
             {safeFrom ? (
               <TypewriterText
-                key={safeFrom} // σημαντικό: restart όταν αλλάξει όνομα
+                key={safeFrom}
                 text={safeFrom}
                 active={true}
                 speed={180}
