@@ -63,9 +63,18 @@ export default function AdminEventForm({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  const publicLink = useMemo(() => {
+  const inviteLink = useMemo(() => {
     if (!form.slug || !form.share_token) return "";
-    return `https://lablouinvitations.gr/e/${form.slug}?t=${form.share_token}`;
+    return `https://lablouinvitations.gr/e/${encodeURIComponent(
+      form.slug
+    )}?t=${encodeURIComponent(form.share_token)}`;
+  }, [form.slug, form.share_token]);
+
+  const resultsLink = useMemo(() => {
+    if (!form.slug || !form.share_token) return "";
+    return `https://lablouinvitations.gr/results/${encodeURIComponent(
+      form.slug
+    )}?t=${encodeURIComponent(form.share_token)}`;
   }, [form.slug, form.share_token]);
 
   async function save() {
@@ -90,10 +99,16 @@ export default function AdminEventForm({
     }
   }
 
-  async function copyLink() {
-    if (!publicLink) return;
-    await navigator.clipboard.writeText(publicLink);
-    setMsg("📋 Αντιγράφηκε το link!");
+  async function copyInviteLink() {
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
+    setMsg("📋 Αντιγράφηκε το Invite Link!");
+  }
+
+  async function copyResultsLink() {
+    if (!resultsLink) return;
+    await navigator.clipboard.writeText(resultsLink);
+    setMsg("📋 Αντιγράφηκε το Results Link!");
   }
 
   return (
@@ -147,7 +162,6 @@ export default function AdminEventForm({
         value={form.venue_name || ""}
         onChange={(v) => update("venue_name", v)}
       />
-
 
       <Input
         label="Link κέντρου"
@@ -208,12 +222,22 @@ export default function AdminEventForm({
           Save
         </button>
 
-        <button type="button" style={btn} onClick={copyLink}>
-          Copy link
+        <button type="button" style={btn} onClick={copyInviteLink}>
+          Copy Invite Link
+        </button>
+
+        <button type="button" style={btn} onClick={copyResultsLink}>
+          Copy Results Link
         </button>
       </div>
 
-      <div style={linkBox}>{publicLink || "Συμπλήρωσε slug και token"}</div>
+      <div style={linksWrap}>
+        <div style={linkLabel}>Invite Link</div>
+        <div style={linkBox}>{inviteLink || "Συμπλήρωσε slug και token"}</div>
+
+        <div style={{ ...linkLabel, marginTop: 12 }}>Results Link</div>
+        <div style={linkBox}>{resultsLink || "Συμπλήρωσε slug και token"}</div>
+      </div>
 
       {msg ? <div style={message}>{msg}</div> : null}
     </div>
@@ -338,8 +362,18 @@ const btn: React.CSSProperties = {
   fontWeight: 600,
 };
 
-const linkBox: React.CSSProperties = {
+const linksWrap: React.CSSProperties = {
   marginTop: 12,
+};
+
+const linkLabel: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
+  color: "#4b4038",
+  marginBottom: 6,
+};
+
+const linkBox: React.CSSProperties = {
   padding: 12,
   background: "#f3f3f3",
   borderRadius: 10,
