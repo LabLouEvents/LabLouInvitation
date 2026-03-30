@@ -1,0 +1,255 @@
+import { createClient } from "@supabase/supabase-js";
+import { notFound } from "next/navigation";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+type PageProps = {
+  params: { slug: string };
+  searchParams: { t?: string };
+};
+
+export default async function ResultsPage({ params, searchParams }: PageProps) {
+  const slug = params.slug;
+  const token = searchParams.t || "";
+
+  if (!slug || !token) {
+    return notFound();
+  }
+
+  // 1. Βρες το event και έλεγξε token
+  const { data: event, error: eventError } = await supabase
+    .from("events")
+    .select("slug,title,share_token")
+    .eq("slug", slug)
+    .single();
+
+  if (eventError || !event || event.share_token !== token) {
+    return notFound();
+  }
+
+  // 2. Φέρε RSVP
+  const { data: rows, error: rowsError } = await supabase
+    .from("rsvps")
+    .select("*")
+    .eq("slug", slug)
+    .order("created_at", { ascending: false });
+
+  if (rowsError) {
+    return (
+      <main style={page}>
+        <div style={card}>
+          <h1 style={title}>Σφάλμα</h1>
+          <p>Δεν ήταν δυνατή η φόρτωση των RSVP.</p>
+        </div>
+      </main>
+    );
+  }
+
+  const safeRows = rows || [];
+
+  const totalResponses = safeRows.length;
+  const yesRows = safeRows.filter((r) => r.attending === true);
+  const noRows = safeRows.filter((r) => r.attending === false);
+
+  const totalGuests = yesRows.reduce((sum, r) => {
+    const adults = Number(r.adults || 0);
+    const kids = Number(r.kids || 0);
+    const guests = Number(r.guests || 0);
+
+    if (adults || kids) return sum + adults + kids;
+    return sum + guests;
+  }, 0);
+
+  return (
+    <main style={page}>
+      <div style={card}>
+        <div style={eyebrow}>Private Results</div>
+        <h1 style={title}>{event.title || slug}</h1>
+        <p style={sub}>Παρακολούθηση απαντήσεων RSVP</p>
+
+        <div style={statsGrid}>
+          <div style={statBox}>
+            <div style={statNum}>{totalResponses}</div>
+            <div style={statLabel}>Συνολικές απαντήσεις</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{yesRows.length}</div>
+            <div style={statLabel}>Θα παρευρεθούν</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{noRows.length}</div>
+            <div style={statLabel}>Δεν θα παρευρεθούν</div>
+          </div>
+
+          <div style={statBox}>
+            <div style={statNum}>{totalGuests}</div>
+            <div style={statLabel}>Σύνολο ατόμων</div>
+          </div>
+        </div>
+
+        <div style={tableWrap}>
+          <table style={table}>
+            <thead>
+              <tr>
+                <th style={th}>Όνομα</th>
+                <th style={th}>Κινητό</th>
+                <th style={th}>Απάντηση</th>
+                <th style={th}>Ενήλικες</th>
+                <th style={th}>Παιδιά</th>
+                <th style={th}>Σύνολο</th>
+                <th style={th}>Σχόλια</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {safeRows.map((r, i) => {
+                const adults = Number(r.adults || 0);
+                const kids = Number(r.kids || 0);
+                const total =
+                  adults || kids
+                    ? adults + kids
+                    : Number(r.guests || 0);
+
+                let answer = "—";
+
+                if (r.attendance === "decline" || r.attending === false) {
+                  answer = "Δεν θα έρθει";
+                } else if (r.attendance === "ceremony_only") {
+                  answer = "Μόνο στην τελετή";
+                } else if (r.attendance === "reception_only") {
+                  answer = "Μόνο στην δεξίωση";
+                } else if (
+                  r.attendance === "ceremony_and_reception" ||
+                  r.attending === true
+                ) {
+                  answer = "Τελετή & δεξίωση";
+                }
+
+                return (
+                  <tr key={r.id || i}>
+                    <td style={td}>{r.name || "—"}</td>
+                    <td style={td}>{r.phone || "—"}</td>
+                    <td style={td}>{answer}</td>
+                    <td style={td}>{r.attending ? adults || "—" : "—"}</td>
+                    <td style={td}>{r.attending ? kids || "—" : "—"}</td>
+                    <td style={td}>{r.attending ? total || "—" : "—"}</td>
+                    <td style={td}>{r.notes || r.allergies || "—"}</td>
+                  </tr>
+                );
+              })}
+
+              {safeRows.length === 0 && (
+                <tr>
+                  <td style={emptyTd} colSpan={7}>
+                    Δεν υπάρχουν RSVP ακόμα.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+const page: React.CSSProperties = {
+  minHeight: "100vh",
+  background: "linear-gradient(180deg, #f7f2ec 0%, #f8f5f1 100%)",
+  padding: 20,
+};
+
+const card: React.CSSProperties = {
+  maxWidth: 1200,
+  margin: "0 auto",
+  background: "rgba(255,255,255,0.92)",
+  borderRadius: 24,
+  padding: 24,
+  border: "1px solid rgba(0,0,0,0.06)",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+};
+
+const eyebrow: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "#8d7363",
+  marginBottom: 8,
+};
+
+const title: React.CSSProperties = {
+  fontSize: 32,
+  margin: 0,
+  color: "#2f241d",
+};
+
+const sub: React.CSSProperties = {
+  marginTop: 8,
+  marginBottom: 24,
+  color: "rgba(47,36,29,0.7)",
+};
+
+const statsGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: 14,
+  marginBottom: 24,
+};
+
+const statBox: React.CSSProperties = {
+  background: "rgba(247,242,236,0.9)",
+  borderRadius: 18,
+  padding: 18,
+  border: "1px solid rgba(47,36,29,0.08)",
+};
+
+const statNum: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 900,
+  color: "#2f241d",
+};
+
+const statLabel: React.CSSProperties = {
+  marginTop: 6,
+  color: "rgba(47,36,29,0.7)",
+  fontSize: 14,
+  fontWeight: 700,
+};
+
+const tableWrap: React.CSSProperties = {
+  overflowX: "auto",
+};
+
+const table: React.CSSProperties = {
+  width: "100%",
+  borderCollapse: "collapse",
+};
+
+const th: React.CSSProperties = {
+  textAlign: "left",
+  padding: 12,
+  borderBottom: "1px solid rgba(0,0,0,0.12)",
+  fontSize: 14,
+  color: "#6d5a4d",
+  whiteSpace: "nowrap",
+};
+
+const td: React.CSSProperties = {
+  padding: 12,
+  borderBottom: "1px solid rgba(0,0,0,0.06)",
+  fontSize: 14,
+  color: "#2f241d",
+  verticalAlign: "top",
+};
+
+const emptyTd: React.CSSProperties = {
+  padding: 18,
+  textAlign: "center",
+  color: "rgba(47,36,29,0.6)",
+};
