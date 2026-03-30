@@ -12,6 +12,7 @@ const supabase = createClient(
 type EventRow = {
   slug: string;
   title: string | null;
+  share_token?: string | null;
 };
 
 type RSVPRow = {
@@ -35,13 +36,14 @@ export default function AdminPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [copyMsg, setCopyMsg] = useState("");
 
   async function loadEventsList() {
     setError("");
 
     const { data, error } = await supabase
       .from("events")
-      .select("slug,title")
+      .select("slug,title,share_token")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -86,11 +88,42 @@ export default function AdminPage() {
     loadRSVPs();
   }, [selectedSlug]);
 
+  const selectedEvent = useMemo(() => {
+    if (selectedSlug === "all") return null;
+    return eventsList.find((e) => e.slug === selectedSlug) || null;
+  }, [eventsList, selectedSlug]);
+
   const selectedEventTitle = useMemo(() => {
     if (selectedSlug === "all") return "Όλα τα events";
     const ev = eventsList.find((e) => e.slug === selectedSlug);
     return ev?.title ? `${ev.title} (${ev.slug})` : selectedSlug;
   }, [eventsList, selectedSlug]);
+
+  const inviteLink = useMemo(() => {
+    if (!selectedEvent?.slug || !selectedEvent?.share_token) return "";
+    return `https://lablouinvitations.gr/e/${encodeURIComponent(
+      selectedEvent.slug
+    )}?t=${encodeURIComponent(selectedEvent.share_token)}`;
+  }, [selectedEvent]);
+
+  const resultsLink = useMemo(() => {
+    if (!selectedEvent?.slug || !selectedEvent?.share_token) return "";
+    return `https://lablouinvitations.gr/results/${encodeURIComponent(
+      selectedEvent.slug
+    )}?t=${encodeURIComponent(selectedEvent.share_token)}`;
+  }, [selectedEvent]);
+
+  async function copyToClipboard(text: string, message: string) {
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyMsg(message);
+      setTimeout(() => setCopyMsg(""), 2200);
+    } catch {
+      alert("Δεν έγινε αντιγραφή. Δοκίμασε ξανά.");
+    }
+  }
 
   return (
     <div style={page}>
@@ -98,7 +131,9 @@ export default function AdminPage() {
         <div style={headerRow}>
           <div>
             <h1 style={title}>RSVP Admin</h1>
-            <p style={subtitle}>Διαχείριση απαντήσεων και γρήγορη πρόσβαση στα events σου.</p>
+            <p style={subtitle}>
+              Διαχείριση απαντήσεων και γρήγορη πρόσβαση στα events σου.
+            </p>
           </div>
 
           <div style={headerActions}>
@@ -131,6 +166,44 @@ export default function AdminPage() {
           <div style={infoLine}>
             Προβολή: <b>{selectedEventTitle}</b>
           </div>
+
+          {selectedEvent && (
+            <div style={linksCard}>
+              <div style={linksTitle}>Χρήσιμα links για το επιλεγμένο event</div>
+
+              <div style={linksButtonsRow}>
+                <button
+                  style={copyBtn}
+                  onClick={() =>
+                    copyToClipboard(inviteLink, "Αντιγράφηκε το Invite Link")
+                  }
+                >
+                  🔗 Copy Invite Link
+                </button>
+
+                <button
+                  style={copyBtn}
+                  onClick={() =>
+                    copyToClipboard(resultsLink, "Αντιγράφηκε το Results Link")
+                  }
+                >
+                  🔐 Copy Results Link
+                </button>
+              </div>
+
+              <div style={linkPreviewWrap}>
+                <div style={linkLabel}>Invite:</div>
+                <div style={linkPreview}>{inviteLink || "—"}</div>
+              </div>
+
+              <div style={linkPreviewWrap}>
+                <div style={linkLabel}>Results:</div>
+                <div style={linkPreview}>{resultsLink || "—"}</div>
+              </div>
+
+              {copyMsg ? <div style={copyMsgStyle}>{copyMsg}</div> : null}
+            </div>
+          )}
 
           {loading && <div style={statusText}>Φορτώνει RSVP…</div>}
 
@@ -281,6 +354,64 @@ const secondaryBtn: React.CSSProperties = {
 const infoLine: React.CSSProperties = {
   marginBottom: 14,
   color: "rgba(0,0,0,0.7)",
+};
+
+const linksCard: React.CSSProperties = {
+  marginBottom: 18,
+  padding: 16,
+  borderRadius: 18,
+  background: "rgba(247,243,238,0.95)",
+  border: "1px solid rgba(0,0,0,0.06)",
+};
+
+const linksTitle: React.CSSProperties = {
+  fontWeight: 900,
+  color: "#3a2d24",
+  marginBottom: 12,
+};
+
+const linksButtonsRow: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginBottom: 14,
+};
+
+const copyBtn: React.CSSProperties = {
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "white",
+  color: "#3a2d24",
+  fontWeight: 800,
+  cursor: "pointer",
+};
+
+const linkPreviewWrap: React.CSSProperties = {
+  marginTop: 10,
+};
+
+const linkLabel: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 800,
+  color: "#6b5a50",
+  marginBottom: 4,
+};
+
+const linkPreview: React.CSSProperties = {
+  padding: "10px 12px",
+  borderRadius: 12,
+  background: "white",
+  border: "1px solid rgba(0,0,0,0.06)",
+  color: "#3a2d24",
+  fontSize: 13,
+  wordBreak: "break-all",
+};
+
+const copyMsgStyle: React.CSSProperties = {
+  marginTop: 12,
+  fontWeight: 800,
+  color: "#6e5a63",
 };
 
 const statusText: React.CSSProperties = {
