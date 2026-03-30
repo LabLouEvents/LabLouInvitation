@@ -8,26 +8,20 @@ export default function HomePage() {
           <Image
             src="/brand/logo-dark.png"
             alt="Lab Lou"
-            width={110}
-            height={110}
-            style={{ width: 100, height: "auto" }}
+            width={140}
+            height={140}
+            style={headerLogo}
             priority
           />
+
           <div style={brandTextWrap}>
             <div style={brandTitle}>Lab Lou Events</div>
             <div style={brandSub}>Online invitations with elegance</div>
           </div>
         </div>
-
-        <div style={topbarActions}>
-          <a href="/admin/login" style={ghostBtn}>
-            Admin Login
-          </a>
-        </div>
       </header>
 
       <section style={heroSection}>
-        <div style={heroGlow} />
         <div style={heroContent}>
           <div style={eyebrow}>Digital invitations for wedding & baptism</div>
 
@@ -59,34 +53,13 @@ export default function HomePage() {
 
             <div style={phoneMock}>
               <div style={phoneScreen}>
-                <div style={inviteContentWrap}>
-                  <div style={inviteBrandWrap}>
-                    <Image
-                      src="/brand/logo-white.png"
-                      alt="Lab Lou"
-                      width={70}
-                      height={70}
-                      style={{
-                        width: 70,
-                        height: "auto",
-                        filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.18))",
-                      }}
-                    />
-                    <div style={inviteTopWhite}>Lab Lou Events</div>
-                  </div>
-
-                  <Image
-                    src="/invite-preview/envelope.png"
-                    alt="Envelope"
-                    width={158}
-                    height={158}
-                    style={{ marginBottom: 14 }}
-                  />
-
-                  <div style={inviteTitle}>Έχεις πρόσκληση</div>
-
-                  <div style={inviteBtn}>Άνοιγμα προσκλητηρίου</div>
-                </div>
+                <Image
+                  src="/invite-preview/clean-preview.jpg"
+                  alt="Invitation preview"
+                  width={320}
+                  height={640}
+                  style={previewImage}
+                />
               </div>
             </div>
           </div>
@@ -137,6 +110,7 @@ export default function HomePage() {
         <div style={demoLeft}>
           <div style={sectionIntro}>Demo</div>
           <h2 style={sectionTitle}>Δες πώς παρουσιάζεται ένα online προσκλητήριο</h2>
+
           <p style={demoText}>
             Από το άνοιγμα του φακέλου μέχρι το RSVP, η εμπειρία είναι φτιαγμένη
             ώστε να είναι όμορφη, καθαρή και εύκολη για κάθε καλεσμένο.
@@ -158,12 +132,13 @@ export default function HomePage() {
 
         <div style={demoRight}>
           <div style={demoPreviewCard}>
-            <div style={demoPreviewTop}>Live Demo</div>
-            <div style={demoPreviewBody}>
-              <div style={demoPreviewEnvelope}>✉️</div>
-              <div style={demoPreviewTitle}>Θανάσης & Μυρτώ</div>
-              <div style={demoPreviewSub}>Elegant online invitation</div>
-            </div>
+            <Image
+              src="/invite-preview/clean-preview.jpg"
+              alt="Demo preview"
+              width={340}
+              height={640}
+              style={demoImage}
+            />
           </div>
         </div>
       </section>
@@ -200,6 +175,7 @@ export default function HomePage() {
         <div style={interestCard}>
           <div style={sectionIntro}>Εκδήλωση ενδιαφέροντος</div>
           <h2 style={interestTitle}>Θέλεις το δικό σου online προσκλητήριο;</h2>
+
           <p style={interestText}>
             Ιδανικό για γάμο, βάφτιση και events με αισθητική, λειτουργικότητα και
             premium παρουσίαση.
@@ -232,26 +208,27 @@ export default function HomePage() {
 
 const page: React.CSSProperties = {
   background:
-    "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 38%, #f8f5f1 100%)",
+    "linear-gradient(180deg, #f7f2ec 0%, #f3ece4 40%, #f8f5f1 100%)",
   color: "#2f241d",
   minHeight: "100vh",
 };
 
 const topbar: React.CSSProperties = {
-  maxWidth: 1240,
+  maxWidth: 1200,
   margin: "0 auto",
-  padding: "18px 20px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 16,
-  flexWrap: "wrap",
+  padding: "20px 20px 10px",
 };
 
 const brandWrap: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 12,
+  flexWrap: "wrap",
+};
+
+const headerLogo: React.CSSProperties = {
+  width: 110,
+  height: "auto",
 };
 
 const brandTextWrap: React.CSSProperties = {
@@ -270,33 +247,18 @@ const brandSub: React.CSSProperties = {
   color: "rgba(47,36,29,0.65)",
 };
 
-const topbarActions: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-};
-
 const heroSection: React.CSSProperties = {
-  maxWidth: 1240,
+  maxWidth: 1200,
   margin: "0 auto",
-  padding: "40px 20px 60px",
+  padding: "30px 20px 60px",
   display: "grid",
-  gridTemplateColumns: "1.1fr 0.9fr",
-  gap: 28,
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: 36,
   alignItems: "center",
-  position: "relative",
-};
-
-const heroGlow: React.CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  background:
-    "radial-gradient(circle at 30% 20%, rgba(222,199,177,0.45), transparent 35%)",
-  pointerEvents: "none",
 };
 
 const heroContent: React.CSSProperties = {
-  position: "relative",
-  zIndex: 1,
+  minWidth: 0,
 };
 
 const eyebrow: React.CSSProperties = {
@@ -312,14 +274,14 @@ const eyebrow: React.CSSProperties = {
 };
 
 const heroTitle: React.CSSProperties = {
-  fontSize: 56,
-  lineHeight: 1.02,
+  fontSize: "clamp(34px, 6vw, 56px)",
+  lineHeight: 1.04,
   margin: "0 0 16px 0",
-  maxWidth: 640,
+  maxWidth: 680,
 };
 
 const heroText: React.CSSProperties = {
-  fontSize: 18,
+  fontSize: "clamp(16px, 2vw, 18px)",
   lineHeight: 1.65,
   color: "rgba(47,36,29,0.72)",
   maxWidth: 620,
@@ -345,26 +307,15 @@ const primaryBtn: React.CSSProperties = {
 const secondaryBtn: React.CSSProperties = {
   padding: "14px 22px",
   borderRadius: 14,
-  background: "rgba(255,255,255,0.72)",
+  background: "rgba(255,255,255,0.82)",
   color: "#2f241d",
   textDecoration: "none",
   fontWeight: 700,
   border: "1px solid rgba(47,36,29,0.10)",
 };
 
-const ghostBtn: React.CSSProperties = {
-  padding: "12px 16px",
-  borderRadius: 12,
-  background: "rgba(255,255,255,0.6)",
-  color: "#2f241d",
-  textDecoration: "none",
-  fontWeight: 700,
-  border: "1px solid rgba(47,36,29,0.08)",
-};
-
 const heroCard: React.CSSProperties = {
-  position: "relative",
-  zIndex: 1,
+  minWidth: 0,
 };
 
 const heroCardInner: React.CSSProperties = {
@@ -383,56 +334,30 @@ const heroCardLabel: React.CSSProperties = {
 };
 
 const phoneMock: React.CSSProperties = {
-  maxWidth: 330,
+  maxWidth: 300,
   margin: "0 auto",
-  padding: 12,
+  padding: 10,
   borderRadius: 30,
-  background: "#201915",
+  background: "#1d1917",
   boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
 };
 
 const phoneScreen: React.CSSProperties = {
-  backgroundImage: "url('/invite-preview/bg.jpg')",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
+  height: 520,
   borderRadius: 22,
-  minHeight: 520,
-  padding: "26px 20px 20px",
-  textAlign: "center",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "flex-start",
+  overflow: "hidden",
+  background: "#f3ebe2",
 };
 
-const inviteContentWrap: React.CSSProperties = {
+const previewImage: React.CSSProperties = {
   width: "100%",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  minHeight: "100%",
-  transform: "translateY(-18px)",
-};
-
-const inviteBrandWrap: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 4,
-  marginBottom: 10,
-};
-
-const inviteTopWhite: React.CSSProperties = {
-  fontSize: 18,
-  fontWeight: 800,
-  color: "rgba(255,255,255,0.96)",
-  letterSpacing: "0.04em",
-  textShadow: "0 2px 8px rgba(0,0,0,0.18)",
+  height: "100%",
+  objectFit: "cover",
+  objectPosition: "center top",
 };
 
 const section: React.CSSProperties = {
-  maxWidth: 1240,
+  maxWidth: 1200,
   margin: "0 auto",
   padding: "70px 20px",
 };
@@ -447,7 +372,7 @@ const sectionIntro: React.CSSProperties = {
 };
 
 const sectionTitle: React.CSSProperties = {
-  fontSize: 36,
+  fontSize: "clamp(28px, 4vw, 36px)",
   lineHeight: 1.1,
   margin: "0 0 24px 0",
   maxWidth: 760,
@@ -455,7 +380,7 @@ const sectionTitle: React.CSSProperties = {
 
 const featureGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
   gap: 16,
 };
 
@@ -485,16 +410,18 @@ const featureText: React.CSSProperties = {
 };
 
 const demoSection: React.CSSProperties = {
-  maxWidth: 1240,
+  maxWidth: 1200,
   margin: "0 auto",
   padding: "20px 20px 70px",
   display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 22,
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: 28,
   alignItems: "center",
 };
 
-const demoLeft: React.CSSProperties = {};
+const demoLeft: React.CSSProperties = {
+  minWidth: 0,
+};
 
 const demoText: React.CSSProperties = {
   fontSize: 17,
@@ -510,7 +437,7 @@ const demoRight: React.CSSProperties = {
 
 const demoPreviewCard: React.CSSProperties = {
   width: "100%",
-  maxWidth: 480,
+  maxWidth: 340,
   background: "rgba(255,255,255,0.82)",
   borderRadius: 28,
   border: "1px solid rgba(47,36,29,0.08)",
@@ -518,36 +445,15 @@ const demoPreviewCard: React.CSSProperties = {
   overflow: "hidden",
 };
 
-const demoPreviewTop: React.CSSProperties = {
-  padding: "14px 18px",
-  borderBottom: "1px solid rgba(47,36,29,0.08)",
-  fontWeight: 800,
-  color: "#6b5b4f",
-};
-
-const demoPreviewBody: React.CSSProperties = {
-  padding: 34,
-  textAlign: "center",
-};
-
-const demoPreviewEnvelope: React.CSSProperties = {
-  fontSize: 72,
-};
-
-const demoPreviewTitle: React.CSSProperties = {
-  marginTop: 14,
-  fontSize: 28,
-  fontWeight: 800,
-};
-
-const demoPreviewSub: React.CSSProperties = {
-  marginTop: 8,
-  color: "rgba(47,36,29,0.64)",
+const demoImage: React.CSSProperties = {
+  width: "100%",
+  height: "auto",
+  display: "block",
 };
 
 const whyGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
   gap: 16,
 };
 
@@ -570,7 +476,7 @@ const whyText: React.CSSProperties = {
 };
 
 const interestSection: React.CSSProperties = {
-  maxWidth: 1240,
+  maxWidth: 1200,
   margin: "0 auto",
   padding: "20px 20px 90px",
 };
@@ -586,7 +492,7 @@ const interestCard: React.CSSProperties = {
 };
 
 const interestTitle: React.CSSProperties = {
-  fontSize: 38,
+  fontSize: "clamp(28px, 4vw, 38px)",
   margin: "0 0 12px 0",
 };
 
@@ -618,23 +524,4 @@ const contactButtons: React.CSSProperties = {
   gap: 12,
   justifyContent: "center",
   flexWrap: "wrap",
-};
-
-const inviteTitle: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 800,
-  marginTop: 0,
-  color: "#2f241d",
-  textShadow: "0 1px 2px rgba(255,255,255,0.35)",
-};
-
-const inviteBtn: React.CSSProperties = {
-  marginTop: 12,
-  display: "inline-block",
-  padding: "12px 20px",
-  borderRadius: 999,
-  background: "rgba(255,255,255,0.78)",
-  border: "1px solid rgba(47,36,29,0.12)",
-  fontWeight: 700,
-  color: "#2f241d",
 };
