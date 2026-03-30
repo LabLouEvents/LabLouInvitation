@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 
@@ -11,6 +12,71 @@ type PageProps = {
   searchParams: { t?: string };
 };
 
+function formatAttendance(r: any) {
+  if (r.attendance === "decline" || r.attending === false) {
+    return "Δεν θα έρθει";
+  }
+  if (r.attendance === "ceremony_only") {
+    return "Μόνο στην τελετή";
+  }
+  if (r.attendance === "reception_only") {
+    return "Μόνο στην δεξίωση";
+  }
+  if (
+    r.attendance === "ceremony_and_reception" ||
+    r.attending === true
+  ) {
+    return "Τελετή & δεξίωση";
+  }
+  return "—";
+}
+
+function getTotalGuests(r: any) {
+  const adults = Number(r.adults || 0);
+  const kids = Number(r.kids || 0);
+  const guests = Number(r.guests || 0);
+
+  if (adults || kids) return adults + kids;
+  return guests;
+}
+
+function csvEscape(value: unknown) {
+  const s = String(value ?? "");
+  if (s.includes('"') || s.includes(",") || s.includes("\n")) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+function buildCSV(rows: any[]) {
+  const headers = [
+    "Ημερομηνία",
+    "Όνομα",
+    "Τηλέφωνο",
+    "Απάντηση",
+    "Ενήλικοι",
+    "Παιδιά",
+    "Σύνολο",
+    "Σχόλια",
+  ];
+
+  const csvRows = rows.map((r) => [
+    r.created_at ? new Date(r.created_at).toLocaleDateString("el-GR") : "",
+    r.name || "",
+    r.phone || "",
+    formatAttendance(r),
+    r.attending ? Number(r.adults || 0) : 0,
+    r.attending ? Number(r.kids || 0) : 0,
+    r.attending ? getTotalGuests(r) : 0,
+    r.notes || r.allergies || "",
+  ]);
+
+  return [
+    headers.map(csvEscape).join(","),
+    ...csvRows.map((row) => row.map(csvEscape).join(",")),
+  ].join("\n");
+}
+
 export default async function ResultsPage({ params, searchParams }: PageProps) {
   const slug = params.slug;
   const token = searchParams.t || "";
@@ -19,7 +85,6 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
     return notFound();
   }
 
-  // 1. Βρες το event και έλεγξε token
   const { data: event, error: eventError } = await supabase
     .from("events")
     .select("slug,title,share_token")
@@ -30,7 +95,6 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
     return notFound();
   }
 
-  // 2. Φέρε RSVP
   const { data: rows, error: rowsError } = await supabase
     .from("rsvps")
     .select("*")
@@ -55,20 +119,30 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
   const noRows = safeRows.filter((r) => r.attending === false);
 
   const totalGuests = yesRows.reduce((sum, r) => {
-    const adults = Number(r.adults || 0);
-    const kids = Number(r.kids || 0);
-    const guests = Number(r.guests || 0);
-
-    if (adults || kids) return sum + adults + kids;
-    return sum + guests;
+    return sum + getTotalGuests(r);
   }, 0);
+
+  const csv = buildCSV(safeRows);
+  const csvHref = `data:text/csv;charset=utf-8,\uFEFF${encodeURIComponent(csv)}`;
 
   return (
     <main style={page}>
       <div style={card}>
-        <div style={eyebrow}>Private Results</div>
-        <h1 style={title}>{event.title || slug}</h1>
-        <p style={sub}>Παρακολούθηση απαντήσεων RSVP</p>
+        <div style={topBar}>
+          <div>
+            <div style={eyebrow}>Private Results</div>
+            <h1 style={title}>{event.title || slug}</h1>
+            <p style={sub}>Παρακολούθηση απαντήσεων RSVP</p>
+          </div>
+
+          <a
+            href={csvHref}
+            download={`rsvp-${slug}.csv`}
+            style={exportBtn}
+          >
+            Export Excel
+          </a>
+        </div>
 
         <div style={statsGrid}>
           <div style={statBox}>
@@ -110,31 +184,13 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
               {safeRows.map((r, i) => {
                 const adults = Number(r.adults || 0);
                 const kids = Number(r.kids || 0);
-                const total =
-                  adults || kids
-                    ? adults + kids
-                    : Number(r.guests || 0);
-
-                let answer = "—";
-
-                if (r.attendance === "decline" || r.attending === false) {
-                  answer = "Δεν θα έρθει";
-                } else if (r.attendance === "ceremony_only") {
-                  answer = "Μόνο στην τελετή";
-                } else if (r.attendance === "reception_only") {
-                  answer = "Μόνο στην δεξίωση";
-                } else if (
-                  r.attendance === "ceremony_and_reception" ||
-                  r.attending === true
-                ) {
-                  answer = "Τελετή & δεξίωση";
-                }
+                const total = getTotalGuests(r);
 
                 return (
                   <tr key={r.id || i}>
                     <td style={td}>{r.name || "—"}</td>
                     <td style={td}>{r.phone || "—"}</td>
-                    <td style={td}>{answer}</td>
+                    <td style={td}>{formatAttendance(r)}</td>
                     <td style={td}>{r.attending ? adults || "—" : "—"}</td>
                     <td style={td}>{r.attending ? kids || "—" : "—"}</td>
                     <td style={td}>{r.attending ? total || "—" : "—"}</td>
@@ -152,6 +208,10 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div style={note}>
+          Το αρχείο κατεβαίνει σε μορφή CSV και ανοίγει κανονικά στο Excel.
         </div>
       </div>
     </main>
@@ -172,6 +232,26 @@ const card: React.CSSProperties = {
   padding: 24,
   border: "1px solid rgba(0,0,0,0.06)",
   boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+};
+
+const topBar: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 16,
+  flexWrap: "wrap",
+  marginBottom: 8,
+};
+
+const exportBtn: React.CSSProperties = {
+  textDecoration: "none",
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "#dcc7b1",
+  color: "#3a2d24",
+  fontWeight: 800,
+  whiteSpace: "nowrap",
 };
 
 const eyebrow: React.CSSProperties = {
@@ -252,4 +332,11 @@ const emptyTd: React.CSSProperties = {
   padding: 18,
   textAlign: "center",
   color: "rgba(47,36,29,0.6)",
+};
+
+const note: React.CSSProperties = {
+  marginTop: 14,
+  fontSize: 13,
+  color: "rgba(47,36,29,0.65)",
+  fontWeight: 600,
 };
