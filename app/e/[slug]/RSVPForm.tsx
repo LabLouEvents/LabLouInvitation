@@ -114,7 +114,7 @@ export default function RSVPForm({
           placeholder="π.χ. 69xxxxxxxx"
         />
 
-        <label style={{ display: "block", marginTop: 12 }}>Θα παρευρεθείς;</label>
+<label style={{ display: "block", marginTop: 12 }}>TEST RSVP 999</label>
         <select
           className="e-select"
           value={attending}
