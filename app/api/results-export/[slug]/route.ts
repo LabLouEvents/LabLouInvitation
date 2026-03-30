@@ -56,7 +56,6 @@ function styleHeaderRow(row: ExcelJS.Row) {
     pattern: "solid",
     fgColor: { argb: "B89B5E" },
   };
-  row.height = 22;
 }
 
 function styleAllBorders(sheet: ExcelJS.Worksheet) {
@@ -112,37 +111,13 @@ export async function GET(
 
   const safeRows = rows || [];
 
-  const totalResponses = safeRows.length;
   const yesRows = safeRows.filter((r: any) => r.attending === true);
-  const noRows = safeRows.filter((r: any) => r.attending === false);
-
-  const ceremonyOnly = safeRows.filter(
-    (r: any) => r.attendance === "ceremony_only"
-  ).length;
-
-  const receptionOnly = safeRows.filter(
-    (r: any) => r.attendance === "reception_only"
-  ).length;
-
-  const bothCount = safeRows.filter(
-    (r: any) =>
-      r.attendance === "ceremony_and_reception" ||
-      (r.attending === true && !r.attendance)
-  ).length;
-
-  const totalGuests = yesRows.reduce(
-    (sum: number, r: any) => sum + getTotalGuests(r),
-    0
-  );
-
-  const totalKids = yesRows.reduce(
-    (sum: number, r: any) => sum + Number(r.kids || 0),
-    0
-  );
 
   const workbook = new ExcelJS.Workbook();
 
-  // Sheet 1: RSVP
+  // =====================
+  // SHEET 1: RSVP
+  // =====================
   const sheet = workbook.addWorksheet("RSVP");
 
   sheet.columns = [
@@ -173,49 +148,11 @@ export async function GET(
 
   styleHeaderRow(sheet.getRow(1));
   styleAllBorders(sheet);
-
-  for (let i = 2; i <= sheet.rowCount; i++) {
-    const cell = sheet.getCell(`D${i}`);
-    const value = String(cell.value || "");
-
-    if (value === "Επιβεβαιωμένο") {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "E7F6EC" },
-      };
-      cell.font = { bold: true, color: { argb: "146C43" } };
-    } else if (value === "Δεν έρχεται") {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FDEBEC" },
-      };
-      cell.font = { bold: true, color: { argb: "A61E2D" } };
-    } else if (value === "Μόνο τελετή") {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFF4DE" },
-      };
-      cell.font = { bold: true, color: { argb: "8A5B00" } };
-    } else if (value === "Μόνο δεξίωση") {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "F1E9FF" },
-      };
-      cell.font = { bold: true, color: { argb: "6F42C1" } };
-    }
-  }
-
   sheet.views = [{ state: "frozen", ySplit: 1 }];
-  sheet.autoFilter = {
-    from: "A1",
-    to: "I1",
-  };
 
-  // Sheet 2: Summary
+  // =====================
+  // SHEET 2: SUMMARY
+  // =====================
   const summary = workbook.addWorksheet("Summary");
 
   summary.columns = [
@@ -225,31 +162,48 @@ export async function GET(
 
   summary.addRows([
     { label: "Event", value: event.title || slug },
-    { label: "Slug", value: slug },
-    { label: "Συνολικές απαντήσεις", value: totalResponses },
+    { label: "Συνολικές απαντήσεις", value: safeRows.length },
     { label: "Θα παρευρεθούν", value: yesRows.length },
-    { label: "Δεν θα παρευρεθούν", value: noRows.length },
-    { label: "Σύνολο ατόμων", value: totalGuests },
-    { label: "Μόνο τελετή", value: ceremonyOnly },
-    { label: "Μόνο δεξίωση", value: receptionOnly },
-    { label: "Τελετή & δεξίωση", value: bothCount },
-    { label: "Σύνολο παιδιών", value: totalKids },
+    { label: "Δεν θα παρευρεθούν", value: safeRows.length - yesRows.length },
+    {
+      label: "Σύνολο ατόμων",
+      value: yesRows.reduce((s: number, r: any) => s + getTotalGuests(r), 0),
+    },
   ]);
 
   styleHeaderRow(summary.getRow(1));
   styleAllBorders(summary);
 
-  summary.getColumn(2).alignment = {
-    vertical: "middle",
-    horizontal: "center",
-  };
+  // =====================
+  // SHEET 3: ATTENDING ONLY
+  // =====================
+  const attendingSheet = workbook.addWorksheet("Attending");
 
-  for (let i = 2; i <= summary.rowCount; i++) {
-    const labelCell = summary.getCell(`A${i}`);
-    labelCell.font = { bold: true, color: { argb: "4A3B31" } };
-  }
+  attendingSheet.columns = [
+    { header: "Όνομα", key: "name", width: 24 },
+    { header: "Τηλέφωνο", key: "phone", width: 18 },
+    { header: "Απάντηση", key: "attendance", width: 22 },
+    { header: "Ενήλικοι", key: "adults", width: 10 },
+    { header: "Παιδιά", key: "kids", width: 10 },
+    { header: "Σύνολο", key: "total", width: 10 },
+    { header: "Σχόλια", key: "notes", width: 34 },
+  ];
 
-  summary.views = [{ state: "frozen", ySplit: 1 }];
+  yesRows.forEach((r: any) => {
+    attendingSheet.addRow({
+      name: r.name || "",
+      phone: r.phone || "",
+      attendance: formatAttendance(r),
+      adults: Number(r.adults || 0),
+      kids: Number(r.kids || 0),
+      total: getTotalGuests(r),
+      notes: r.notes || r.allergies || "",
+    });
+  });
+
+  styleHeaderRow(attendingSheet.getRow(1));
+  styleAllBorders(attendingSheet);
+  attendingSheet.views = [{ state: "frozen", ySplit: 1 }];
 
   const buffer = await workbook.xlsx.writeBuffer();
 
