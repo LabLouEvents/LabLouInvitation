@@ -1,14 +1,20 @@
 "use client";
 
+import CalendarButtons from "@/components/CalendarButtons";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Attendance = "decline" | "ceremony_only" | "ceremony_and_reception";
+type Attendance =
+  | "decline"
+  | "ceremony_only"
+  | "reception_only"
+  | "ceremony_and_reception";
 
 const attendanceLabel: Record<Attendance, string> = {
   decline: "Δυστυχώς δεν θα μπορέσω",
   ceremony_only: "Ναι, μόνο στην τελετή",
+  reception_only: "Ναι, μόνο στην δεξίωση",
   ceremony_and_reception: "Ναι, στην τελετή και στην δεξίωση",
 };
 
@@ -50,7 +56,9 @@ export default function RSVPClient({
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [attendance, setAttendance] = useState<Attendance>("ceremony_and_reception");
+  const [attendance, setAttendance] = useState<Attendance>(
+    "ceremony_and_reception"
+  );
   const [adults, setAdults] = useState<number>(1);
   const [kids, setKids] = useState<number>(0);
   const [notes, setNotes] = useState("");
@@ -87,8 +95,6 @@ export default function RSVPClient({
       const payload = {
         slug,
         t,
-
-        // νέα πεδία
         name: name.trim(),
         phone: normalizeGreekMobile(phone),
         attendance,
@@ -96,10 +102,18 @@ export default function RSVPClient({
         kids: isAttending ? kids : 0,
         notes: isAttending ? notes.trim() : "",
 
-        // συμβατότητα με παλιό route
+        // για συμβατότητα
         attending: isAttending,
         guests: totalGuests,
         allergies: isAttending ? notes.trim() : "",
+
+        // νέα βοηθητικά flags
+        ceremony:
+          attendance === "ceremony_only" ||
+          attendance === "ceremony_and_reception",
+        reception:
+          attendance === "reception_only" ||
+          attendance === "ceremony_and_reception",
       };
 
       const res = await fetch("/api/rsvp", {
@@ -127,7 +141,6 @@ export default function RSVPClient({
       <div style={veil} />
 
       <div style={card}>
-        {/* Εικόνα πάνω (ΝΑ ΜΗΝ ΚΟΒΕΤΑΙ) */}
         {rsvpImageUrl ? (
           <div style={topImgWrap}>
             <Image
@@ -145,7 +158,9 @@ export default function RSVPClient({
         <button
           type="button"
           onClick={() =>
-            router.push(`/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`)
+            router.push(
+              `/e/${encodeURIComponent(slug)}/section?t=${encodeURIComponent(t)}`
+            )
           }
           style={backBtn}
         >
@@ -184,6 +199,10 @@ export default function RSVPClient({
           </div>
         ) : (
           <>
+            <div style={calendarInlineWrap}>
+              <CalendarButtons slug={slug} t={t} mode="inline" />
+            </div>
+
             <div style={field}>
               <label style={label}>Ονοματεπώνυμο</label>
               <input
@@ -205,27 +224,34 @@ export default function RSVPClient({
                 inputMode="tel"
                 autoComplete="tel"
               />
-              <div style={hint}>Τα στοιχεία χρησιμοποιούνται μόνο για την οργάνωση της εκδήλωσης.</div>
+              <div style={hint}>
+                Τα στοιχεία χρησιμοποιούνται μόνο για την οργάνωση της εκδήλωσης.
+              </div>
             </div>
 
             <div style={field}>
               <label style={label}>Θα παρευρεθείς;</label>
 
               <div style={radioGroup}>
-                {(["decline", "ceremony_only", "ceremony_and_reception"] as Attendance[]).map(
-                  (key) => (
-                    <label key={key} style={radioRow}>
-                      <input
-                        type="radio"
-                        name="attendance"
-                        checked={attendance === key}
-                        onChange={() => setAttendance(key)}
-                        style={radio}
-                      />
-                      <span style={radioText}>{attendanceLabel[key]}</span>
-                    </label>
-                  )
-                )}
+                {(
+                  [
+                    "decline",
+                    "ceremony_only",
+                    "reception_only",
+                    "ceremony_and_reception",
+                  ] as Attendance[]
+                ).map((key) => (
+                  <label key={key} style={radioRow}>
+                    <input
+                      type="radio"
+                      name="attendance"
+                      checked={attendance === key}
+                      onChange={() => setAttendance(key)}
+                      style={radio}
+                    />
+                    <span style={radioText}>{attendanceLabel[key]}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -275,7 +301,12 @@ export default function RSVPClient({
             {error ? <div style={errorBox}>{error}</div> : null}
 
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-              <button type="button" style={btnGhost} onClick={() => router.back()} disabled={loading}>
+              <button
+                type="button"
+                style={btnGhost}
+                onClick={() => router.back()}
+                disabled={loading}
+              >
                 Πίσω
               </button>
 
@@ -363,6 +394,12 @@ const sub: React.CSSProperties = {
   color: "rgba(0,0,0,0.60)",
   fontSize: 14,
   fontWeight: 600,
+};
+
+const calendarInlineWrap: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: 10,
 };
 
 const field: React.CSSProperties = {
