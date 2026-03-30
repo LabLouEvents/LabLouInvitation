@@ -658,3 +658,35 @@ const contactTitle: React.CSSProperties = {
     Αποστολή ενδιαφέροντος
   </button>
 </form>
+
+const interestForm: React.CSSProperties = {
+  maxWidth: 520,
+  margin: "20px auto 0",
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+};
+
+const formInput: React.CSSProperties = {
+  width: "100%",
+  padding: "14px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(47,36,29,0.12)",
+  background: "rgba(255,255,255,0.92)",
+  color: "#2f241d",
+  fontSize: 15,
+  outline: "none",
+};
+
+const formTextarea: React.CSSProperties = {
+  width: "100%",
+  padding: "14px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(47,36,29,0.12)",
+  background: "rgba(255,255,255,0.92)",
+  color: "#2f241d",
+  fontSize: 15,
+  outline: "none",
+  resize: "vertical",
+  minHeight: 120,
+};
