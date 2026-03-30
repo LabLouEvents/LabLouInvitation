@@ -39,45 +39,6 @@ function getTotalGuests(r: any) {
   return guests;
 }
 
-function csvEscape(value: unknown) {
-  const s = String(value ?? "");
-  if (s.includes('"') || s.includes(",") || s.includes("\n")) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
-}
-
-function buildCSV(rows: any[]) {
-  const headers = [
-    "Ημερομηνία",
-    "Όνομα",
-    "Τηλέφωνο",
-    "Status",
-    "Απάντηση",
-    "Ενήλικοι",
-    "Παιδιά",
-    "Σύνολο",
-    "Σχόλια",
-  ];
-
-  const csvRows = rows.map((r) => [
-    r.created_at ? new Date(r.created_at).toLocaleDateString("el-GR") : "",
-    r.name || "",
-    r.phone || "",
-    r.attending ? "Επιβεβαιωμένο" : "Δεν έρχεται",
-    formatAttendance(r),
-    r.attending ? Number(r.adults || 0) : 0,
-    r.attending ? Number(r.kids || 0) : 0,
-    r.attending ? getTotalGuests(r) : 0,
-    r.notes || r.allergies || "",
-  ]);
-
-  return [
-    headers.map(csvEscape).join(";"),
-    ...csvRows.map((row) => row.map(csvEscape).join(";")),
-  ].join("\n");
-}
-
 function badgeForAttendance(r: any) {
   if (r.attendance === "decline" || r.attending === false) {
     return {
@@ -154,11 +115,11 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
   ).length;
 
   const totalGuests = yesRows.reduce((sum, r) => sum + getTotalGuests(r), 0);
-
   const totalKids = yesRows.reduce((sum, r) => sum + Number(r.kids || 0), 0);
 
-  const csv = buildCSV(safeRows);
-  const csvHref = `data:text/csv;charset=utf-8,\uFEFF${encodeURIComponent(csv)}`;
+  const exportHref = `/api/results-export/${encodeURIComponent(slug)}?t=${encodeURIComponent(
+    token
+  )}`;
 
   return (
     <main style={page}>
@@ -171,11 +132,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
           </div>
 
           <div style={topActions}>
-            <a
-              href={csvHref}
-              download={`rsvp-${slug}.csv`}
-              style={actionBtnPrimary}
-            >
+            <a href={exportHref} style={actionBtnPrimary}>
               Export Excel
             </a>
           </div>
@@ -273,7 +230,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
         </div>
 
         <div style={note}>
-          Το αρχείο κατεβαίνει σε μορφή CSV και ανοίγει κανονικά στο Excel.
+          Το αρχείο κατεβαίνει πλέον σε πραγματική μορφή Excel (.xlsx).
         </div>
       </div>
     </main>
@@ -317,17 +274,6 @@ const actionBtnPrimary: React.CSSProperties = {
   borderRadius: 14,
   border: "1px solid rgba(0,0,0,0.08)",
   background: "#dcc7b1",
-  color: "#3a2d24",
-  fontWeight: 800,
-  whiteSpace: "nowrap",
-};
-
-const actionBtnSecondary: React.CSSProperties = {
-  textDecoration: "none",
-  padding: "12px 16px",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.08)",
-  background: "white",
   color: "#3a2d24",
   fontWeight: 800,
   whiteSpace: "nowrap",
