@@ -12,7 +12,6 @@ const supabase = createClient(
 type EventRow = {
   slug: string;
   title: string | null;
-  share_token?: string | null;
 };
 
 type RSVPRow = {
@@ -36,14 +35,13 @@ export default function AdminPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [copyMsg, setCopyMsg] = useState("");
 
   async function loadEventsList() {
     setError("");
 
     const { data, error } = await supabase
       .from("events")
-      .select("slug,title,share_token")
+      .select("slug,title")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -88,41 +86,78 @@ export default function AdminPage() {
     loadRSVPs();
   }, [selectedSlug]);
 
-  const selectedEvent = useMemo(() => {
-    if (selectedSlug === "all") return null;
-    return eventsList.find((e) => e.slug === selectedSlug) || null;
-  }, [eventsList, selectedSlug]);
-
   const selectedEventTitle = useMemo(() => {
     if (selectedSlug === "all") return "Όλα τα events";
     const ev = eventsList.find((e) => e.slug === selectedSlug);
     return ev?.title ? `${ev.title} (${ev.slug})` : selectedSlug;
   }, [eventsList, selectedSlug]);
 
-  const inviteLink = useMemo(() => {
-    if (!selectedEvent?.slug || !selectedEvent?.share_token) return "";
-    return `https://lablouinvitations.gr/e/${encodeURIComponent(
-      selectedEvent.slug
-    )}?t=${encodeURIComponent(selectedEvent.share_token)}`;
-  }, [selectedEvent]);
-
-  const resultsLink = useMemo(() => {
-    if (!selectedEvent?.slug || !selectedEvent?.share_token) return "";
-    return `https://lablouinvitations.gr/results/${encodeURIComponent(
-      selectedEvent.slug
-    )}?t=${encodeURIComponent(selectedEvent.share_token)}`;
-  }, [selectedEvent]);
-
-  async function copyToClipboard(text: string, message: string) {
-    if (!text) return;
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopyMsg(message);
-      setTimeout(() => setCopyMsg(""), 2200);
-    } catch {
-      alert("Δεν έγινε αντιγραφή. Δοκίμασε ξανά.");
+  function exportCSV() {
+    if (!rows.length) {
+      alert("Δεν υπάρχουν RSVP για export.");
+      return;
     }
+
+    const headers = [
+      "Ημερομηνία",
+      "Event",
+      "Όνομα",
+      "Τηλέφωνο",
+      "Παρουσία",
+      "Ενήλικοι",
+      "Παιδιά",
+      "Σύνολο",
+      "Σχόλια",
+    ];
+
+    const csvEscape = (value: unknown) => {
+      const s = String(value ?? "");
+      if (s.includes('"') || s.includes(",") || s.includes("\n")) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const csvRows = rows.map((r) => {
+      const adults = Number(r.adults || 0);
+      const kids = Number(r.kids || 0);
+      const total = adults + kids > 0 ? adults + kids : Number(r.guests || 0);
+
+      return [
+        r.created_at ? new Date(r.created_at).toLocaleDateString("el-GR") : "",
+        r.slug || "",
+        r.name || "",
+        r.phone || "",
+        r.attending ? "Ναι" : "Όχι",
+        r.attending ? adults : 0,
+        r.attending ? kids : 0,
+        r.attending ? total : 0,
+        r.notes || r.allergies || "",
+      ];
+    });
+
+    const csv = [
+      headers.map(csvEscape).join(","),
+      ...csvRows.map((row) => row.map(csvEscape).join(",")),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download =
+      selectedSlug === "all"
+        ? "rsvp-all-events.csv"
+        : `rsvp-${selectedSlug}.csv`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -161,49 +196,15 @@ export default function AdminPage() {
             <button onClick={loadRSVPs} style={secondaryBtn}>
               Ανανέωση
             </button>
+
+            <button onClick={exportCSV} style={secondaryBtn}>
+              Export Excel
+            </button>
           </div>
 
           <div style={infoLine}>
             Προβολή: <b>{selectedEventTitle}</b>
           </div>
-
-          {selectedEvent && (
-            <div style={linksCard}>
-              <div style={linksTitle}>Χρήσιμα links για το επιλεγμένο event</div>
-
-              <div style={linksButtonsRow}>
-                <button
-                  style={copyBtn}
-                  onClick={() =>
-                    copyToClipboard(inviteLink, "Αντιγράφηκε το Invite Link")
-                  }
-                >
-                  🔗 Copy Invite Link
-                </button>
-
-                <button
-                  style={copyBtn}
-                  onClick={() =>
-                    copyToClipboard(resultsLink, "Αντιγράφηκε το Results Link")
-                  }
-                >
-                  🔐 Copy Results Link
-                </button>
-              </div>
-
-              <div style={linkPreviewWrap}>
-                <div style={linkLabel}>Invite:</div>
-                <div style={linkPreview}>{inviteLink || "—"}</div>
-              </div>
-
-              <div style={linkPreviewWrap}>
-                <div style={linkLabel}>Results:</div>
-                <div style={linkPreview}>{resultsLink || "—"}</div>
-              </div>
-
-              {copyMsg ? <div style={copyMsgStyle}>{copyMsg}</div> : null}
-            </div>
-          )}
 
           {loading && <div style={statusText}>Φορτώνει RSVP…</div>}
 
@@ -232,23 +233,30 @@ export default function AdminPage() {
               </thead>
 
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id ?? `${r.slug}_${r.created_at}_${r.name}`}>
-                    <td style={td}>
-                      {r.created_at
-                        ? new Date(r.created_at).toLocaleDateString("el-GR")
-                        : ""}
-                    </td>
-                    <td style={td}>{r.slug}</td>
-                    <td style={td}>{r.name}</td>
-                    <td style={td}>{r.phone || ""}</td>
-                    <td style={td}>{r.attending ? "Ναι" : "Όχι"}</td>
-                    <td style={td}>{r.attending ? (r.adults ?? "") : ""}</td>
-                    <td style={td}>{r.attending ? (r.kids ?? "") : ""}</td>
-                    <td style={td}>{r.attending ? (r.guests ?? "") : 0}</td>
-                    <td style={td}>{r.notes || r.allergies || ""}</td>
-                  </tr>
-                ))}
+                {rows.map((r) => {
+                  const adults = Number(r.adults || 0);
+                  const kids = Number(r.kids || 0);
+                  const total =
+                    adults + kids > 0 ? adults + kids : Number(r.guests || 0);
+
+                  return (
+                    <tr key={r.id ?? `${r.slug}_${r.created_at}_${r.name}`}>
+                      <td style={td}>
+                        {r.created_at
+                          ? new Date(r.created_at).toLocaleDateString("el-GR")
+                          : ""}
+                      </td>
+                      <td style={td}>{r.slug}</td>
+                      <td style={td}>{r.name}</td>
+                      <td style={td}>{r.phone || ""}</td>
+                      <td style={td}>{r.attending ? "Ναι" : "Όχι"}</td>
+                      <td style={td}>{r.attending ? adults : 0}</td>
+                      <td style={td}>{r.attending ? kids : 0}</td>
+                      <td style={td}>{r.attending ? total : 0}</td>
+                      <td style={td}>{r.notes || r.allergies || ""}</td>
+                    </tr>
+                  );
+                })}
 
                 {!loading && rows.length === 0 && (
                   <tr>
@@ -354,64 +362,6 @@ const secondaryBtn: React.CSSProperties = {
 const infoLine: React.CSSProperties = {
   marginBottom: 14,
   color: "rgba(0,0,0,0.7)",
-};
-
-const linksCard: React.CSSProperties = {
-  marginBottom: 18,
-  padding: 16,
-  borderRadius: 18,
-  background: "rgba(247,243,238,0.95)",
-  border: "1px solid rgba(0,0,0,0.06)",
-};
-
-const linksTitle: React.CSSProperties = {
-  fontWeight: 900,
-  color: "#3a2d24",
-  marginBottom: 12,
-};
-
-const linksButtonsRow: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  marginBottom: 14,
-};
-
-const copyBtn: React.CSSProperties = {
-  padding: "12px 16px",
-  borderRadius: 14,
-  border: "1px solid rgba(0,0,0,0.08)",
-  background: "white",
-  color: "#3a2d24",
-  fontWeight: 800,
-  cursor: "pointer",
-};
-
-const linkPreviewWrap: React.CSSProperties = {
-  marginTop: 10,
-};
-
-const linkLabel: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 800,
-  color: "#6b5a50",
-  marginBottom: 4,
-};
-
-const linkPreview: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 12,
-  background: "white",
-  border: "1px solid rgba(0,0,0,0.06)",
-  color: "#3a2d24",
-  fontSize: 13,
-  wordBreak: "break-all",
-};
-
-const copyMsgStyle: React.CSSProperties = {
-  marginTop: 12,
-  fontWeight: 800,
-  color: "#6e5a63",
 };
 
 const statusText: React.CSSProperties = {
