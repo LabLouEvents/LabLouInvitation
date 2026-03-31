@@ -12,6 +12,16 @@ function cleanPart(value: string) {
     .replace(/^_+|_+$/g, "");
 }
 
+function cleanFileName(name: string) {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9._-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 export async function GET() {
   return NextResponse.json({ ok: true, route: "upload route alive" });
 }
@@ -37,23 +47,62 @@ export async function POST(req: Request) {
       );
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json(
+        { ok: false, error: "Missing Supabase server env vars" },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const bucket = "invites";
     const slug = cleanPart(slugRaw);
-    const safeName = cleanPart(file.name || "image.jpg");
+
+    if (!slug) {
+      return NextResponse.json(
+        { ok: false, error: "Invalid slug" },
+        { status: 400 }
+      );
+    }
+
+    const originalName = file.name || "image.jpg";
+    const ext = (originalName.split(".").pop() || "jpg").toLowerCase();
+
+    if (!["jpg", "jpeg", "png", "webp"].includes(ext)) {
+      return NextResponse.json(
+        { ok: false, error: "Invalid file type. Use jpg, jpeg, png or webp." },
+        { status: 400 }
+      );
+    }
+
+    const cleanedBaseName = cleanFileName(
+      originalName.replace(/\.[^.]+$/, "")
+    );
+    const safeBaseName = cleanedBaseName || "image";
+    const safeName = `${safeBaseName}.${ext}`;
     const path = `${slug}/${Date.now()}-${safeName}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    const contentType =
+      file.type && file.type.startsWith("image/")
+        ? file.type
+        : ext === "png"
+        ? "image/png"
+        : ext === "webp"
+        ? "image/webp"
+        : "image/jpeg";
+
     const { error: upErr } = await supabase.storage
       .from(bucket)
       .upload(path, buffer, {
-        contentType: file.type || "image/jpeg",
+        contentType,
+        upsert: false,
       });
 
     if (upErr) {
