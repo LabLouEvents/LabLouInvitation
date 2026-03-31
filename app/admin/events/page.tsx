@@ -69,6 +69,7 @@ export default function AdminEventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<EventRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   async function loadEvents() {
     setLoading(true);
@@ -100,6 +101,51 @@ export default function AdminEventsPage() {
     loadEvents();
   }, []);
 
+  async function handleDelete() {
+    if (!selectedEvent?.slug) {
+      alert("Δεν υπάρχει επιλεγμένο event.");
+      return;
+    }
+
+    const ok = window.confirm(
+      `Να διαγραφεί το event "${selectedEvent.title || selectedEvent.slug}" ;`
+    );
+
+    if (!ok) return;
+
+    try {
+      setDeleting(true);
+      setError("");
+
+      const res = await fetch("/api/admin/delete-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ slug: selectedEvent.slug }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.ok) {
+        alert("Delete error: " + (data?.error || "Unknown error"));
+        setDeleting(false);
+        return;
+      }
+
+      const deletedSlug = selectedEvent.slug;
+      const nextEvents = events.filter((e) => e.slug !== deletedSlug);
+
+      setEvents(nextEvents);
+      setSelectedEvent(nextEvents[0] || { ...emptyEvent });
+      setDeleting(false);
+      alert("Το event διαγράφηκε.");
+    } catch (e: any) {
+      alert("Delete error: " + (e?.message || String(e)));
+      setDeleting(false);
+    }
+  }
+
   return (
     <div style={page}>
       <div style={container}>
@@ -115,6 +161,25 @@ export default function AdminEventsPage() {
             <p style={subtitle}>
               Δημιουργία και επεξεργασία online προσκλητηρίων.
             </p>
+          </div>
+
+          <div style={topActions}>
+            <button
+              type="button"
+              onClick={() => setSelectedEvent({ ...emptyEvent })}
+              style={newEventBtnTop}
+            >
+              + Νέο Event
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDelete}
+              style={deleteBtnTop}
+              disabled={!selectedEvent?.slug || deleting}
+            >
+              {deleting ? "Διαγραφή..." : "Διαγραφή Event"}
+            </button>
           </div>
         </div>
 
@@ -148,7 +213,9 @@ export default function AdminEventsPage() {
                         ...(active ? activeEventBtn : {}),
                       }}
                     >
-                      <div style={eventBtnTitle}>{ev.title || "Χωρίς τίτλο"}</div>
+                      <div style={eventBtnTitle}>
+                        {ev.title || "Χωρίς τίτλο"}
+                      </div>
                       <div style={eventBtnSlug}>{ev.slug}</div>
                     </button>
                   );
@@ -193,6 +260,17 @@ const backBtn: React.CSSProperties = {
 
 const header: React.CSSProperties = {
   marginBottom: 18,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 14,
+  flexWrap: "wrap",
+};
+
+const topActions: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
 };
 
 const title: React.CSSProperties = {
@@ -250,6 +328,26 @@ const newEventBtn: React.CSSProperties = {
   fontWeight: 800,
   cursor: "pointer",
   marginBottom: 14,
+};
+
+const newEventBtnTop: React.CSSProperties = {
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "#e9dccd",
+  color: "#3d3028",
+  fontWeight: 800,
+  cursor: "pointer",
+};
+
+const deleteBtnTop: React.CSSProperties = {
+  padding: "12px 14px",
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "#f4d6d6",
+  color: "#7a1f1f",
+  fontWeight: 800,
+  cursor: "pointer",
 };
 
 const eventsList: React.CSSProperties = {

@@ -19,11 +19,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={topbarActions}>
-          <a href="/admin/login" style={ghostBtn}>
-            Admin Login
-          </a>
-        </div>
       </header>
 
       <section style={heroSection}>
