@@ -28,23 +28,38 @@ export default function ImageUpload({
 
     try {
       const formData = new FormData();
-      formData.append("slug", slug);
-      formData.append("file", file);
+      formData.append("slug", slug.trim());
+      formData.append("file", file, file.name || "image.jpg");
 
-      const res = await fetch("/api/admin/upload", {
+      const uploadUrl = `${window.location.origin}/api/admin/upload`;
+
+      const res = await fetch(uploadUrl, {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      console.log("UPLOAD STATUS:", res.status);
+      console.log("UPLOAD RESPONSE:", rawText);
+
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error(`Invalid JSON response: ${rawText}`);
+      }
 
       if (!res.ok || !data?.ok) {
-        alert("Upload error: " + (data?.error || "Unknown error"));
-        return;
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+
+      if (!data?.publicUrl) {
+        throw new Error("No publicUrl returned from upload route");
       }
 
       onUpload(data.publicUrl);
     } catch (err: any) {
+      console.error("UPLOAD ERROR", err);
       alert("Upload error: " + (err?.message || String(err)));
     } finally {
       setUploading(false);
@@ -72,7 +87,7 @@ export default function ImageUpload({
         {label}
       </div>
 
-      <input type="file" accept="image/*" onChange={handleFile} />
+      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFile} />
 
       {uploading && (
         <div style={{ marginTop: 8, fontSize: 13, color: "#6b5b4f" }}>
@@ -85,6 +100,4 @@ export default function ImageUpload({
           Επιλέχθηκε: {fileName}
         </div>
       )}
-    </div>
-  );
-}
+    </
