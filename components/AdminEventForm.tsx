@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import ImageUpload from "@/components/ImageUpload";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type EventRow = {
   slug: string;
@@ -37,6 +31,23 @@ function generateToken() {
   return `${randomWord}${number}`;
 }
 
+const emptyForm: EventRow = {
+  slug: "",
+  title: "",
+  subtitle: "",
+  date_text: "",
+  time_text: "",
+  church_name: "",
+  church_map_url: "",
+  venue_name: "",
+  venue_map_url: "",
+  invite_image_url: "",
+  church_card_image_url: "",
+  venue_card_image_url: "",
+  rsvp_image_url: "",
+  share_token: "",
+};
+
 export default function AdminEventForm({
   event,
   onSaved,
@@ -44,24 +55,9 @@ export default function AdminEventForm({
   event: EventRow | null;
   onSaved?: () => void;
 }) {
-  const [form, setForm] = useState<EventRow>({
-    slug: "",
-    title: "",
-    subtitle: "",
-    date_text: "",
-    time_text: "",
-    church_name: "",
-    church_map_url: "",
-    venue_name: "",
-    venue_map_url: "",
-    invite_image_url: "",
-    church_card_image_url: "",
-    venue_card_image_url: "",
-    rsvp_image_url: "",
-    share_token: "",
-  });
-
+  const [form, setForm] = useState<EventRow>(emptyForm);
   const [msg, setMsg] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (event) {
@@ -82,22 +78,7 @@ export default function AdminEventForm({
         share_token: event.share_token || "",
       });
     } else {
-      setForm({
-        slug: "",
-        title: "",
-        subtitle: "",
-        date_text: "",
-        time_text: "",
-        church_name: "",
-        church_map_url: "",
-        venue_name: "",
-        venue_map_url: "",
-        invite_image_url: "",
-        church_card_image_url: "",
-        venue_card_image_url: "",
-        rsvp_image_url: "",
-        share_token: "",
-      });
+      setForm(emptyForm);
     }
   }, [event]);
 
@@ -131,19 +112,36 @@ export default function AdminEventForm({
       share_token: form.share_token || generateToken(),
     };
 
-    const { error } = await supabase
-      .from("events")
-      .upsert([payload], { onConflict: "slug" });
+    try {
+      setSaving(true);
+      setMsg("");
 
-    if (error) {
-      setMsg("❌ " + error.message);
-    } else {
-      setMsg("✅ Αποθηκεύτηκε!");
+      const res = await fetch("/api/admin/save-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.ok) {
+        setMsg("❌ " + (data?.error || "Αποτυχία αποθήκευσης"));
+        setSaving(false);
+        return;
+      }
+
       setForm((prev) => ({
         ...prev,
         share_token: payload.share_token,
       }));
+      setMsg("✅ Αποθηκεύτηκε!");
+      setSaving(false);
       onSaved?.();
+    } catch (e: any) {
+      setMsg("❌ " + (e?.message || String(e)));
+      setSaving(false);
     }
   }
 
@@ -249,10 +247,7 @@ export default function AdminEventForm({
         onUpload={(url) => update("venue_card_image_url", url)}
       />
       {form.venue_card_image_url ? (
-        <PreviewImage
-          title="Preview κέντρου"
-          src={form.venue_card_image_url}
-        />
+        <PreviewImage title="Preview κέντρου" src={form.venue_card_image_url} />
       ) : null}
 
       <ImageUpload
@@ -279,8 +274,8 @@ export default function AdminEventForm({
           Generate Token
         </button>
 
-        <button type="button" style={btn} onClick={save}>
-          Save
+        <button type="button" style={btn} onClick={save} disabled={saving}>
+          {saving ? "Saving..." : "Save"}
         </button>
 
         <button type="button" style={btn} onClick={copyInviteLink}>
