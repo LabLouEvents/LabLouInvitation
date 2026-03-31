@@ -21,7 +21,7 @@ export default function LoginPage() {
     if (error) {
       alert(error.message);
     } else {
-      window.location.href = "/admin";
+      window.location.href = "/admin/events";
     }
   }
 
