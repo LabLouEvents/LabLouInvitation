@@ -43,6 +43,7 @@ export default function ImageUpload({
       console.log("UPLOAD RESPONSE:", rawText);
 
       let data: any = null;
+
       try {
         data = JSON.parse(rawText);
       } catch {
@@ -87,7 +88,11 @@ export default function ImageUpload({
         {label}
       </div>
 
-      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFile} />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={handleFile}
+      />
 
       {uploading && (
         <div style={{ marginTop: 8, fontSize: 13, color: "#6b5b4f" }}>
@@ -100,4 +105,6 @@ export default function ImageUpload({
           Επιλέχθηκε: {fileName}
         </div>
       )}
-    </
+    </div>
+  );
+}
