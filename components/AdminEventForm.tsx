@@ -1,4 +1,3 @@
-// TEST SAVE
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -45,19 +44,61 @@ export default function AdminEventForm({
   event: EventRow | null;
   onSaved?: () => void;
 }) {
-  const [form, setForm] = useState<EventRow>(
-    event || {
-      slug: "",
-      title: "",
-      subtitle: "",
-      share_token: "",
-    }
-  );
+  const [form, setForm] = useState<EventRow>({
+    slug: "",
+    title: "",
+    subtitle: "",
+    date_text: "",
+    time_text: "",
+    church_name: "",
+    church_map_url: "",
+    venue_name: "",
+    venue_map_url: "",
+    invite_image_url: "",
+    church_card_image_url: "",
+    venue_card_image_url: "",
+    rsvp_image_url: "",
+    share_token: "",
+  });
 
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    if (event) setForm(event);
+    if (event) {
+      setForm({
+        slug: event.slug || "",
+        title: event.title || "",
+        subtitle: event.subtitle || "",
+        date_text: event.date_text || "",
+        time_text: event.time_text || "",
+        church_name: event.church_name || "",
+        church_map_url: event.church_map_url || "",
+        venue_name: event.venue_name || "",
+        venue_map_url: event.venue_map_url || "",
+        invite_image_url: event.invite_image_url || "",
+        church_card_image_url: event.church_card_image_url || "",
+        venue_card_image_url: event.venue_card_image_url || "",
+        rsvp_image_url: event.rsvp_image_url || "",
+        share_token: event.share_token || "",
+      });
+    } else {
+      setForm({
+        slug: "",
+        title: "",
+        subtitle: "",
+        date_text: "",
+        time_text: "",
+        church_name: "",
+        church_map_url: "",
+        venue_name: "",
+        venue_map_url: "",
+        invite_image_url: "",
+        church_card_image_url: "",
+        venue_card_image_url: "",
+        rsvp_image_url: "",
+        share_token: "",
+      });
+    }
   }, [event]);
 
   function update(key: keyof EventRow, value: string) {
@@ -79,8 +120,14 @@ export default function AdminEventForm({
   }, [form.slug, form.share_token]);
 
   async function save() {
+    if (!form.slug.trim()) {
+      setMsg("❌ Βάλε πρώτα slug.");
+      return;
+    }
+
     const payload = {
       ...form,
+      slug: form.slug.trim(),
       share_token: form.share_token || generateToken(),
     };
 
@@ -174,30 +221,43 @@ export default function AdminEventForm({
 
       <ImageUpload
         label="1. Προσκλητήριο"
+        slug={form.slug || ""}
         onUpload={(url) => update("invite_image_url", url)}
       />
       {form.invite_image_url ? (
-        <PreviewImage title="Preview προσκλητηρίου" src={form.invite_image_url} />
+        <PreviewImage
+          title="Preview προσκλητηρίου"
+          src={form.invite_image_url}
+        />
       ) : null}
 
       <ImageUpload
         label="2. Εκκλησία"
+        slug={form.slug || ""}
         onUpload={(url) => update("church_card_image_url", url)}
       />
       {form.church_card_image_url ? (
-        <PreviewImage title="Preview εκκλησίας" src={form.church_card_image_url} />
+        <PreviewImage
+          title="Preview εκκλησίας"
+          src={form.church_card_image_url}
+        />
       ) : null}
 
       <ImageUpload
         label="3. Κέντρο"
+        slug={form.slug || ""}
         onUpload={(url) => update("venue_card_image_url", url)}
       />
       {form.venue_card_image_url ? (
-        <PreviewImage title="Preview κέντρου" src={form.venue_card_image_url} />
+        <PreviewImage
+          title="Preview κέντρου"
+          src={form.venue_card_image_url}
+        />
       ) : null}
 
       <ImageUpload
         label="4. RSVP"
+        slug={form.slug || ""}
         onUpload={(url) => update("rsvp_image_url", url)}
       />
       {form.rsvp_image_url ? (
