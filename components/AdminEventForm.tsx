@@ -31,6 +31,16 @@ function generateToken() {
   return `${randomWord}${number}`;
 }
 
+function cleanSlug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 const emptyForm: EventRow = {
   slug: "",
   title: "",
@@ -83,6 +93,10 @@ export default function AdminEventForm({
   }, [event]);
 
   function update(key: keyof EventRow, value: string) {
+    if (key === "slug") {
+      setForm((prev) => ({ ...prev, slug: cleanSlug(value) }));
+      return;
+    }
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -108,7 +122,7 @@ export default function AdminEventForm({
 
     const payload = {
       ...form,
-      slug: form.slug.trim(),
+      slug: cleanSlug(form.slug),
       share_token: form.share_token || generateToken(),
     };
 
@@ -124,7 +138,16 @@ export default function AdminEventForm({
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        setMsg("❌ Invalid JSON response: " + rawText);
+        setSaving(false);
+        return;
+      }
 
       if (!res.ok || !data?.ok) {
         setMsg("❌ " + (data?.error || "Αποτυχία αποθήκευσης"));
@@ -134,8 +157,10 @@ export default function AdminEventForm({
 
       setForm((prev) => ({
         ...prev,
-        share_token: payload.share_token,
+        slug: data?.slug || payload.slug,
+        share_token: data?.share_token || payload.share_token,
       }));
+
       setMsg("✅ Αποθηκεύτηκε!");
       setSaving(false);
       onSaved?.();

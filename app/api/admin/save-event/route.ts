@@ -3,6 +3,20 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
+function cleanSlug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export async function GET() {
+  return NextResponse.json({ ok: true, route: "save-event route alive" });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -21,7 +35,7 @@ export async function POST(req: Request) {
 
     const payload = {
       ...body,
-      slug: String(body?.slug || "").trim(),
+      slug: cleanSlug(String(body?.slug || "")),
       share_token: String(body?.share_token || "").trim(),
     };
 
@@ -43,15 +57,15 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      slug: payload.slug,
+      share_token: payload.share_token,
+    });
   } catch (e: any) {
     return NextResponse.json(
       { ok: false, error: e?.message || String(e) },
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  return NextResponse.json({ ok: true, route: "save-event route alive" });
 }
