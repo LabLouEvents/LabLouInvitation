@@ -11,18 +11,24 @@ const supabase = createClient(
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function login() {
+    setLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: pass,
     });
 
+    setLoading(false);
+
     if (error) {
       alert(error.message);
-    } else {
-      window.location.href = "/admin/events";
+      return;
     }
+
+    window.location.href = "/admin/events";
   }
 
   return (
@@ -45,19 +51,9 @@ export default function LoginPage() {
           style={input}
         />
 
-        <button onClick={login} style={btn}>
-          Login
+        <button onClick={login} style={btn} disabled={loading}>
+          {loading ? "Loading..." : "Login"}
         </button>
-
-        <div style={forgotBox}>
-          Ξέχασες τον κωδικό σου;
-          <div
-            onClick={() => (window.location.href = "/forgot-password")}
-            style={forgotLink}
-          >
-            Reset password
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -101,19 +97,5 @@ const btn: React.CSSProperties = {
   color: "white",
   cursor: "pointer",
   border: "none",
-  fontWeight: 600,
-};
-
-const forgotBox: React.CSSProperties = {
-  marginTop: 14,
-  textAlign: "center",
-  fontSize: 13,
-  color: "#6b5b4f",
-};
-
-const forgotLink: React.CSSProperties = {
-  marginTop: 4,
-  cursor: "pointer",
-  textDecoration: "underline",
   fontWeight: 600,
 };

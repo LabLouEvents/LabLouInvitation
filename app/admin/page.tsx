@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -32,59 +32,72 @@ export default function AdminPage() {
   const [rows, setRows] = useState<RSVPRow[]>([]);
   const [eventsList, setEventsList] = useState<EventRow[]>([]);
   const [selectedSlug, setSelectedSlug] = useState("all");
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function loadEventsList() {
-    setError("");
-
+  const loadEventsList = useCallback(async () => {
     const { data, error } = await supabase
       .from("events")
       .select("slug,title")
       .order("created_at", { ascending: false });
 
     if (error) {
-      setError(error.message);
-      return;
+      throw new Error(error.message);
     }
 
     setEventsList((data as EventRow[]) || []);
-  }
+  }, []);
 
-  async function loadRSVPs() {
-    setLoading(true);
-    setError("");
-
+  const loadRSVPs = useCallback(async (slug: string) => {
     let q = supabase
       .from("rsvps")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (selectedSlug !== "all") {
-      q = q.eq("slug", selectedSlug);
+    if (slug !== "all") {
+      q = q.eq("slug", slug);
     }
 
     const { data, error } = await q;
 
     if (error) {
-      setError(error.message);
-      setRows([]);
-    } else {
-      setRows((data as RSVPRow[]) || []);
+      throw new Error(error.message);
     }
 
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    loadEventsList();
-    loadRSVPs();
+    setRows((data as RSVPRow[]) || []);
   }, []);
 
   useEffect(() => {
-    loadRSVPs();
-  }, [selectedSlug]);
+    let cancelled = false;
+
+    async function run() {
+      try {
+        setLoading(true);
+        setError("");
+
+        await loadEventsList();
+        if (cancelled) return;
+
+        await loadRSVPs(selectedSlug);
+        if (cancelled) return;
+      } catch (err: any) {
+        if (!cancelled) {
+          setError(err?.message || "Κάτι πήγε στραβά.");
+          setRows([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadEventsList, loadRSVPs, selectedSlug]);
 
   const selectedEventTitle = useMemo(() => {
     if (selectedSlug === "all") return "Όλα τα events";
@@ -137,8 +150,8 @@ export default function AdminPage() {
     });
 
     const csv = [
-      headers.map(csvEscape).join(","),
-      ...csvRows.map((row) => row.map(csvEscape).join(",")),
+      headers.map(csvEscape).join(";"),
+      ...csvRows.map((row) => row.map(csvEscape).join(";")),
     ].join("\n");
 
     const blob = new Blob(["\uFEFF" + csv], {
@@ -158,6 +171,19 @@ export default function AdminPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  async function refreshNow() {
+    try {
+      setLoading(true);
+      setError("");
+      await loadRSVPs(selectedSlug);
+    } catch (err: any) {
+      setError(err?.message || "Κάτι πήγε στραβά.");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -193,7 +219,7 @@ export default function AdminPage() {
               ))}
             </select>
 
-            <button onClick={loadRSVPs} style={secondaryBtn}>
+            <button onClick={refreshNow} style={secondaryBtn}>
               Ανανέωση
             </button>
 
@@ -207,7 +233,6 @@ export default function AdminPage() {
           </div>
 
           {loading && <div style={statusText}>Φορτώνει RSVP…</div>}
-
           {error ? <div style={errorText}>Σφάλμα: {error}</div> : null}
 
           <div style={{ overflowX: "auto" }}>
