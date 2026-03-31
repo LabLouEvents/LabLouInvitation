@@ -40,7 +40,6 @@ export default function ImageUpload({
 
       if (!res.ok || !data?.ok) {
         alert("Upload error: " + (data?.error || "Unknown error"));
-        setUploading(false);
         return;
       }
 
