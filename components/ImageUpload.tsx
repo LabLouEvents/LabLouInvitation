@@ -1,18 +1,14 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function ImageUpload({
   label,
+  slug,
   onUpload,
 }: {
   label: string;
+  slug: string;
   onUpload: (url: string) => void;
 }) {
   const [uploading, setUploading] = useState(false);
@@ -22,27 +18,38 @@ export default function ImageUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
-    setFileName(file.name);
-
-    const fileNameSafe = `${Date.now()}_${file.name}`;
-
-    const { error } = await supabase.storage
-      .from("invites")
-      .upload(fileNameSafe, file);
-
-    if (error) {
-      alert("Upload error: " + error.message);
-      setUploading(false);
+    if (!slug.trim()) {
+      alert("Βάλε πρώτα slug.");
       return;
     }
 
-    const { data } = supabase.storage
-      .from("invites")
-      .getPublicUrl(fileNameSafe);
+    setUploading(true);
+    setFileName(file.name);
 
-    onUpload(data.publicUrl);
-    setUploading(false);
+    try {
+      const formData = new FormData();
+      formData.append("slug", slug);
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.ok) {
+        alert("Upload error: " + (data?.error || "Unknown error"));
+        setUploading(false);
+        return;
+      }
+
+      onUpload(data.publicUrl);
+    } catch (err: any) {
+      alert("Upload error: " + (err?.message || String(err)));
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
