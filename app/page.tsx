@@ -131,6 +131,8 @@ export default function HomePage() {
           background: #2f241d;
           color: #fff;
           box-shadow: 0 10px 30px rgba(47,36,29,0.14);
+          border: none;
+          cursor: pointer;
         }
 
         .ll-btn-secondary {
@@ -370,11 +372,31 @@ export default function HomePage() {
           letter-spacing: 0.05em;
         }
 
-        .ll-contact-buttons {
+        .ll-form {
+          width: 100%;
+          max-width: 520px;
+          margin: 10px auto 0;
           display: flex;
+          flex-direction: column;
           gap: 12px;
-          justify-content: center;
-          flex-wrap: wrap;
+        }
+
+        .ll-input,
+        .ll-textarea {
+          width: 100%;
+          padding: 14px 16px;
+          border-radius: 14px;
+          border: 1px solid rgba(47,36,29,0.12);
+          background: rgba(255,255,255,0.92);
+          color: #2f241d;
+          font-size: 15px;
+          outline: none;
+          box-sizing: border-box;
+        }
+
+        .ll-textarea {
+          resize: vertical;
+          min-height: 120px;
         }
 
         @media (max-width: 980px) {
@@ -465,8 +487,7 @@ export default function HomePage() {
             line-height: 1.6;
           }
 
-          .ll-buttons,
-          .ll-contact-buttons {
+          .ll-buttons {
             flex-direction: column;
             align-items: stretch;
           }
@@ -746,23 +767,55 @@ export default function HomePage() {
             </p>
 
             <div className="ll-contact-wrap">
-              <div className="ll-contact-title">Επίλεξε τρόπο επικοινωνίας</div>
+              <div className="ll-contact-title">Στείλε μας το ενδιαφέρον σου</div>
 
-              <div className="ll-contact-buttons">
-                <a
-                  href="mailto:info@lablou.gr?subject=Ενδιαφέρομαι για online προσκλητήριο"
-                  className="ll-btn-primary"
-                >
-                  📧 Email
-                </a>
+              <form
+                action="https://formsubmit.co/info@lablou.gr"
+                method="POST"
+                className="ll-form"
+              >
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value="Νέο ενδιαφέρον για online προσκλητήριο"
+                />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
 
-                <a
-                  href="viber://chat?number=%2B306943910973"
-                  className="ll-btn-secondary"
-                >
-                  💜 Viber
-                </a>
-              </div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Ονοματεπώνυμο"
+                  required
+                  className="ll-input"
+                />
+
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Τηλέφωνο"
+                  required
+                  className="ll-input"
+                />
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="ll-input"
+                />
+
+                <textarea
+                  name="message"
+                  placeholder="Γράψε μας λίγες πληροφορίες για το event σου"
+                  rows={4}
+                  className="ll-textarea"
+                />
+
+                <button type="submit" className="ll-btn-primary">
+                  Αποστολή ενδιαφέροντος
+                </button>
+              </form>
             </div>
           </div>
         </section>
