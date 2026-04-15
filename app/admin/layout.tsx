@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -13,13 +14,22 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [checking, setChecking] = useState(true);
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
+
+  const [checking, setChecking] = useState(!isLoginPage);
 
   useEffect(() => {
+    if (isLoginPage) return;
+
+    let mounted = true;
+
     async function checkSession() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      if (!mounted) return;
 
       if (!session) {
         window.location.href = "/admin/login";
@@ -30,11 +40,19 @@ export default function AdminLayout({
     }
 
     checkSession();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+  }, [isLoginPage]);
 
   async function logout() {
     await supabase.auth.signOut();
     window.location.href = "/admin/login";
+  }
+
+  if (isLoginPage) {
+    return <>{children}</>;
   }
 
   if (checking) {
