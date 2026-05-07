@@ -12,12 +12,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   async function login() {
+    if (!email.trim() || !pass.trim()) {
+      alert("Συμπλήρωσε email και password.");
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password: pass,
     });
 
@@ -29,6 +35,28 @@ export default function LoginPage() {
     }
 
     window.location.href = "/admin/events";
+  }
+
+  async function resetPassword() {
+    if (!email.trim()) {
+      alert("Γράψε πρώτα το email σου.");
+      return;
+    }
+
+    setResetLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: "https://lablouinvitations.gr/admin/login",
+    });
+
+    setResetLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Στάλθηκε email επαναφοράς κωδικού.");
   }
 
   return (
@@ -53,6 +81,15 @@ export default function LoginPage() {
 
         <button onClick={login} style={btn} disabled={loading}>
           {loading ? "Loading..." : "Login"}
+        </button>
+
+        <button
+          type="button"
+          onClick={resetPassword}
+          style={forgotBtn}
+          disabled={resetLoading}
+        >
+          {resetLoading ? "Στέλνεται..." : "Ξέχασα το password"}
         </button>
       </div>
     </div>
@@ -97,5 +134,17 @@ const btn: React.CSSProperties = {
   color: "white",
   cursor: "pointer",
   border: "none",
+  fontWeight: 600,
+};
+
+const forgotBtn: React.CSSProperties = {
+  width: "100%",
+  marginTop: 10,
+  padding: 10,
+  borderRadius: 10,
+  background: "transparent",
+  border: "none",
+  color: "#7a6557",
+  cursor: "pointer",
   fontWeight: 600,
 };
